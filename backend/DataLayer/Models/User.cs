@@ -1,13 +1,13 @@
 namespace DataLayer.Models;
 
-public class User
+public class User : IdentityUser
 {
-    public required string Id { get; set; }
+    public override required string Id { get; set; }
     public required string FirstName { get; set; } //ime i prezime mozemo da izbacimo
     public required string LastName { get; set; }
     public required string Username { get; set; }
-    public required string Email { get; set; }
-    public required string PasswordHash { get; set; }
+    public override string? Email { get; set; }
+    public override string? PasswordHash { get; set; }
     public UserRole Role { get; set; }
     public string? ProfileImage { get; set; } // sliku i datum isto mozemo da izbacimo ako nece pravimo profil korisnika nesto specijalno
     public DateTime CreatedAt { get; set; } 

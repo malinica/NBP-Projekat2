@@ -27,17 +27,30 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [HttpPost("Create")]
+    [HttpPost("Register")]
     public async Task<IActionResult> Create([FromBody] CreateUserDTO userDto)
     {
-        (bool isError, var user, ErrorMessage? error) = await userService.Create(userDto);
+        (bool isError, var response, ErrorMessage? error) = await userService.Register(userDto);
 
         if (isError)
         {
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
 
-        return Ok(user);
+        return Ok(response);
+    }
+
+    [HttpPost("Login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDTO request)
+    {
+        (bool isError, var response, ErrorMessage? error) = await userService.Login(request);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
     }
 
 }
