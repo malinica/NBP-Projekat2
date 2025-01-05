@@ -14,22 +14,30 @@ public class UserController : ControllerBase
         this.userService = userService;
     }
 
-    [HttpPost]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(string id)
+    {
+        (bool isError, var user, ErrorMessage? error) = await userService.GetById(id);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(user);
+    }
+
+    [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] CreateUserDTO userDto)
     {
-        try {
-            (bool isError, var user, ErrorMessage? error) = await userService.Create(userDto);
+        (bool isError, var user, ErrorMessage? error) = await userService.Create(userDto);
 
-            if (isError)
-            {
-                return StatusCode(error?.StatusCode ?? 400, error?.Message);
-            }
-
-            return Ok(user);
-        }
-        catch (Exception)
+        if (isError)
         {
-            return BadRequest("Došlo je do greške prilikom kreiranja korisnika.");
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
+
+        return Ok(user);
     }
+
 }

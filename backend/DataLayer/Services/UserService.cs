@@ -10,29 +10,53 @@ public class UserService
         {
             client.ConnectAsync().Wait();
         }
-        catch(Exception ex) {}
+        catch (Exception) { }
     }
 
     public async Task<Result<User, ErrorMessage>> Create(CreateUserDTO userDto)
     {
-        var query = new CypherQuery("CREATE (u:User {Id: {id}, Username: {username}, Email: {email}, Password: {password}}) RETURN u",
-                                    new Dictionary<string, object>
-                                    {
-                                        {"id", new Guid().ToString()},
-                                        {"username", userDto.Username},
-                                        {"email", userDto.Email},
-                                        {"password", userDto.Password}
-                                    },
-                                    CypherResultMode.Set, "neo4j");
-
         try
         {
+            var query = new CypherQuery("CREATE (u:User {Id: $id, Username: $username, Email: $email, PasswordHash: $password}) RETURN u",
+                                        new Dictionary<string, object>
+                                        {
+                                            {"id", Guid.NewGuid().ToString()},
+                                            {"username", userDto.Username},
+                                            {"email", userDto.Email},
+                                            {"password", userDto.Password} //treba se hash password
+                                        },
+                                        CypherResultMode.Set, "neo4j");
+
             var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<User>(query);
             return result.First();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return "Došlo je do greške prilikom kreiranja korisnika.".ToError();
+        }
+    }
+
+    public async Task<Result<UserResultDTO, ErrorMessage>> GetById(string id)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $id}) RETURN u",
+                                        new Dictionary<string, object>
+                                        {
+                                            {"id", id}
+                                        },
+                                        CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query);
+            
+            if(result != null)
+                return result.First();
+            
+            return "Korisnik nije pronađen.".ToError(404);
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom preuzimanja podataka o korisniku.".ToError();
         }
     }
 }
