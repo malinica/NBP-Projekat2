@@ -1,6 +1,6 @@
 namespace DataLayer.Models;
 
-public class Tag
+public class Tag  //vestine ili tehologije koje korisnik zna ili se traze
 {
     public required string Id { get; set; }
     public required string Name { get; set; }
