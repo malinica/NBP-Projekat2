@@ -13,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<UserService, UserService>();
 builder.Services.AddScoped<TokenService, TokenService>();
 builder.Services.AddScoped<ProjectService, ProjectService>();
+builder.Services.AddScoped<ReviewService, ReviewService>();
 
 builder.Services.AddControllers().AddJsonOptions(opt =>
 {
