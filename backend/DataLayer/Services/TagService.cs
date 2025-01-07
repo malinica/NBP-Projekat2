@@ -1,0 +1,130 @@
+using DataLayer.DTOs.Tag;
+
+namespace DataLayer.Services;
+
+public class TagService
+{
+    private readonly BoltGraphClient client;
+
+    public TagService()
+    {
+        client = new BoltGraphClient(new Uri("bolt://localhost:7687"));
+        try
+        {
+            client.ConnectAsync().Wait();
+        }
+        catch (Exception) { }
+    }
+
+    public async Task<Result<bool, ErrorMessage>> CreateTag(CreateTagDTO tagDTO)
+    {
+        try
+        {
+            var query = new CypherQuery("CREATE (t:Tag {Id: $id, Name: $name, Description: $description}) RETURN t",
+                                        new Dictionary<string, object>
+                                        {
+                                            {"id", Guid.NewGuid().ToString()},
+                                            {"name", tagDTO.Name},
+                                            {"description", tagDTO.Description}
+                                        },
+                                        CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<Tag>(query);
+
+            if (result != null)
+            {
+                return true;
+            }
+
+            return "Greška prilikom dodavanja tag-a. ".ToError();
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom kreiranje tag-a. ".ToError();
+        }
+    }
+
+    public async Task<Result<TagResultDTO, ErrorMessage>> GetTagById(string id)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (t:Tag {Id: $id}) RETURN t",
+                                        new Dictionary<string, object>
+                                        {
+                                            {"id", id},
+                                        },
+                                        CypherResultMode.Set, "neo4j");
+            
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<TagResultDTO>(query);
+
+            if(result != null)
+            {
+                return result.First();
+            }
+
+            return "Tag nije pronađen.".ToError(404);
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom pruzimanja podataka o tag-u.".ToError();
+        }
+    }
+
+    public async Task<Result<bool, ErrorMessage>> DeleteTag(string id)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (t:Tag {Id: $id}) DELETE t RETURN count(t) AS deletedCount",
+                                        new Dictionary<string, object>
+                                        {
+                                            {"id", id}
+                                        },
+                                        CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<int>(query);
+
+            if(result.FirstOrDefault() > 0)
+            {
+                return true;
+            }
+
+            return "Tag nije pronađen.".ToError();
+        }
+        catch(Exception)
+        {
+            return "Došlo je do greške prilikom birsanja tag-a.".ToError();
+        }
+    }
+
+    public async Task<Result<bool, ErrorMessage>> UpdateTag(string id, UpdateTagDTO tagDTO)
+    {
+        try
+        {
+            var query = new CypherQuery(
+                "MATCH (t:Tag {Id: $id}) " +
+                "SET t.Name = $name, t.Description = $description " +
+                "RETURN t",
+                new Dictionary<string, object>
+                {
+                    {"id", id},
+                    {"name", tagDTO.Name},
+                    {"description", tagDTO.Description}
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<Tag>(query);
+
+            if (result != null && result.Any())
+            {
+                return true;
+            }
+
+            return "Tag nije pronađen.".ToError(404);
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom ažuriranja tag-a.".ToError();
+        }
+    }
+
+}
