@@ -55,10 +55,10 @@ public class ProjectService
                                             {"id", id},
                                         },
                                         CypherResultMode.Set, "neo4j");
-            
+
             var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
 
-            if(result != null)
+            if (result != null)
             {
                 return result.First();
             }
@@ -84,16 +84,67 @@ public class ProjectService
 
             var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<int>(query);
 
-            if(result.FirstOrDefault() > 0)
+            if (result.FirstOrDefault() > 0)
             {
                 return true;
             }
 
             return "Projekat nije pronadjen. ".ToError();
         }
-        catch(Exception)
+        catch (Exception)
         {
             return "Doslo je do greske prilikom birsanja projekta. ".ToError();
+        }
+    }
+
+    public async Task<Result<bool, ErrorMessage>> UpdateProject(UpdateProjectDTO projectDto, string id)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (p:Project {Id: $id}) SET p.Title = $title, p.Image = $image, p.Description = $description RETURN p",
+                                        new Dictionary<string, object>
+                                        {
+                                            {"id", id},
+                                            {"title", projectDto.Title},
+                                            {"image", projectDto.Image},
+                                            {"description", projectDto.Description}
+                                        },
+                                        CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+
+            if (result != null)
+            {
+                return true;
+            }
+
+            return "Projekat sa datim ID-em nije pronadjen. ".ToError(404);
+        }
+        catch (Exception)
+        {
+            return "Doslo je do greske prilikom azuriranja projekta. ".ToError();
+        }
+    }
+
+    public async Task<Result<bool, ErrorMessage>> ApplyForProject(string projectId, string userId)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId}), (p:Project {Id: $projectId}) CREATE (u)-[:APPLIED_FOR]->(p)",
+                                        new Dictionary<string, object>
+                                        {
+                                            {"userId", userId},
+                                            {"projectId", projectId}
+                                        },
+                                        CypherResultMode.Set, "neo4j");
+
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return "Greska prilikom prijavljivanja za projekat. ".ToError();
         }
     }
 }

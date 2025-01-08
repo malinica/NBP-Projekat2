@@ -12,25 +12,12 @@ public class TagController : ControllerBase
         this.tagService = tagService;
     }
 
-    [HttpPost("CreateTag")]
-    public async Task<IActionResult> Create([FromBody] CreateTagDTO tagDto)
-    {
-        (bool isError, var response, ErrorMessage? error) = await tagService.CreateTag(tagDto);
-
-        if(isError)
-        {
-            return StatusCode(error?.StatusCode ?? 400, error?.Message);
-        }
-
-        return Ok(response);
-    }
-
     [HttpGet("GetTagById/{id}")]
     public async Task<IActionResult> GetTagById(string id)
     {
         (bool isError, var project, ErrorMessage? error) = await tagService.GetTagById(id);
 
-        if(isError)
+        if (isError)
         {
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
@@ -38,17 +25,17 @@ public class TagController : ControllerBase
         return Ok(project);
     }
 
-    [HttpDelete("DeleteTag/{id}")]
-    public async Task<IActionResult> DeleteTag(string id)
+    [HttpPost("CreateTag")]
+    public async Task<IActionResult> Create([FromBody] CreateTagDTO tagDto)
     {
-        (bool isError, _ , ErrorMessage? error) = await tagService.DeleteTag(id);
+        (bool isError, var response, ErrorMessage? error) = await tagService.CreateTag(tagDto);
 
-        if(isError)
+        if (isError)
         {
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
 
-        return StatusCode(204);
+        return Ok(response);
     }
 
     [HttpPut("UpdateTag/{id}")]
@@ -62,6 +49,19 @@ public class TagController : ControllerBase
         }
 
         return Ok(response);
+    }
+
+    [HttpDelete("DeleteTag/{id}")]
+    public async Task<IActionResult> DeleteTag(string id)
+    {
+        (bool isError, _, ErrorMessage? error) = await tagService.DeleteTag(id);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return StatusCode(204);
     }
 
 }

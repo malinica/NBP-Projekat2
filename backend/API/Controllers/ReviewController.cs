@@ -12,25 +12,12 @@ public class ReviewController : ControllerBase
         this.reviewService = reviewService;
     }
 
-    [HttpPost("CreateReview")]
-    public async Task<IActionResult> Create([FromBody] CreateReviewDTO reviewDto)
-    {
-        (bool isError, var response, ErrorMessage? error) = await reviewService.CreateReview(reviewDto);
-
-        if(isError)
-        {
-            return StatusCode(error?.StatusCode ?? 400, error?.Message);
-        }
-
-        return Ok(response);
-    }
-
     [HttpGet("GetReviewById/{id}")]
     public async Task<IActionResult> GetReviewById(string id)
     {
         (bool isError, var project, ErrorMessage? error) = await reviewService.GetReviewById(id);
 
-        if(isError)
+        if (isError)
         {
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
@@ -38,17 +25,17 @@ public class ReviewController : ControllerBase
         return Ok(project);
     }
 
-    [HttpDelete("DeleteReview/{id}")]
-    public async Task<IActionResult> DeleteReview(string id)
+    [HttpPost("CreateReview")]
+    public async Task<IActionResult> Create([FromBody] CreateReviewDTO reviewDto)
     {
-        (bool isError, _ , ErrorMessage? error) = await reviewService.DeleteReview(id);
+        (bool isError, var response, ErrorMessage? error) = await reviewService.CreateReview(reviewDto);
 
-        if(isError)
+        if (isError)
         {
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
 
-        return StatusCode(204);
+        return Ok(response);
     }
 
     [HttpPut("UpdateReview/{id}")]
@@ -62,6 +49,19 @@ public class ReviewController : ControllerBase
         }
 
         return Ok(response);
+    }
+
+    [HttpDelete("DeleteReview/{id}")]
+    public async Task<IActionResult> DeleteReview(string id)
+    {
+        (bool isError, _, ErrorMessage? error) = await reviewService.DeleteReview(id);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return StatusCode(204);
     }
 
 }

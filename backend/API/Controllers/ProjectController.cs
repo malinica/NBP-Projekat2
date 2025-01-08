@@ -38,6 +38,32 @@ public class ProjectController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPost("ApplyForProject/{projectId}/{userId}")]
+    public async Task<IActionResult> ApplyForProject(string projectId, string userId)
+    {
+        (bool isError, var response, ErrorMessage? error) = await projectService.ApplyForProject(projectId, userId);
+
+        if(isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPut("UpdateProject/{id}")]
+    public async Task<IActionResult> UpdateProject([FromBody] UpdateProjectDTO projectDto, string id)
+    {
+        (bool isError, var response, ErrorMessage? error) = await projectService.UpdateProject(projectDto, id);
+        
+        if(isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
+
     [HttpDelete("DeleteProject/{id}")]
     public async Task<IActionResult> DeleteProject(string id)
     {
