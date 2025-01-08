@@ -17,5 +17,4 @@ public class Project
     public List<User>? AppliedBy { get; set; } // ko se prijavio za projekat
     public List<User>? AcceptedUsers { get; set; } // ko je prihvacen za projekat
     public List<User>? InvitedUsers { get; set; } // ko je invajtovan
-    public IEnumerable<object> AppliedUsers { get; internal set; }
 }

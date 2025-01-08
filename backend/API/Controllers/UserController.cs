@@ -1,4 +1,5 @@
 using DataLayer.DTOs.User;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
@@ -14,7 +15,8 @@ public class UserController : ControllerBase
         this.userService = userService;
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("GetUserById/{id}")]
+    [Authorize]
     public async Task<IActionResult> GetById(string id)
     {
         (bool isError, var user, ErrorMessage? error) = await userService.GetById(id);

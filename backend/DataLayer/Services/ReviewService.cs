@@ -92,7 +92,7 @@ public class ReviewService
         }
         catch(Exception)
         {
-            return "Došlo je do greške prilikom birsanja review-a.".ToError();
+            return "Došlo je do greške prilikom brisanja review-a.".ToError();
         }
     }
 

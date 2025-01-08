@@ -20,8 +20,33 @@ public class UserService
     {
         try
         {
+            var existingUsersByUsernameQuery = new CypherQuery("MATCH (u:User) WHERE u.Username = $username RETURN u LIMIT 1",
+                new Dictionary<string, object>
+                {
+                    {"username", userDto.Username},
+                },
+                CypherResultMode.Set, "neo4j");
 
-            var query = new CypherQuery("CREATE (u:User {Id: $id, Username: $username, Email: $email, PasswordHash: $passwordHash, Role: $role}) RETURN u",
+            var existingUsersByUsername = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<User>(existingUsersByUsernameQuery);
+            if (existingUsersByUsername != null && existingUsersByUsername.Any())
+                return "Već postoji korisnik sa unetim korisničkim imenom.".ToError(400);
+            
+            var existingUsersByEmailQuery = new CypherQuery("MATCH (u:User) WHERE u.Email = $email RETURN u LIMIT 1",
+                                            new Dictionary<string, object>
+                                            {
+                                                {"email", userDto.Email},
+                                            },
+                                            CypherResultMode.Set, "neo4j");
+            
+            var existingUsersByEmail = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<User>(existingUsersByEmailQuery);
+            if (existingUsersByEmail != null && existingUsersByEmail.Any())
+                return "Već postoji korisnik sa unetim e-mail-om.".ToError(400);
+            
+            var query = new CypherQuery("CREATE (u:User {Id: $id, " +
+                                                        "Username: $username, " +
+                                                        "Email: $email, " +
+                                                        "PasswordHash: $passwordHash, " +
+                                                        "Role: $role}) RETURN u",
                                         new Dictionary<string, object>
                                         {
                                             {"id", Guid.NewGuid().ToString()},
@@ -34,20 +59,20 @@ public class UserService
 
             var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<User>(query);
 
-            if (result != null)
+            if (result == null)
             {
-                var user = result.First();
-                return new AuthResponseDTO
-                {
-                    Id = user.Id,
-                    Username = user.Username,
-                    Email = user.Email,
-                    Role = UserRole.User,
-                    Token = tokenService.CreateToken(user)
-                };
+                return "Neuspešna registracija korisnika.".ToError();
             }
-
-            return "Neuspešna registracija korisnika.".ToError();
+            
+            var user = result.First();
+            return new AuthResponseDTO
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = UserRole.User,
+                Token = tokenService.CreateToken(user)
+            };
         }
         catch (Exception)
         {
@@ -68,7 +93,7 @@ public class UserService
 
             var users = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<User>(query);
 
-            if (users == null)
+            if (users == null || !users.Any())
                 return "Neispravan email ili lozinka.".ToError(403);
 
             var user = users.First();
@@ -89,8 +114,9 @@ public class UserService
                 Role = user.Role
             };
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            return e.Message.ToError();
             return "Došlo je do greške prilikom prijavljivanja.".ToError();
         }
     }
