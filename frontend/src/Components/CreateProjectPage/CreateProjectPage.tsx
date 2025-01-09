@@ -1,0 +1,73 @@
+import React, {useState} from "react";
+import {createProjectAPI} from "../../Services/ProjectService.tsx";
+import {toast} from 'react-hot-toast'
+
+export const CreateProjectPage = () => {
+
+    const [title, setTitle] = useState<string>("");
+    const [description, setDescription] = useState<string>("");
+    const [image, setImage] = useState<File | null>(null);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if(!title || !description || !image) {
+            toast.error("Popunite sva polja.");
+            return;
+        }
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("image", image);
+
+        const response = await createProjectAPI(formData);
+        if(response && response.status === 200) {
+            toast.success("Projekat je uspešno kreiran.");
+            setTitle('');
+            setDescription('');
+            setImage(null);
+        }
+    };
+
+    return (
+        <div className="container mt-4">
+            <div className="row justify-content-center">
+                <div className="col-md-6">
+                    <h2 className="mb-4 text-center">Kreiraj Projekat</h2>
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-3">
+                            <label className="form-label">Naziv projekta</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Opis</label>
+                            <textarea
+                                className="form-control"
+                                rows={4}
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Izaberi sliku</label>
+                            <input
+                                type="file"
+                                className="form-control"
+                                accept="image/*"
+                                onChange={(e) => setImage(e.target.files?.[0] || null)}
+                                required
+                            />
+                        </div>
+                        <button type="submit" className="btn btn-primary w-100">Sačuvaj Projekat</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+};

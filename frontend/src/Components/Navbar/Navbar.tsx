@@ -47,21 +47,26 @@ export const Navbar = () => {
 
                             {isLoggedIn()
                                 ?
-                                <li className={`ms-3 text-end`}>
-                                    <Dropdown>
-                                        <Dropdown.Toggle className={styles['user-dropdown']} variant="light"
-                                                         id="dropdown-basic">
-                                            <FontAwesomeIcon icon={faUser}/> {user!.username.toUpperCase()}
-                                        </Dropdown.Toggle>
+                                <>
+                                    <li className="my-2 text-end">
+                                        <Link to={"/create-project"} className={`${getLinkClass("/create-project")}`}>KREIRAJ PROJEKAT</Link>
+                                    </li>
+                                    <li className={`ms-3 text-end`}>
+                                        <Dropdown>
+                                            <Dropdown.Toggle className={styles['user-dropdown']} variant="light"
+                                                             id="dropdown-basic">
+                                                <FontAwesomeIcon icon={faUser}/> {user!.username.toUpperCase()}
+                                            </Dropdown.Toggle>
 
-                                        <Dropdown.Menu align={'end'}>
-                                            <Dropdown.Divider/>
-                                            <Dropdown.Item onClick={handleLogout}
-                                                           className={styles['custom-dropdown-item1']}>ODJAVI
-                                                SE</Dropdown.Item>
-                                        </Dropdown.Menu>
-                                    </Dropdown>
-                                </li>
+                                            <Dropdown.Menu align={'end'}>
+                                                <Dropdown.Divider/>
+                                                <Dropdown.Item onClick={handleLogout}
+                                                               className={styles['custom-dropdown-item1']}>ODJAVI
+                                                    SE</Dropdown.Item>
+                                            </Dropdown.Menu>
+                                        </Dropdown>
+                                    </li>
+                                </>
                                 :
                                 <>
                                     <li className={`my-2 text-end`}><Link to="/login"

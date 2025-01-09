@@ -7,6 +7,7 @@ import LoginPage from './Components/LoginPage/LoginPage'
 import RegisterPage from './Components/RegisterPage/RegisterPage'
 import {Navbar} from "./Components/Navbar/Navbar.tsx";
 import {Footer} from "./Components/Footer/Footer.tsx";
+import {CreateProjectPage} from "./Components/CreateProjectPage/CreateProjectPage.tsx";
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/create-project" element={<CreateProjectPage />} />
               </Routes>
             </div>
             <Footer />
