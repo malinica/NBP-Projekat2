@@ -14,11 +14,11 @@
 }
 
 .dugme1:hover {
-    background-color: #65fe08;
+    background-color: #43e961;
 }
 
 .dugme2 {
-    background-color: #65fe08;
+    background-color: #43e961;
     font-size: 1.5rem; 
     padding: 1rem 2rem;
     white-space: nowrap;
@@ -42,9 +42,21 @@
   }
   
   .pocetak:hover {
-    background-color: #65fe08;
+    background-color: #43e961;
   }
   
   .slika {
-    width: 80%;
+    object-fit: contain; 
+    width: 100%; 
+    max-width: 1000px; 
+    height: auto; 
+    margin: 20px; 
+  }
+
+  .slova {
+    font-size: 20px;
+  }
+
+  .slova1 {
+    font-size: 30px;
   }

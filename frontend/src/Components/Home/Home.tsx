@@ -30,20 +30,24 @@ const Home = () => {
 
     return (
         <div className={`container-fluid p-0 bg-light-lilac`}>
-            <div className={`d-flex justify-content-center align-items-center w-100`}>
-                <div className={`text-center mx-5`}>
-                    <h1 className={`text-green`}>Tvoj projekat zaslužuje sjajne saradnike!</h1>
-                    <p className={`lead text-violet fw-normal`}>
-                    Bilo da ti treba front-end, back-end ili full-stack programer, naš cilj je da ti pomognemo da pronađeš najbolje ljude za svoj tim. Započni svoj projekat i poveži se sa talentima već danas!
-                    </p>
-                    <Link
-                            to="/search-page/1"
-                            className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.dugme2} ${styles.linija_ispod_dugmeta}`}
-                        >
-                            Pronađi Saradnika
-                    </Link>
+            <div className={`container d-flex justify-content-between flex-grow-1`}>
+                <div className={`row container-fluid d-flex justify-content-center my-4`}>
+                    <div className={`col-xxl-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 text-center mx-5 mt-5`}>
+                        <h1 className={`text-green`}>Tvoj projekat zaslužuje sjajne saradnike!</h1>
+                        <p className={`lead text-violet fw-normal my-4`}>
+                        Bilo da ti treba front-end, back-end ili full-stack programer, naš cilj je da ti pomognemo da pronađeš najbolje ljude za svoj tim. Započni svoj projekat i poveži se sa talentima već danas!
+                        </p>
+                        <Link
+                                to="/search-page/1"
+                                className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova1} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`}
+                            >
+                                Pronađi Saradnika
+                        </Link>
+                    </div>
+                    <div className={`col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-7 d-flex justify-content-cetner mx-5`}>
+                        <img src={pocetna} alt="pocetna slika" className={`img-fluid mt-4 ml-5 ${styles.slika}`}/>
+                    </div>
                 </div>
-                <img src={pocetna} alt="pocetna slika" className={`img-fluid ${styles.slika}`}/>
             </div>
 
             <hr className={`text-dark-green mx-5`}></hr>
@@ -56,7 +60,7 @@ const Home = () => {
                         <p className={`text-violet`}>Pronađite talentovane programere za svoj projekat u nekoliko klikova.</p>
                         <Link
                                 to=""
-                                className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
+                                className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
                             >
                                 Pronađi Saradnike
                         </Link>
@@ -67,7 +71,7 @@ const Home = () => {
                         <p className={`text-violet`}>Kreirajte projekte, dodajte članove tima i organizujte zadatke.</p>
                         <Link
                                 to="/"
-                                className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
+                                className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
                             >
                                 Kreiraj Projekat
                         </Link>
@@ -78,7 +82,7 @@ const Home = () => {
                         <p className={`text-violet`}>Koristite napredne filtere za brzo pronalaženje idealnih saradnika.</p>
                         <Link
                                 to="/"
-                                className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
+                                className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
                             >
                                 Brza Pretraga
                         </Link>
@@ -91,7 +95,7 @@ const Home = () => {
             <div className={`text-center bg-light-lilac py-5`}>
                 <h2 className={`text-violet`}>Spremni za sledeći korak?</h2>
                 <p className={`text-green`}>Registrujte se i pronađite savršene saradnike za svoje projekte već danas!</p>
-                <Link to="/register" className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}>Registruj se</Link>
+                <Link to="/register" className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}>Registruj Se</Link>
             </div>
 
             <button onClick={scrollToTop} className={`bg-dark-green text-white ${styles.pocetak} ${showButton ? 'd-block' : 'd-none'}`} title="Idi na pocetak">^</button>

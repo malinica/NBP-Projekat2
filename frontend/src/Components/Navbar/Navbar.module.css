@@ -67,7 +67,7 @@
 }
 
 .btn-registracija {
-    background-color: #caffd0;
+    background-color: #B388FF;
     color: white;
     padding: 10px;
     border-radius: 10px;
@@ -80,19 +80,19 @@
 }
 
 .user-dropdown {
-    background-color: #caffd0;
+    background-color: #B388FF;
     color: #293241;
     border: none;
 }
 
 .user-dropdown:hover {
     background-color: #35AC7A;
-    color: #caffd0;
+    color: #f7ebfd;
 }
 
 .user-dropdown:focus {
     background-color: #35AC7A;
-    color: #caffd0;
+    color: #f7ebfd;
 }
 
 .custom-dropdown-item {
@@ -109,7 +109,7 @@
 
 .custom-dropdown-item1 {
     background-color: transparent !important;
-    color:#caffd0 !important;
+    color:#B388FF !important;
 }
 
 .custom-dropdown-item1:hover,
