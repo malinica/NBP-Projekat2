@@ -16,32 +16,69 @@ public class ProjectService
         catch (Exception) { }
     }
 
-    public async Task<Result<bool, ErrorMessage>> CreateProject(CreateProjectDTO projectDTO)
+    public async Task<Result<ProjectResultDTO, ErrorMessage>> CreateProject(CreateProjectDTO projectDto, string authorId)
     {
         try
         {
-            var query = new CypherQuery("CREATE (p:Project {Id: $id, Title: $title, Image: $image, Description: $description}) RETURN p",
-                                        new Dictionary<string, object>
-                                        {
-                                            {"id", Guid.NewGuid().ToString()},
-                                            {"title", projectDTO.Title},
-                                            {"image", projectDTO.Image},
-                                            {"description", projectDTO.Description}
-                                        },
-                                        CypherResultMode.Set, "neo4j");
+            var userExistsQuery = new CypherQuery("MATCH (u:User {Id: $authorId}) RETURN u",
+                new Dictionary<string, object>
+                {
+                    { "authorId", authorId }
+                },
+                CypherResultMode.Set, "neo4j");
 
-            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<Project>(query);
+            var usersResult = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<User>(userExistsQuery);
+            var user = usersResult.First();
+
+            if (user == null)
+                return "Korisnik nije pronađen.".ToError(404);
+            
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(projectDto.Image.FileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ProjectsImages");
+            var filePath = Path.Combine(path, fileName);
+            await using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await projectDto.Image.CopyToAsync(stream);
+            }
+
+            var query = new CypherQuery("""
+                                        MATCH (u:User {Id: $authorId}) 
+                                        CREATE (p:Project {
+                                            Id: $id, 
+                                            Title: $title, 
+                                            Image: $image, 
+                                            Description: $description, 
+                                            CreatedAt: $createdAt, 
+                                            UpdatedAt: $updatedAt, 
+                                            Status: $status
+                                        })-[:CREATED_BY]->(u)
+                                        RETURN p
+                                        """,
+                new Dictionary<string, object>
+                {
+                    { "id", Guid.NewGuid().ToString() },
+                    { "title", projectDto.Title },
+                    { "image", $"ProjectsImages/{fileName}" },
+                    { "description", projectDto.Description },
+                    { "createdAt", DateTime.UtcNow },
+                    { "updatedAt", DateTime.UtcNow },
+                    { "status", ProjectStatus.Opened },
+                    { "authorId", authorId }
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
 
             if (result != null)
             {
-                return true;
+                return result.First();
             }
 
-            return "Greska prilikom dodavanja projekta. ".ToError();
+            return "Greška prilikom dodavanja projekta.".ToError();
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            return "Doslo je do greske prilikom kreiranje projekta. ".ToError();
+            return "Došlo je do greške prilikom kreiranja projekta. ".ToError();
         }
     }
 

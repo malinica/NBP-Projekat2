@@ -16,7 +16,6 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("GetUserById/{id}")]
-    [Authorize]
     public async Task<IActionResult> GetById(string id)
     {
         (bool isError, var user, ErrorMessage? error) = await userService.GetById(id);

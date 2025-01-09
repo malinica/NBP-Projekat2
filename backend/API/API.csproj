@@ -24,4 +24,8 @@
     <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\ProjectsImages\" />
+  </ItemGroup>
+
 </Project>

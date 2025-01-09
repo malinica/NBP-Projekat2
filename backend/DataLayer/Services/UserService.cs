@@ -143,4 +143,19 @@ public class UserService
             return "Došlo je do greške prilikom preuzimanja podataka o korisniku.".ToError();
         }
     }
+    
+    public async Task<Result<UserResultDTO, ErrorMessage>> GetCurrentUser(ClaimsPrincipal user) {
+        try
+        {
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(userId != null)
+                return await GetById(userId);
+
+            return "Došlo je do greške prilikom učitavanja korisnika.".ToError();
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom učitavanja korisnika.".ToError();
+        }
+    }
 }

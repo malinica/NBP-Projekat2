@@ -1,4 +1,5 @@
 using DataLayer.DTOs.Project;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
@@ -7,9 +8,11 @@ namespace API.Controllers;
 public class ProjectController : ControllerBase
 {
     private readonly ProjectService projectService;
-    public ProjectController(ProjectService projectService)
+    private readonly UserService userService;
+    public ProjectController(ProjectService projectService, UserService userService)
     {
         this.projectService = projectService;
+        this.userService = userService;
     }
 
     [HttpGet("GetProjectById/{id}")]
@@ -26,16 +29,20 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPost("CreateProject")]
-    public async Task<IActionResult> Create([FromBody] CreateProjectDTO projectDto)
+    [Authorize]
+    public async Task<IActionResult> Create([FromForm] CreateProjectDTO projectDto)
     {
-        (bool isError, var response, ErrorMessage? error) = await projectService.CreateProject(projectDto);
+        var userResult = await userService.GetCurrentUser(User);
 
-        if(isError)
-        {
-            return StatusCode(error?.StatusCode ?? 400, error?.Message);
-        }
+        if (userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        var projectResult = await projectService.CreateProject(projectDto, userResult.Data.Id);
+        
+        if(projectResult.IsError)
+            return StatusCode(projectResult.Error?.StatusCode ?? 400, projectResult.Error?.Message);
 
-        return Ok(response);
+        return Ok(projectResult.Data);
     }
 
     [HttpPost("ApplyForProject/{projectId}/{userId}")]
