@@ -11,7 +11,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState<string>('');
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
-  const {loginUser, isLoggedIn} = useAuth();
+  const {loginUser} = useAuth();
 
   const handleLogin = async () => {
     

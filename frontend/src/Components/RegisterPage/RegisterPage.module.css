@@ -1,0 +1,24 @@
+.fields {
+    border: 3px solid #98C1D9 !important;
+}
+
+.password_eye {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.input_placeholder {
+    color: #b2b0b0;
+}
+
+.dugme {
+    transition: 0.4s;
+    background-color: #4577b7;
+}
+
+.dugme:hover {
+    background-color: #EE6C4D;
+}

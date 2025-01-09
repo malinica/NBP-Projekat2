@@ -1,0 +1,111 @@
+.logo {
+    width: 90px;
+}
+
+.link {
+    margin-left: 30px;
+    font-weight: 600;
+    color: #EE6C4D;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.link-hover {
+    position: relative;
+}
+
+.link-hover:hover {
+    color: #EE6C4D;
+}
+
+.link-hover::before {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #EE6C4D;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.link-hover:hover::before {
+    transform: scaleX(1);
+}
+
+.link:focus{
+    color: #4577b7 !important;
+}
+
+.link-hover.active {
+    color: #4577b7 !important;
+}
+
+.btn-registracija {
+    background-color: #98C1D9;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    transition: 0.4s;
+}
+
+.btn-registracija:hover {
+    background-color: #4577b7;
+    color: white;
+}
+
+.user-dropdown {
+    background-color: #d4eefb;
+    color: #293241;
+    border: none;
+}
+
+.user-dropdown:hover {
+    background-color: #4577b7;
+    color: #d4eefb;
+}
+
+.user-dropdown:focus {
+    background-color: #4577b7;
+    color: #d4eefb;
+}
+
+.custom-dropdown-item {
+    background-color: transparent !important;
+    color:#EE6C4D !important;
+}
+
+.custom-dropdown-item:hover,
+.custom-dropdown-item:focus,
+.custom-dropdown-item:active {
+    background-color: #4577b7 !important;
+    color: #F5F8FD !important;
+}
+
+.custom-dropdown-item1 {
+    background-color: transparent !important;
+    color:#98C1D9 !important;
+}
+
+.custom-dropdown-item1:hover,
+.custom-dropdown-item1:focus,
+.custom-dropdown-item1:active {
+    background-color: #4577b7 !important;
+    color: #F5F8FD !important;
+}
+
+.custom-dropdown-item2 {
+    background-color: transparent !important;
+    color:#EE6C4D !important;
+    text-decoration: none;
+}
+
+.custom-dropdown-item2:hover,
+.custom-dropdown-item2:focus,
+.custom-dropdown-item2:active {
+    background-color: #4577b7 !important;
+    color: #F5F8FD !important;
+}

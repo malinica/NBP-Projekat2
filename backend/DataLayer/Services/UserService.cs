@@ -114,9 +114,8 @@ public class UserService
                 Role = user.Role
             };
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return e.Message.ToError();
             return "Došlo je do greške prilikom prijavljivanja.".ToError();
         }
     }

@@ -6,9 +6,7 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../Context/useAuth";
 import toast from "react-hot-toast";
 
-type Props = {};
-
-const RegisterPage = (props: Props) => {
+const RegisterPage = () => {
   const [email, setEmail] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -34,8 +32,8 @@ const RegisterPage = (props: Props) => {
   }
 
   const handleRegister = async () => {
-    let trimmedEmail = email.trim();
-    let trimmedUsername = username.trim();
+    const trimmedEmail = email.trim();
+    const trimmedUsername = username.trim();
     setEmail(trimmedEmail);
     setUsername(trimmedUsername);
 

@@ -5,6 +5,8 @@ import { Toaster } from 'react-hot-toast'
 import { UserProvider } from './Context/useAuth'
 import LoginPage from './Components/LoginPage/LoginPage'
 import RegisterPage from './Components/RegisterPage/RegisterPage'
+import {Navbar} from "./Components/Navbar/Navbar.tsx";
+import {Footer} from "./Components/Footer/Footer.tsx";
 
 function App() {
 
@@ -13,7 +15,7 @@ function App() {
       <BrowserRouter>
         <UserProvider>
           <div className = "App">
-            {/* <Navbar/> */}
+            <Navbar/>
             <div className="content">
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -21,7 +23,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
               </Routes>
             </div>
-            {/* <Footer /> */}
+            <Footer />
             <Toaster position='top-center' reverseOrder={false} />
           </div>
         </UserProvider>
