@@ -17,3 +17,28 @@ export const createProjectAPI = async (projectDto: FormData) => {
         return undefined;
     }
 }
+
+export const filterProjectsAPI = async (
+    title?: string, 
+    tags?: string[], 
+    fromDate?: Date, 
+    toDate?: Date
+) => {
+    try {
+        const response = await axios.post(`${api}/SearchProjects`, {
+            params: {
+                title,       
+                tags,         
+                fromDate,     
+                toDate  
+            }
+        });
+        return response.data; 
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+};
+
+
+

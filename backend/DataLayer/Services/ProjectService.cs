@@ -184,4 +184,60 @@ public class ProjectService
             return "Greska prilikom prijavljivanja za projekat. ".ToError();
         }
     }
+
+    public async Task<ProjectResultDTO[]> SearchProjects(string? title = null, List<string>? tags = null, DateTime? fromDate = null, DateTime? toDate = null)
+{
+    try
+    {
+        var filters = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(title))
+            filters.Add("p.Title CONTAINS $title");
+
+        if (tags != null && tags.Any())
+            filters.Add("ANY(tag IN $tags WHERE tag IN p.Tags)");
+
+        if (fromDate.HasValue)
+            filters.Add("p.CreatedAt >= $fromDate");
+
+        if (toDate.HasValue)
+            filters.Add("p.CreatedAt <= $toDate");
+            
+        filters.Add("p.Status = 'Opened'");
+
+        var whereClause = filters.Count > 0 ? $"WHERE {string.Join(" AND ", filters)}" : "";
+
+        var parameters = new Dictionary<string, object>();
+
+        if (!string.IsNullOrWhiteSpace(title))
+            parameters.Add("title", title);
+
+        if (tags != null && tags.Any())
+            parameters.Add("tags", tags);
+
+        if (fromDate.HasValue)
+            parameters.Add("fromDate", fromDate.Value);
+
+        if (toDate.HasValue)
+            parameters.Add("toDate", toDate.Value);
+
+        var query = new CypherQuery($@"
+            MATCH (p:Project)
+            {whereClause}
+            RETURN p
+        ",
+        parameters,
+        CypherResultMode.Set, "neo4j");
+
+        var results = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+
+        return results?.ToArray() ?? Array.Empty<ProjectResultDTO>();
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"Greška: {e.Message}");
+        return Array.Empty<ProjectResultDTO>();
+    }
+}
+
 }

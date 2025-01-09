@@ -83,4 +83,22 @@ public class ProjectController : ControllerBase
 
         return StatusCode(204);
     }  
+    [HttpPost("SearchProjects")]
+public async Task<IActionResult> SearchProjects(string? title = null, List<string>? tags = null, DateTime? fromDate = null, DateTime? toDate = null)
+{
+    try
+    {
+        var result = await projectService.SearchProjects(
+            title, 
+            tags, 
+            fromDate, 
+            toDate);
+        return Ok(result);
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Došlo je do greške: {ex.Message}");
+    }
+}
+
 }
