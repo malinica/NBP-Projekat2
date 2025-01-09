@@ -1,5 +1,5 @@
 .fields {
-    border: 3px solid #98C1D9 !important;
+    border: 3px solid #B388FF !important;
 }
 
 .password_eye {
@@ -16,9 +16,9 @@
 
 .dugme {
     transition: 0.4s;
-    background-color: #4577b7;
+    background-color: #35AC7A;
 }
 
 .dugme:hover {
-    background-color: #EE6C4D;
+    background-color: #7B1FA2;
 }

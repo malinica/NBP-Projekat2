@@ -1,11 +1,33 @@
-.logo {
-    width: 90px;
-}
+.navbarBrandContainer {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo {
+    width: 95px; 
+    height: auto;
+  }
+  
+  .title {
+    font-size: 40px;
+    margin: 0; 
+    text-decoration: none;
+  }
+  
+  .proText {
+    color: #7B1FA2;
+    font-weight: 600;
+  }
+  
+  .connectText {
+    color: #006400; 
+  }
+  
 
 .link {
     margin-left: 30px;
     font-weight: 600;
-    color: #EE6C4D;
+    color: #7B1FA2;
     cursor: pointer;
     text-decoration: none;
     transition: color 0.3s ease;
@@ -16,7 +38,7 @@
 }
 
 .link-hover:hover {
-    color: #EE6C4D;
+    color: #7B1FA2;
 }
 
 .link-hover::before {
@@ -27,7 +49,7 @@
     height: 2px;
     bottom: 0;
     left: 0;
-    background-color: #EE6C4D;
+    background-color: #7B1FA2;
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
@@ -37,15 +59,15 @@
 }
 
 .link:focus{
-    color: #4577b7 !important;
+    color: #35AC7A !important;
 }
 
 .link-hover.active {
-    color: #4577b7 !important;
+    color: #35AC7A !important;
 }
 
 .btn-registracija {
-    background-color: #98C1D9;
+    background-color: #caffd0;
     color: white;
     padding: 10px;
     border-radius: 10px;
@@ -53,59 +75,59 @@
 }
 
 .btn-registracija:hover {
-    background-color: #4577b7;
+    background-color: #35AC7A;
     color: white;
 }
 
 .user-dropdown {
-    background-color: #d4eefb;
+    background-color: #caffd0;
     color: #293241;
     border: none;
 }
 
 .user-dropdown:hover {
-    background-color: #4577b7;
-    color: #d4eefb;
+    background-color: #35AC7A;
+    color: #caffd0;
 }
 
 .user-dropdown:focus {
-    background-color: #4577b7;
-    color: #d4eefb;
+    background-color: #35AC7A;
+    color: #caffd0;
 }
 
 .custom-dropdown-item {
     background-color: transparent !important;
-    color:#EE6C4D !important;
+    color:#7B1FA2 !important;
 }
 
 .custom-dropdown-item:hover,
 .custom-dropdown-item:focus,
 .custom-dropdown-item:active {
-    background-color: #4577b7 !important;
-    color: #F5F8FD !important;
+    background-color: #35AC7A !important;
+    color: #f7ebfd !important;
 }
 
 .custom-dropdown-item1 {
     background-color: transparent !important;
-    color:#98C1D9 !important;
+    color:#caffd0 !important;
 }
 
 .custom-dropdown-item1:hover,
 .custom-dropdown-item1:focus,
 .custom-dropdown-item1:active {
-    background-color: #4577b7 !important;
-    color: #F5F8FD !important;
+    background-color: #35AC7A !important;
+    color: #f7ebfd !important;
 }
 
 .custom-dropdown-item2 {
     background-color: transparent !important;
-    color:#EE6C4D !important;
+    color:#7B1FA2 !important;
     text-decoration: none;
 }
 
 .custom-dropdown-item2:hover,
 .custom-dropdown-item2:focus,
 .custom-dropdown-item2:active {
-    background-color: #4577b7 !important;
-    color: #F5F8FD !important;
+    background-color: #35AC7A !important;
+    color: #f7ebfd !important;
 }

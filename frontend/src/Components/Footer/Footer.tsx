@@ -1,4 +1,5 @@
 import {Link} from "react-router-dom";
+import styles from './Footer.module.css'
 
 export const Footer = () => {
     const scrollToTop = () => {
@@ -10,7 +11,7 @@ export const Footer = () => {
 
     return (
         <div
-            className={`footer container-fluid py-2 text-center text-white bg-steel-blue`}
+            className={`footer container-fluid py-2 text-center text-white bg-violet`}
         >
             <div className={`container navbar navbar-expand-lg justify-content-center`}>
                 <ul className={`navbar-nav mt-2 mb-1`}>
@@ -38,8 +39,8 @@ export const Footer = () => {
                 </ul>
             </div>
 
-            <hr className={`text-orange`}/>
-            <p className={`text-center pt-2`}>&copy;App Name</p>
+            <hr className={`text-white`}/>
+            <p className={`text-center pt-2`}>&copy;ProConnect 2025</p>
         </div>
     );
 };
