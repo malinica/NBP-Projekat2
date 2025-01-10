@@ -15,14 +15,27 @@ public class TagController : ControllerBase
     [HttpGet("GetTagById/{id}")]
     public async Task<IActionResult> GetTagById(string id)
     {
-        (bool isError, var project, ErrorMessage? error) = await tagService.GetTagById(id);
+        (bool isError, var tag, ErrorMessage? error) = await tagService.GetTagById(id);
 
         if (isError)
         {
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
 
-        return Ok(project);
+        return Ok(tag);
+    }
+    
+    [HttpGet("GetTagsByName/{tagName}")]
+    public async Task<IActionResult> GetTagsByName(string tagName)
+    {
+        (bool isError, var tags, ErrorMessage? error) = await tagService.FilterTagsByName(tagName);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(tags);
     }
 
     [HttpPost("CreateTag")]

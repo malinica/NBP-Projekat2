@@ -127,4 +127,24 @@ public class TagService
         }
     }
 
+    public async Task<Result<List<TagResultDTO>, ErrorMessage>> FilterTagsByName(string tagName)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (t:Tag) WHERE toLower(t.Name) CONTAINS toLower($tagName) RETURN t",
+                new Dictionary<string, object>
+                {
+                    {"tagName", tagName}
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<TagResultDTO>(query);
+
+            return result.ToList();
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom pruzimanja podataka o tagovima.".ToError();
+        }
+    }
 }

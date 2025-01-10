@@ -13,7 +13,7 @@ export const createProjectAPI = async (projectDto: FormData) => {
         });
     }
     catch(error:any) {
-        toast.error(error.response.data);
+        toast.error(error.response?.data || "Došlo je do greške.");
         return undefined;
     }
 }

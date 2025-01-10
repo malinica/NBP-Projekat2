@@ -23,10 +23,10 @@ const Home = () => {
           setShowButton(false);
         }
       };
-    
-      const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      };
+
+    const scrollToTop = () => {
+        window.scrollTo({top: 0, behavior: "smooth"});
+    };
 
     return (
         <div className={`container-fluid p-0 bg-light-lilac`}>
@@ -39,7 +39,7 @@ const Home = () => {
                         </p>
                         <Link
                                 to="/search-page/1"
-                                className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova1} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`}
+                                className={`btn-lg text-white text-center rounded py-2 px-3 ${styles.slova1} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`}
                             >
                                 Pronađi Saradnika
                         </Link>

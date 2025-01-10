@@ -1,12 +1,23 @@
 import React, {useState} from "react";
 import {createProjectAPI} from "../../Services/ProjectService.tsx";
 import {toast} from 'react-hot-toast'
+import {TagPicker} from "../TagPicker/TagPicker.tsx";
+import {Tag} from "../../Interfaces/Tag/Tag.ts";
 
 export const CreateProjectPage = () => {
 
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [image, setImage] = useState<File | null>(null);
+    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+
+    const handleAddTag = (tag: Tag) => {
+        setSelectedTags((prev) => [...prev, tag]);
+    };
+
+    const handleRemoveTag = (tagId: string) => {
+        setSelectedTags((prev) => prev.filter((tag) => tag.id !== tagId));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,12 +30,18 @@ export const CreateProjectPage = () => {
         formData.append("description", description);
         formData.append("image", image);
 
-        const response = await createProjectAPI(formData);
-        if(response && response.status === 200) {
-            toast.success("Projekat je uspešno kreiran.");
-            setTitle('');
-            setDescription('');
-            setImage(null);
+        try {
+            const response = await createProjectAPI(formData);
+            if(response && response.status === 200) {
+                toast.success("Projekat je uspešno kreiran.");
+                setTitle('');
+                setDescription('');
+                setImage(null);
+            }
+        }
+        catch(error:any) {
+            console.error(error);
+            toast.error("Došlo je do greške prilikom kreiranja projekta.");
         }
     };
 
@@ -63,6 +80,9 @@ export const CreateProjectPage = () => {
                                 onChange={(e) => setImage(e.target.files?.[0] || null)}
                                 required
                             />
+                        </div>
+                        <div className="mb-3">
+                            <TagPicker selectedTags={selectedTags} onAddTag={handleAddTag} onRemoveTag={handleRemoveTag} />
                         </div>
                         <button type="submit" className="btn btn-primary w-100">Sačuvaj Projekat</button>
                     </form>
