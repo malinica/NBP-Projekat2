@@ -3,6 +3,8 @@ import {useState} from "react";
 import {getTagsByNameAPI} from "../../Services/TagService.tsx";
 import {toast} from 'react-hot-toast';
 import {Autocomplete, Chip, TextField} from "@mui/material";
+import styles from "./TagPicker.module.css";
+
 
 type Props = {
     selectedTags: Tag[];
@@ -42,8 +44,8 @@ export const TagPicker = ({selectedTags, onAddTag, onRemoveTag} : Props) => {
     };
 
     return (
-        <div className="container mt-3">
-            <div className="mb-2">
+        <div className={`mt-3`}>
+            <div className={`mb-2`}>
                 <Autocomplete
                     options={options}
                     getOptionLabel={(option) => option.name}
@@ -57,19 +59,21 @@ export const TagPicker = ({selectedTags, onAddTag, onRemoveTag} : Props) => {
                 />
             </div>
 
-            <button
-                className="btn btn-primary mt-2"
-                onClick={handleAddTag}
-                disabled={!selectedTag}
-                type="button"
-            >
-                Dodaj tag
-            </button>
+            <div className={`d-flex align-items-center gap-3 mt-3`}>
+                <button
+                    className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
+                    onClick={handleAddTag}
+                    disabled={!selectedTag}
+                    type="button"
+                >
+                    Dodaj Tag
+                </button>
 
-            <div className="mt-3 d-flex flex-wrap gap-2">
+                <div>
                 {selectedTags.map((tag) => (
-                    <Chip key={tag.id} label={tag.name} onDelete={() => onRemoveTag(tag.id)} color="primary"/>
+                        <Chip key={tag.id} label={tag.name} onDelete={() => onRemoveTag(tag.id)} color="success"/>
                 ))}
+                </div>
             </div>
         </div>
     );
