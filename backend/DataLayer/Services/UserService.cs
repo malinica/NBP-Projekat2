@@ -131,10 +131,10 @@ public class UserService
                                         },
                                         CypherResultMode.Set, "neo4j");
 
-            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query);
+            var users = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query)).ToList();
 
-            if (result != null)
-                return result.First();
+            if (users.Any())
+                return users.First();
 
             return "Korisnik nije pronađen.".ToError(404);
         }

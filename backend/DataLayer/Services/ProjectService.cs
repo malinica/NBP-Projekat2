@@ -5,9 +5,11 @@ namespace DataLayer.Services;
 public class ProjectService
 {
     private readonly BoltGraphClient client;
+    private readonly UserService userService;
 
-    public ProjectService()
+    public ProjectService(UserService userService)
     {
+        this.userService = userService;
         client = new BoltGraphClient(new Uri("bolt://localhost:7687"));
         try
         {
@@ -20,18 +22,10 @@ public class ProjectService
     {
         try
         {
-            var userExistsQuery = new CypherQuery("MATCH (u:User {Id: $authorId}) RETURN u",
-                new Dictionary<string, object>
-                {
-                    { "authorId", authorId }
-                },
-                CypherResultMode.Set, "neo4j");
-
-            var usersResult = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<User>(userExistsQuery);
-            var user = usersResult.First();
-
-            if (user == null)
-                return "Korisnik nije pronađen.".ToError(404);
+            var userResult = await userService.GetById(authorId);
+            
+            if (userResult.IsError)
+                return userResult.Error;
             
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(projectDto.Image.FileName);
             var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ProjectsImages");
@@ -52,6 +46,10 @@ public class ProjectService
                                             UpdatedAt: $updatedAt, 
                                             Status: $status
                                         })-[:CREATED_BY]->(u)
+                                        WITH p
+                                        UNWIND $tagsIds AS tagId
+                                        MATCH (t:Tag {Id: tagId})
+                                        CREATE (p)-[:HAS_TAG]->(t)
                                         RETURN p
                                         """,
                 new Dictionary<string, object>
@@ -63,13 +61,14 @@ public class ProjectService
                     { "createdAt", DateTime.UtcNow },
                     { "updatedAt", DateTime.UtcNow },
                     { "status", ProjectStatus.Opened },
-                    { "authorId", authorId }
+                    { "authorId", authorId },
+                    { "tagsIds", projectDto.TagsIds }
                 },
                 CypherResultMode.Set, "neo4j");
 
-            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+            var result = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query)).ToList();
 
-            if (result != null)
+            if (result.Any())
             {
                 return result.First();
             }

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {createProjectAPI} from "../../Services/ProjectService.tsx";
 import {toast} from 'react-hot-toast'
 import {TagPicker} from "../TagPicker/TagPicker.tsx";
@@ -11,6 +11,8 @@ export const CreateProjectPage = () => {
     const [image, setImage] = useState<File | null>(null);
     const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
+    const imageInputRef = useRef<HTMLInputElement | null>(null);
+
     const handleAddTag = (tag: Tag) => {
         setSelectedTags((prev) => [...prev, tag]);
     };
@@ -21,7 +23,7 @@ export const CreateProjectPage = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if(!title || !description || !image) {
+        if(!title || !description || !image || selectedTags.length === 0) {
             toast.error("Popunite sva polja.");
             return;
         }
@@ -29,6 +31,9 @@ export const CreateProjectPage = () => {
         formData.append("title", title);
         formData.append("description", description);
         formData.append("image", image);
+        selectedTags.map((tag: Tag) => {
+            formData.append("tagsIds", tag.id);
+        });
 
         try {
             const response = await createProjectAPI(formData);
@@ -37,6 +42,10 @@ export const CreateProjectPage = () => {
                 setTitle('');
                 setDescription('');
                 setImage(null);
+                if (imageInputRef.current) {
+                    imageInputRef.current.value = "";
+                }
+                setSelectedTags([]);
             }
         }
         catch(error:any) {
@@ -78,6 +87,7 @@ export const CreateProjectPage = () => {
                                 className="form-control"
                                 accept="image/*"
                                 onChange={(e) => setImage(e.target.files?.[0] || null)}
+                                ref={imageInputRef}
                                 required
                             />
                         </div>

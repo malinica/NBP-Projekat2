@@ -2,7 +2,7 @@ import {Tag} from "../../Interfaces/Tag/Tag.ts";
 import {useState} from "react";
 import {getTagsByNameAPI} from "../../Services/TagService.tsx";
 import {toast} from 'react-hot-toast';
-import {Autocomplete, Box, Button, Chip, TextField} from "@mui/material";
+import {Autocomplete, Chip, TextField} from "@mui/material";
 
 type Props = {
     selectedTags: Tag[];
@@ -12,7 +12,7 @@ type Props = {
 
 export const TagPicker = ({selectedTags, onAddTag, onRemoveTag} : Props) => {
 
-    const [inputValue, setInputValue] = useState("");
+    const [, setInputValue] = useState("");
     const [options, setOptions] = useState<Tag[]>([]);
     const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
 
@@ -61,6 +61,7 @@ export const TagPicker = ({selectedTags, onAddTag, onRemoveTag} : Props) => {
                 className="btn btn-primary mt-2"
                 onClick={handleAddTag}
                 disabled={!selectedTag}
+                type="button"
             >
                 Dodaj tag
             </button>
