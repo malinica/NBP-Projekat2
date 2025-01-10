@@ -5,9 +5,11 @@ namespace DataLayer.Services;
 public class ReviewService
 {
     private readonly BoltGraphClient client;
+    private readonly UserService userService;
 
-    public ReviewService()
+    public ReviewService(UserService userService)
     {
+        this.userService = userService;
         client = new BoltGraphClient(new Uri("bolt://localhost:7687"));
         try
         {
@@ -16,16 +18,34 @@ public class ReviewService
         catch (Exception) { }
     }
 
-    public async Task<Result<bool, ErrorMessage>> CreateReview(CreateReviewDTO reviewDTO)
+    public async Task<Result<bool, ErrorMessage>> CreateReview(CreateReviewDTO reviewDTO, string authorId)
     {
         try
         {
-            var query = new CypherQuery("CREATE (r:Review {Id: $id, Rating: $rating, Content: $content}) RETURN r",
+            var userResult = await userService.GetById(authorId);
+
+            if (userResult.IsError)
+                return userResult.Error;
+
+            var query = new CypherQuery("""
+                                        MATCH (u:User {Id: $authorId})
+                                        CREATE (r:Review {
+                                            Id: $id,
+                                            Rating: $rating,
+                                            Content: $content,
+                                            CreatedAt: $createdAt,
+                                            UpdatedAt: $updatedAt
+                                        })-[:CREATED_BY]->(u)
+                                        RETURN r
+                                        """,
                                         new Dictionary<string, object>
                                         {
                                             {"id", Guid.NewGuid().ToString()},
                                             {"rating", reviewDTO.Rating},
-                                            {"content", reviewDTO.Content}
+                                            {"content", reviewDTO.Content},
+                                            {"createdAt", DateTime.UtcNow},
+                                            {"updatedAt", DateTime.UtcNow},
+                                            {"authorId", authorId}
                                         },
                                         CypherResultMode.Set, "neo4j");
 

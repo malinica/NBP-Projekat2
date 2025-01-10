@@ -75,7 +75,7 @@ public class ProjectService
 
             return "Greška prilikom dodavanja projekta.".ToError();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return "Došlo je do greške prilikom kreiranja projekta. ".ToError();
         }

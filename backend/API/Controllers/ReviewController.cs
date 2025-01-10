@@ -1,4 +1,5 @@
 using DataLayer.DTOs.Review;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
@@ -7,9 +8,11 @@ namespace API.Controllers;
 public class ReviewController : ControllerBase
 {
     private readonly ReviewService reviewService;
-    public ReviewController(ReviewService reviewService)
+    private readonly UserService userService;
+    public ReviewController(ReviewService reviewService, UserService userService)
     {
         this.reviewService = reviewService;
+        this.userService = userService;
     }
 
     [HttpGet("GetReviewById/{id}")]
@@ -26,16 +29,20 @@ public class ReviewController : ControllerBase
     }
 
     [HttpPost("CreateReview")]
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] CreateReviewDTO reviewDto)
     {
-        (bool isError, var response, ErrorMessage? error) = await reviewService.CreateReview(reviewDto);
+        var userResult = await userService.GetCurrentUser(User);
 
-        if (isError)
-        {
-            return StatusCode(error?.StatusCode ?? 400, error?.Message);
-        }
+        if(userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        var reviewResult = await reviewService.CreateReview(reviewDto, userResult.Data.Id);
 
-        return Ok(response);
+        if (reviewResult.IsError)
+            return StatusCode(reviewResult.Error?.StatusCode ?? 400, reviewResult.Error?.Message);
+
+        return Ok(reviewResult.Data);
     }
 
     [HttpPut("UpdateReview/{id}")]
