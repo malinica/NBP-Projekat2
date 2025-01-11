@@ -84,7 +84,13 @@ public class ProjectController : ControllerBase
         return StatusCode(204);
     }  
     [HttpPost("SearchProjects")]
-public async Task<IActionResult> SearchProjects(string? title = null, List<string>? tags = null, DateTime? fromDate = null, DateTime? toDate = null)
+public async Task<IActionResult> SearchProjects(
+    [FromQuery] string? title = null, 
+    [FromQuery]List<string>? tags = null, 
+    [FromQuery]DateTime? fromDate = null, 
+    [FromQuery] DateTime?toDate = null,
+    [FromQuery]int skip=0,
+    [FromQuery]int limit=5)
 {
     try
     {
@@ -92,7 +98,9 @@ public async Task<IActionResult> SearchProjects(string? title = null, List<strin
             title, 
             tags, 
             fromDate, 
-            toDate);
+            toDate,
+            skip,
+            limit);
         return Ok(result);
     }
     catch (Exception ex)

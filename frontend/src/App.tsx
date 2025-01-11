@@ -9,6 +9,7 @@ import {Navbar} from "./Components/Navbar/Navbar.tsx";
 import {Footer} from "./Components/Footer/Footer.tsx";
 import {CreateProjectPage} from "./Components/CreateProjectPage/CreateProjectPage.tsx";
 import {ProjectPage} from "./Components/ProjectPage/ProjectPage.tsx";
+import SearchProjectsPage from "./Components/SearchProjectsPage/SearchProjectsPage.tsx";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
                                 <Route path="/register" element={<RegisterPage/>}/>
                                 <Route path="/create-project" element={<CreateProjectPage/>}/>
                                 <Route path="/projects/:projectId" element={<ProjectPage/>}/>
+                                <Route path="search-projects-page/:id" element ={<SearchProjectsPage/>}/>
                             </Routes>
                         </div>
                         <Footer/>

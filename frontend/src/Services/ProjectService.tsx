@@ -18,28 +18,6 @@ export const createProjectAPI = async (projectDto: FormData) => {
     }
 }
 
-export const filterProjectsAPI = async (
-    title?: string, 
-    tags?: string[], 
-    fromDate?: Date, 
-    toDate?: Date
-) => {
-    try {
-        const response = await axios.post(`${api}/SearchProjects`, {
-            params: {
-                title,       
-                tags,         
-                fromDate,     
-                toDate  
-            }
-        });
-        return response.data; 
-    } catch (error: any) {
-        toast.error(error.response?.data || "Došlo je do greške.");
-        return undefined;
-    }
-};
-
 export const getProjectByIdAPI = async (projectId: string) => {
     try {
         return await axios.get<Project>(api+`/GetProjectById/${projectId}`, {});
@@ -49,6 +27,29 @@ export const getProjectByIdAPI = async (projectId: string) => {
         return undefined;
     }
 }
+export const searchProjectsAPI = async (
+    title?: string, 
+    tags?: string[], 
+    fromDate?: Date, 
+    toDate?: Date, 
+    skip: number = 0, 
+    limit: number = 5
+): Promise<Project[] | null> => {
+    try {
+        const params: any = {
+            ...(title ? { title } : {}),
+            ...(tags && tags.length ? { categories: tags.join(",") } : {}),
+            ...(fromDate ? { fromDate: fromDate.toISOString() } : {}),
+            ...(toDate ? { toDate: toDate.toISOString() } : {}),
+            skip,
+            limit
+        };
 
+        const response = await axios.post<Project[]>(`${api}/SearchProjects`, params);
 
-
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške pri pretrazi projekata.");
+        return null;
+    }
+};

@@ -219,7 +219,7 @@ public class ProjectService
         }
     }
 
-    public async Task<ProjectResultDTO[]> SearchProjects(string? title = null, List<string>? tags = null, DateTime? fromDate = null, DateTime? toDate = null)
+public async Task<ProjectResultDTO[]> SearchProjects(string? title = null, List<string>? tags = null, DateTime? fromDate = null, DateTime? toDate = null,int? skip = 0, int? limit = 5)
 {
     try
     {
@@ -229,7 +229,7 @@ public class ProjectService
             filters.Add("p.Title CONTAINS $title");
 
         if (tags != null && tags.Any())
-            filters.Add("ANY(tag IN $tags WHERE tag IN p.Tags)");
+            filters.Add("ANY(tag IN $tags WHERE tag IN [t IN (MATCH (p)-[:HAS_TAG]->(t:Tag) RETURN t.Name)])");
 
         if (fromDate.HasValue)
             filters.Add("p.CreatedAt >= $fromDate");
@@ -255,23 +255,38 @@ public class ProjectService
         if (toDate.HasValue)
             parameters.Add("toDate", toDate.Value);
 
+           parameters.Add("skip", skip);
+        parameters.Add("limit", limit);
+
         var query = new CypherQuery($@"
             MATCH (p:Project)
             {whereClause}
-            RETURN p
+            OPTIONAL MATCH (p)-[:HAS_TAG]->(t:Tag)
+            RETURN 
+                p.Id AS Id, 
+                p.Title AS Title, 
+                p.Image AS Image, 
+                p.Description AS Description, 
+                p.CreatedAt AS CreatedAt, 
+                p.UpdatedAt AS UpdatedAt, 
+                p.Status AS Status,
+                COLLECT({{ Id: t.Id, Name: t.Name, Description: t.Description }}) AS Tags
+                SKIP $skip
+                LIMIT $limit
         ",
         parameters,
-        CypherResultMode.Set, "neo4j");
+        CypherResultMode.Projection, "neo4j");
 
         var results = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
-
+ 
         return results?.ToArray() ?? Array.Empty<ProjectResultDTO>();
     }
     catch (Exception e)
     {
         Console.WriteLine($"Greška: {e.Message}");
-        return Array.Empty<ProjectResultDTO>();
+        return null;
     }
 }
+
 
 }
