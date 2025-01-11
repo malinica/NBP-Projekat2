@@ -61,7 +61,7 @@ export const TagPicker = ({selectedTags, onAddTag, onRemoveTag} : Props) => {
 
             <div className={`d-flex align-items-center gap-3 mt-3`}>
                 <button
-                    className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
+                    className={`btn-lg text-white text-center rounded py-2 px-2 flex-shrink-0 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
                     onClick={handleAddTag}
                     disabled={!selectedTag}
                     type="button"
@@ -69,7 +69,7 @@ export const TagPicker = ({selectedTags, onAddTag, onRemoveTag} : Props) => {
                     Dodaj Tag
                 </button>
 
-                <div>
+                <div className={`mt-3 d-flex flex-wrap gap-2`}>
                 {selectedTags.map((tag) => (
                     <Chip key={tag.id} label={tag.name} onDelete={() => onRemoveTag(tag.id)} color="success"/>
                 ))}

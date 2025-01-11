@@ -15,25 +15,27 @@ const SearchUserPage = () => {
     }, []);
 
     return (
-        <div className="container my-4">
-            <h1 className="my-5 text-center">Programeri</h1>
-            <div className="row">
-                {users && users.length > 0 ? (
-                    users.map((user) => (
-                        <div key={user.id} className="col-md-4 mb-3">
-                            <div className="card">
-                                <div className="card-body text-center">
-                                    <h5 className="card-title">{user.username}</h5>
-                                    <p className="card-text">{user.email}</p>
+        <div className={`container-fluid bg-light-lilac`}>
+            <div className={`container my-4 py-2 rounded-3 bg-light-green`}>
+                <h1 className={`my-5 text-center text-dark-green`}>Programeri</h1>
+                <div className={`row`}>
+                    {users && users.length > 0 ? (
+                        users.map((user) => (
+                            <div key={user.id} className={`col-md-4 mb-3`}>
+                                <div className={`card`}>
+                                    <div className={`card-body text-center`}>
+                                        <h5 className={`text-violet`}>{user.username}</h5>
+                                        <p className={`text-lilac`}>{user.email}</p>
+                                    </div>
                                 </div>
                             </div>
+                        ))
+                    ) : (
+                        <div className={`col-12`}>
+                            <p className={`text-center text-muted`}>Nema korisnika za prikaz.</p>
                         </div>
-                    ))
-                ) : (
-                    <div className="col-12">
-                        <p className="text-center">Nema korisnika za prikaz.</p>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );
