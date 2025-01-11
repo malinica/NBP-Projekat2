@@ -76,5 +76,31 @@ public class TagController : ControllerBase
 
         return StatusCode(204);
     }
+    
+    [HttpPost("AddTagToProject/{projectId}/{tagId}")]
+    public async Task<IActionResult> AddTagToProject(string projectId, string tagId)
+    {
+        (bool isError, var response, ErrorMessage? error) = await tagService.AddTagToProject(projectId, tagId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
+    
+    [HttpDelete("RemoveTagFromProject/{projectId}/{tagId}")]
+    public async Task<IActionResult> RemoveTagFromProject(string projectId, string tagId)
+    {
+        (bool isError, var response, ErrorMessage? error) = await tagService.RemoveTagFromProject(projectId, tagId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
 
 }

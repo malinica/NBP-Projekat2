@@ -27,6 +27,7 @@ export const getProjectByIdAPI = async (projectId: string) => {
         return undefined;
     }
 }
+
 export const searchProjectsAPI = async (
     title?: string, 
     tags?: string[], 
@@ -53,3 +54,13 @@ export const searchProjectsAPI = async (
         return null;
     }
 };
+
+export const deleteProjectAPI = async (projectId: string) => {
+    try {
+        return await axios.delete<Project>(api+`/DeleteProject/${projectId}`, {});
+    }
+    catch(error:any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}

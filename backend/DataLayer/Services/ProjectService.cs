@@ -113,7 +113,7 @@ public class ProjectService
         {
             var query = new CypherQuery(@"
                                         MATCH (p:Project {Id: $id})-[:CREATED_BY]->(u:User)
-                                        MATCH (p)-[:HAS_TAG]->(t:Tag)
+                                        OPTIONAL MATCH (p)-[:HAS_TAG]->(t:Tag)
                                         RETURN 
                                             p.Id AS Id, 
                                             p.Title AS Title, 
@@ -146,7 +146,7 @@ public class ProjectService
     {
         try
         {
-            var query = new CypherQuery("MATCH (p:Project {Id: $id}) DELETE p RETURN count(p) AS deletedCount",
+            var query = new CypherQuery("MATCH (p:Project {Id: $id}) DETACH DELETE p RETURN count(p) AS deletedCount",
                                         new Dictionary<string, object>
                                         {
                                             {"id", id}
@@ -164,7 +164,7 @@ public class ProjectService
         }
         catch (Exception)
         {
-            return "Doslo je do greske prilikom birsanja projekta. ".ToError();
+            return "Došlo je do greške prilikom brisanja projekta. ".ToError();
         }
     }
 

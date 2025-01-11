@@ -13,3 +13,23 @@ export const getTagsByNameAPI = async (tagName:string) => {
         return undefined;
     }
 }
+
+export const addTagToProjectAPI = async (projectId: string, tagId: string) => {
+    try {
+        return await axios.post<boolean>(api+`/AddTagToProject/${projectId}/${tagId}`, {});
+    }
+    catch(error:any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}
+
+export const removeTagFromProjectAPI = async (projectId: string, tagId: string) => {
+    try {
+        return await axios.delete<boolean>(api+`/RemoveTagFromProject/${projectId}/${tagId}`, {});
+    }
+    catch(error:any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}

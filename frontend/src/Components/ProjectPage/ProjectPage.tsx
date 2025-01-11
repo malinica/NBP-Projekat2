@@ -1,19 +1,22 @@
 import {useParams} from "react-router-dom";
 import {Project} from "../../Interfaces/Project/Project.ts";
 import {useEffect, useState} from "react";
-import {getProjectByIdAPI} from "../../Services/ProjectService.tsx";
+import {deleteProjectAPI, getProjectByIdAPI} from "../../Services/ProjectService.tsx";
 import {toast} from 'react-hot-toast'
 import {getStatusBadgeClass} from "../../Helpers/Helpers.ts";
 import {Chip} from "@mui/material";
 import {useAuth} from "../../Context/useAuth.tsx";
 import {TagPicker} from "../TagPicker/TagPicker.tsx";
 import {Tag} from "../../Interfaces/Tag/Tag.ts";
+import {addTagToProjectAPI, removeTagFromProjectAPI} from "../../Services/TagService.tsx";
+import {useNavigate} from "react-router";
 
 export const ProjectPage = () => {
     const {projectId} = useParams();
     const {user} = useAuth();
     const [project, setProject] = useState<Project | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadProject();
@@ -32,12 +35,46 @@ export const ProjectPage = () => {
         }
     }
 
-    const handleAddTag = (tag: Tag) => {
-        // setSelectedTags((prev) => [...prev, tag]);
+    const handleAddTag = async (tag: Tag) => {
+        if (!project) return;
+
+        try {
+            const response = await addTagToProjectAPI(project.id, tag.id);
+            if (response && response.status === 200) {
+                setProject((prev) => prev ? {...prev, tags: [...prev.tags, tag]} : prev);
+                toast.success("Tag uspešno dodat!");
+            }
+        } catch {
+            toast.error("Greška pri dodavanju taga.");
+        }
     };
 
-    const handleRemoveTag = (tagId: string) => {
-        // setSelectedTags((prev) => prev.filter((tag) => tag.id !== tagId));
+    const handleRemoveTag = async (tagId: string) => {
+        if (!project) return;
+
+        try {
+            const response = await removeTagFromProjectAPI(project.id, tagId);
+            if (response && response.status === 200) {
+                setProject((prev) => prev ? {...prev, tags: prev.tags.filter((tag) => tag.id !== tagId)} : prev);
+                toast.success("Tag uspešno uklonjen!");
+            }
+        } catch {
+            toast.error("Greška pri uklanjanju taga.");
+        }
+    };
+
+    const handleDeleteProject = async () => {
+        if (!project) return;
+
+        try {
+            const response = await deleteProjectAPI(projectId!);
+            if (response && response.status === 204) {
+                toast.success("Projekat uspešno obrisan.");
+                navigate('..');
+            }
+        } catch {
+            toast.error("Greška pri brisanju projekta.");
+        }
     };
 
     return (
@@ -65,7 +102,7 @@ export const ProjectPage = () => {
                                     <div className="col-md-8">
                                         <div className="card-body">
                                             <h2 className="card-title">{project.title}</h2>
-                                            <p className="card-text">{project.description}</p>
+                                            <p className="card-text mb-0">{project.description}</p>
                                             <span className={getStatusBadgeClass(project.status)}>
                                                 {project.status}
                                             </span>
@@ -78,7 +115,7 @@ export const ProjectPage = () => {
                                             {project.createdBy?.id == user?.id &&
                                                 <div className="d-flex justify-content-start mt-3">
                                                     <button className="btn btn-primary me-2">Izmeni</button>
-                                                    <button className="btn btn-danger">Obriši</button>
+                                                    <button className="btn btn-danger" onClick={handleDeleteProject}>Obriši</button>
                                                 </div>}
                                             <div>
                                                 {user && project.createdBy?.id == user?.id
