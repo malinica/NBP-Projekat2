@@ -18,7 +18,7 @@ public class ProjectController : ControllerBase
     [HttpGet("GetProjectById/{id}")]
     public async Task<IActionResult> GetProjectById(string id)
     {
-        (bool isError, var project, ErrorMessage? error) = await projectService.GetProjectById(id);
+        (bool isError, var project, ErrorMessage? error) = await projectService.GetProjectWithTagsAndAuthor(id);
 
         if(isError)
         {
