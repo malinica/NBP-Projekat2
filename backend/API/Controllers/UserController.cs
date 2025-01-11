@@ -28,6 +28,19 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [HttpGet("GetAllUsers")]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        (bool isError, var users, ErrorMessage? error) = await userService.GetAllUsers();
+
+        if(isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(users);
+    }
+
     [HttpPost("Register")]
     public async Task<IActionResult> Create([FromBody] CreateUserDTO userDto)
     {

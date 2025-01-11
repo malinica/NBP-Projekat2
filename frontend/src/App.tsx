@@ -10,6 +10,7 @@ import {Footer} from "./Components/Footer/Footer.tsx";
 import {CreateProjectPage} from "./Components/CreateProjectPage/CreateProjectPage.tsx";
 import {ProjectPage} from "./Components/ProjectPage/ProjectPage.tsx";
 import SearchProjectsPage from "./Components/SearchProjectsPage/SearchProjectsPage.tsx";
+import SearchUserPage from './Components/SearchUserPage/SearchUserPage.tsx'
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
                                 <Route path="/create-project" element={<CreateProjectPage/>}/>
                                 <Route path="/projects/:projectId" element={<ProjectPage/>}/>
                                 <Route path="search-projects-page/:id" element ={<SearchProjectsPage/>}/>
+                                <Route path="/search-user-page" element ={<SearchUserPage/>}/>
                             </Routes>
                         </div>
                         <Footer/>

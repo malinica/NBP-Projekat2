@@ -38,7 +38,7 @@ const Home = () => {
                         Bilo da ti treba front-end, back-end ili full-stack programer, naš cilj je da ti pomognemo da pronađeš najbolje ljude za svoj tim. Započni svoj projekat i poveži se sa talentima već danas!
                         </p>
                         <Link
-                                to="/search-page/1"
+                                to="/search-user-page"
                                 className={`btn-lg text-white text-center rounded py-2 px-3 ${styles.slova1} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`}
                             >
                                 Pronađi Saradnika

@@ -143,6 +143,27 @@ public class UserService
             return "Došlo je do greške prilikom preuzimanja podataka o korisniku.".ToError();
         }
     }
+
+    public async Task<Result<List<UserResultDTO>, ErrorMessage>> GetAllUsers()
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User) return u",
+                                        new Dictionary<string, object>(),
+                                        CypherResultMode.Set, "neo4j");
+            
+            var users = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query)).ToList();
+
+            if (users.Any())
+                return users;
+            
+            return "Nema korisnika. ".ToError();
+        }
+        catch(Exception)
+        {
+            return "Doslo je do greske prilikom vracanje svih korisnika. ".ToError();
+        }
+    }
     
     public async Task<Result<UserResultDTO, ErrorMessage>> GetCurrentUser(ClaimsPrincipal user) {
         try
