@@ -71,7 +71,7 @@ export const TagPicker = ({selectedTags, onAddTag, onRemoveTag} : Props) => {
 
                 <div>
                 {selectedTags.map((tag) => (
-                        <Chip key={tag.id} label={tag.name} onDelete={() => onRemoveTag(tag.id)} color="success"/>
+                    <Chip key={tag.id} label={tag.name} onDelete={() => onRemoveTag(tag.id)} color="success"/>
                 ))}
                 </div>
             </div>

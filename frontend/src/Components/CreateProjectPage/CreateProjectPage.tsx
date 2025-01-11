@@ -4,9 +4,10 @@ import {toast} from 'react-hot-toast'
 import {TagPicker} from "../TagPicker/TagPicker.tsx";
 import {Tag} from "../../Interfaces/Tag/Tag.ts";
 import styles from "./CreateProjectPage.module.css";
+import {useNavigate} from "react-router";
 
 export const CreateProjectPage = () => {
-
+    const navigate = useNavigate();
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [image, setImage] = useState<File | null>(null);
@@ -47,6 +48,7 @@ export const CreateProjectPage = () => {
                     imageInputRef.current.value = "";
                 }
                 setSelectedTags([]);
+                navigate(`/projects/${response.data.id}`);
             }
         }
         catch(error:any) {

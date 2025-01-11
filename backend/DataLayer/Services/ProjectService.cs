@@ -86,15 +86,15 @@ public class ProjectService
         try
         {
             var query = new CypherQuery("MATCH (p:Project {Id: $id}) RETURN p",
-                                        new Dictionary<string, object>
-                                        {
-                                            {"id", id},
-                                        },
-                                        CypherResultMode.Set, "neo4j");
+                new Dictionary<string, object>
+                {
+                    {"id", id},
+                },
+                CypherResultMode.Set, "neo4j");
 
-            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+            var result = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query)).ToList();
 
-            if (result != null)
+            if (result.Any())
             {
                 return result.First();
             }
@@ -103,7 +103,42 @@ public class ProjectService
         }
         catch (Exception)
         {
-            return "Doslo je do greske prilikom pruzimanja podataka o projektu. ".ToError();
+            return "Došlo je do greške prilikom preuzimanja podataka o projektu. ".ToError();
+        }
+    }
+    
+    public async Task<Result<ProjectResultDTO, ErrorMessage>> GetProjectWithTagsAndAuthor(string id)
+    {
+        try
+        {
+            var query = new CypherQuery(@"
+                                        MATCH (p:Project {Id: $id})-[:CREATED_BY]->(u:User)
+                                        MATCH (p)-[:HAS_TAG]->(t:Tag)
+                                        RETURN 
+                                            p.Id AS Id, 
+                                            p.Title AS Title, 
+                                            p.Image AS Image, 
+                                            p.Description AS Description, 
+                                            p.CreatedAt AS CreatedAt, 
+                                            p.UpdatedAt AS UpdatedAt, 
+                                            p.Status AS Status, 
+                                            COLLECT({ Id: t.Id, Name: t.Name, Description: t.Description }) AS Tags,
+                                            { Id: u.Id, Username: u.Username, Email: u.Email } AS CreatedBy",
+                new Dictionary<string, object> { { "id", id } },
+                CypherResultMode.Projection, "neo4j");
+
+            var result = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query)).ToList();
+
+            if (result.Any())
+            {
+                return result.First();
+            }
+
+            return "Projekat nije pronađen.".ToError(404);
+        }
+        catch (Exception e)
+        {
+            return "Došlo je do greške prilikom preuzimanja podataka o projektu. ".ToError();
         }
     }
 

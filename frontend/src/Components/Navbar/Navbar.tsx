@@ -55,7 +55,7 @@ export const Navbar = () => {
                                         <Dropdown>
                                             <Dropdown.Toggle className={styles['user-dropdown']} variant="light"
                                                              id="dropdown-basic">
-                                                <FontAwesomeIcon icon={faUser}/> {user!.username}
+                                                <FontAwesomeIcon icon={faUser}/> {user!.username.toUpperCase()}
                                             </Dropdown.Toggle>
 
                                             <Dropdown.Menu align={'end'}>

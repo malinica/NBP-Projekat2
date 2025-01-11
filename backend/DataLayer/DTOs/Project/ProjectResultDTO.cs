@@ -1,3 +1,5 @@
+using DataLayer.DTOs.Tag;
+
 namespace DataLayer.DTOs.Project;
 
 public class ProjectResultDTO
@@ -9,4 +11,6 @@ public class ProjectResultDTO
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public ProjectStatus Status { get; set; }
+    public List<TagResultDTO>? Tags { get; set; }
+    public UserResultDTO? CreatedBy { get; set; }
 }
