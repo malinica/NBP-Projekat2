@@ -7,6 +7,7 @@
     font-size: 1.5rem; 
     padding: 1rem 2rem; 
     transition: 0.4s;
+    font-family: "Lalezar", system-ui;
 }
 
 .dugme1:hover {
@@ -15,8 +16,13 @@
 
 .slova {
     font-size: 15px;
+    font-family: "Lalezar", system-ui;
 }
 
 .fields {
     border: 3px solid #B388FF !important;
+}
+
+#fixInputSize{
+    font-family: Lalezar;
 }
