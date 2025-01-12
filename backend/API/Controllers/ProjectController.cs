@@ -70,7 +70,59 @@ public class ProjectController : ControllerBase
 
         return Ok(response);
     }
+    
+    [HttpPost("AcceptUserToProject/{projectId}/{userId}")]
+    public async Task<IActionResult> AcceptUserToProject(string projectId, string userId)
+    {
+        (bool isError, var response, ErrorMessage? error) = await projectService.AcceptUserToProject(projectId, userId);
 
+        if(isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
+
+    [HttpDelete("RemoveUserFromProject/{projectId}/{userId}")]
+    public async Task<IActionResult> RemoveUserFromProject(string projectId, string userId)
+    {
+        (bool isError, var response, ErrorMessage? error) = await projectService.RemoveUserFromProject(projectId, userId);
+
+        if(isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
+    
+    [HttpPost("InviteUserToProject/{projectId}/{userId}")]
+    public async Task<IActionResult> InviteUserToProject(string projectId, string userId)
+    {
+        (bool isError, var response, ErrorMessage? error) = await projectService.InviteUserToProject(projectId, userId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+        
+        return Ok(response);
+    }
+    
+    [HttpDelete("CancelUserInvitation/{projectId}/{userId}")]
+    public async Task<IActionResult> CancelUserInvitation(string projectId, string userId)
+    {
+        (bool isError, var response, ErrorMessage? error) = await projectService.CancelUserInvitation(projectId, userId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+        
+        return Ok(response);
+    }
+    
     [HttpPut("UpdateProject/{id}")]
     [Authorize]
     public async Task<IActionResult> UpdateProject([FromForm] UpdateProjectDTO projectDto, string id)

@@ -279,6 +279,100 @@ public class ProjectService
             return "Greška prilikom odjavljivanja sa projekta. ".ToError();
         }
     }
+    
+    public async Task<Result<bool, ErrorMessage>> AcceptUserToProject(string projectId, string userId)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId}), (p:Project {Id: $projectId}) " +
+                                        "MERGE (u)-[:ACCEPTED_TO]->(p) " +
+                                        "WITH u " +
+                                        "MATCH (u)-[r:APPLIED_TO]->(p) " +
+                                        "DELETE r",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId},
+                    {"projectId", projectId}
+                },
+                CypherResultMode.Set, "neo4j");
+
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            return "Greška prilikom prihvatanja korisnika na projekat. ".ToError();
+        }
+    }
+    
+    public async Task<Result<bool, ErrorMessage>> RemoveUserFromProject(string projectId, string userId)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId})-[r:ACCEPTED_TO]->(p:Project {Id: $projectId}) DELETE r",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId},
+                    {"projectId", projectId}
+                },
+                CypherResultMode.Set, "neo4j");
+
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return "Greška prilikom uklanjanja korisnika sa projekta. ".ToError();
+        }
+    }
+    
+    public async Task<Result<bool, ErrorMessage>> InviteUserToProject(string projectId, string userId)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId}), (p:Project {Id: $projectId})" +
+                                        "MERGE (u)-[:INVITED_TO]->(p)",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId},
+                    {"projectId", projectId}
+                },
+                CypherResultMode.Set, "neo4j");
+
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return "Greška prilikom slanja pozivnice. ".ToError();
+        }
+    }
+    
+    public async Task<Result<bool, ErrorMessage>> CancelUserInvitation(string projectId, string userId)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId})-[r:INVITED_TO]->(p:Project {Id: $projectId}) DELETE r",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId},
+                    {"projectId", projectId}
+                },
+                CypherResultMode.Set, "neo4j");
+
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return "Greška prilikom uklanjanja pozivnice. ".ToError();
+        }
+    }
+    
 
 public async Task<ProjectResultDTO[]> SearchProjects(
     string? title = null, 

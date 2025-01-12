@@ -5,6 +5,7 @@ import {Pagination} from "../Pagination/Pagination.tsx";
 import {toast} from 'react-hot-toast'
 import UserCard from "../UserCard/UserCard.tsx";
 import {useAuth} from "../../Context/useAuth.tsx";
+import {acceptUserToProjectAPI} from "../../Services/ProjectService.tsx";
 
 type Props = {
     projectId: string;
@@ -51,6 +52,18 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
         await loadUsers(page, pageSize, activeTab);
     }
 
+    const handleAcceptUser = async (userId: string) => {
+        try {
+            const response = await acceptUserToProjectAPI(projectId, userId);
+            if(response && response.status === 200 && response.data) {
+                toast.success("Korisnik je uspešno prihvaćen na projekat.")
+            }
+        }
+        catch {
+            toast.error("Došlo je do greške prilikom prihvatanja korisnika.")
+        }
+    }
+
     const getTitle = (activeTab: string) => {
         switch (activeTab) {
             case "accepted":
@@ -90,7 +103,7 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
                             <div key={user.id} className={`d-flex`}>
                                 <UserCard user={user} key={user.id}/>
                                 {currentUser?.id === authorId && <>
-                                    {activeTab === "applied" && <button className={`bg-green`}>
+                                    {activeTab === "applied" && <button className={`bg-green`} onClick={() => handleAcceptUser(user.id)}>
                                         Prihvati
                                     </button>}
                                     <button className={`bg-lilac`}>
