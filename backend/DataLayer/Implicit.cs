@@ -12,3 +12,4 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.IdentityModel.Tokens;
 global using Microsoft.AspNetCore.Http;
 global using DataLayer.DTOs.Tag;
+global using DataLayer.DTOs.Pagination;

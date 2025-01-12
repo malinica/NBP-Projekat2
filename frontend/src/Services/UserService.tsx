@@ -2,6 +2,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { AuthResponseDTO } from "../Interfaces/User/AuthResponseDTO";
 import { User } from "../Interfaces/User/User";
+import {PaginatedResponseDTO} from "../Interfaces/Pagination/PaginatedResponseDTO.ts";
 
 const api = `${import.meta.env.VITE_API_URL}/User`;
 
@@ -41,6 +42,18 @@ export const getAllUsersAPI = async () => {
         const response = await axios.get<User[]>(`${api}/GetAllUsers`);
         return response.data;
     } 
+    catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom preuzimanja korisnika.");
+        return undefined;
+    }
+};
+
+export const getProjectUsersByType = async (projectId: string, type: string, page: number = 1, pageSize: number = 10) => {
+    try {
+        return await axios.get<PaginatedResponseDTO<User>>(
+            `${api}/GetProjectUsersByType/${type}/${projectId}?page=${page}&pageSize=${pageSize}`
+        );
+    }
     catch (error: any) {
         toast.error(error.response?.data || "Došlo je do greške prilikom preuzimanja korisnika.");
         return undefined;

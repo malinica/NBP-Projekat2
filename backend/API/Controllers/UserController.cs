@@ -67,4 +67,19 @@ public class UserController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("GetProjectUsersByType/{type}/{projectId}")]
+    [Authorize]
+    public async Task<IActionResult> GetProjectUsersByType([FromRoute] string type, [FromRoute] string projectId, [FromQuery] int? page,
+        [FromQuery] int? pageSize)
+    {
+        (bool isError, var response, ErrorMessage? error) = await userService.GetProjectUsersByType(projectId, type, page ?? 1, pageSize ?? 10);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
+
 }

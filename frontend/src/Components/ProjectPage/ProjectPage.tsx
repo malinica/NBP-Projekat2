@@ -12,6 +12,7 @@ import {addTagToProjectAPI, removeTagFromProjectAPI} from "../../Services/TagSer
 import {useNavigate} from "react-router";
 import styles from "./ProjectPage.module.css";
 import {ProjectStatus} from "../../Enums/ProjectStatus.ts";
+import {ProjectUsers} from "../ProjectUsers/ProjectUsers.tsx";
 
 export const ProjectPage = () => {
     const {projectId} = useParams();
@@ -261,6 +262,7 @@ export const ProjectPage = () => {
                         </>)}
                 </>)
             }
+            <ProjectUsers projectId={projectId ?? ""} />
         </div>
     );
 };

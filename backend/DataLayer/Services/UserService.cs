@@ -161,7 +161,7 @@ public class UserService
         }
         catch(Exception)
         {
-            return "Doslo je do greske prilikom vracanje svih korisnika. ".ToError();
+            return "Doslo je do greske prilikom vracanja svih korisnika. ".ToError();
         }
     }
     
@@ -176,6 +176,49 @@ public class UserService
         }
         catch (Exception)
         {
+            return "Došlo je do greške prilikom učitavanja korisnika.".ToError();
+        }
+    }
+    
+    public async Task<Result<PaginatedResponseDTO<UserResultDTO>, ErrorMessage>> GetProjectUsersByType(
+        string projectId,
+        string type,
+        int page = 1, 
+        int pageSize = 10) 
+    {
+        try
+        {
+            var relationName = type switch
+            {
+                "accepted" => "ACCEPTED_TO",
+                "applied" => "APPLIED_TO",
+                "invited" => "INVITED_TO",
+                _ => "ACCEPTED_TO"
+            };
+            
+            var query = new CypherQuery("MATCH (p:Project {Id: $projectId})<-[:"+relationName+"]-(u:User)" +
+                                        "RETURN  u.Id AS Id, u.Username AS Username, u.Email AS Email, u.Role AS Role, u.ProfileImage AS ProfileImage",
+                new Dictionary<string, object>
+                {
+                    {"projectId", projectId}
+                },
+                CypherResultMode.Projection, "neo4j");
+            
+            var users = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query)).ToList();
+            
+            var paginatedUsers = users.Skip((page-1) * pageSize)
+                                      .Take(pageSize)
+                                      .ToList();
+
+            return new PaginatedResponseDTO<UserResultDTO>
+            {
+                Data = paginatedUsers,
+                TotalLength = users.Count()
+            };
+        }
+        catch (Exception e)
+        {
+            return e.Message.ToError();
             return "Došlo je do greške prilikom učitavanja korisnika.".ToError();
         }
     }
