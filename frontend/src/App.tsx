@@ -27,7 +27,7 @@ function App() {
                                 <Route path="/register" element={<RegisterPage/>}/>
                                 <Route path="/create-project" element={<CreateProjectPage/>}/>
                                 <Route path="/projects/:projectId" element={<ProjectPage/>}/>
-                                <Route path="search-projects-page/:id" element ={<SearchProjectsPage/>}/>
+                                <Route path="/search-projects-page" element ={<SearchProjectsPage/>}/>
                                 <Route path="/search-user-page" element ={<SearchUserPage/>}/>
                             </Routes>
                         </div>

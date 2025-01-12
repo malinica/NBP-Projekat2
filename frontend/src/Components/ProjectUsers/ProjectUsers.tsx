@@ -3,16 +3,20 @@ import {User} from "../../Interfaces/User/User.ts";
 import {getProjectUsersByType} from "../../Services/UserService.tsx";
 import {Pagination} from "../Pagination/Pagination.tsx";
 import {toast} from 'react-hot-toast'
+import UserCard from "../UserCard/UserCard.tsx";
+import {useAuth} from "../../Context/useAuth.tsx";
 
 type Props = {
     projectId: string;
+    authorId: string;
 }
 
-export const ProjectUsers = ({projectId}: Props) => {
+export const ProjectUsers = ({projectId, authorId}: Props) => {
     const [activeTab, setActiveTab] = useState<"accepted" | "applied" | "invited">("accepted");
     const [users, setUsers] = useState<User[]>([]);
     const [totalUsersCount, setTotalUsersCount] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const {user: currentUser} = useAuth();
 
     useEffect(() => {
         loadUsers(1,10, "accepted");
@@ -47,15 +51,26 @@ export const ProjectUsers = ({projectId}: Props) => {
         await loadUsers(page, pageSize, activeTab);
     }
 
+    const getTitle = (activeTab: string) => {
+        switch (activeTab) {
+            case "accepted":
+                return "Korisnici na projektu";
+            case "applied":
+                return "Prijavljeni korisnici";
+            case "invited":
+                return "Pozvani korisnici";
+        }
+    }
+
     return (
         <div className="project-users">
             {isLoading
                 ?
                 (<>
-                    <p>Učitavanje...</p>
+                    <p className={`text-center`}>Učitavanje korisnika...</p>
                 </>)
                 : (<>
-                    <div className="btn-group mb-3">
+                    {currentUser?.id === authorId && <div className="btn-group mb-3">
                         <button className={`btn ${activeTab === "accepted" ? "btn-primary" : "btn-secondary"}`}
                                 onClick={() => handleTabChange("accepted")}>
                             Članovi
@@ -68,12 +83,21 @@ export const ProjectUsers = ({projectId}: Props) => {
                                 onClick={() => handleTabChange("invited")}>
                             Pozvani
                         </button>
-                    </div>
+                    </div>}
+                    <h3>{getTitle(activeTab)}</h3>
                     <ul className="list-group">
                         {users.map(user => (
-                            <li key={user.id} className="list-group-item">
-                                {user.username} ({user.email})
-                            </li>
+                            <div key={user.id} className={`d-flex`}>
+                                <UserCard user={user} key={user.id}/>
+                                {currentUser?.id === authorId && <>
+                                    {activeTab === "applied" && <button className={`bg-green`}>
+                                        Prihvati
+                                    </button>}
+                                    <button className={`bg-lilac`}>
+                                        Ukloni
+                                    </button>
+                                </>}
+                            </div>
                         ))}
                     </ul>
                 </>)}

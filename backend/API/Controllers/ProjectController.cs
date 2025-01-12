@@ -57,6 +57,19 @@ public class ProjectController : ControllerBase
 
         return Ok(response);
     }
+    
+    [HttpDelete("CancelProjectApplication/{projectId}/{userId}")]
+    public async Task<IActionResult> CancelProjectApplication(string projectId, string userId)
+    {
+        (bool isError, var response, ErrorMessage? error) = await projectService.CancelApplicationForProject(projectId, userId);
+
+        if(isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
 
     [HttpPut("UpdateProject/{id}")]
     [Authorize]

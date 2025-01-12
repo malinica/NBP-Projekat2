@@ -10,9 +10,7 @@ import { TagPicker } from "../TagPicker/TagPicker";
 import { Tag } from "../../Interfaces/Tag/Tag";
 import ProjectItem from "../ProjectItem/ProjectItem";
 
-type Props = {};
 const SearchProjectsPage = () => {
-    const { id } = useParams();
     const [totalItemsCount, setTotalItemsCount] = useState<number>(0);
     const [serachName, setSearchName] = useState<string>("");
     const [dateFrom,setDateFrom]=useState<Date|null>(null);

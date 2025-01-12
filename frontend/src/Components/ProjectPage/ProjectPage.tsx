@@ -1,7 +1,12 @@
 import {useParams} from "react-router-dom";
 import {Project} from "../../Interfaces/Project/Project.ts";
 import {useEffect, useState} from "react";
-import {deleteProjectAPI, getProjectByIdAPI, updateProjectAPI} from "../../Services/ProjectService.tsx";
+import {
+    applyForProjectAPI, cancelProjectApplicationAPI,
+    deleteProjectAPI,
+    getProjectByIdAPI,
+    updateProjectAPI
+} from "../../Services/ProjectService.tsx";
 import {toast} from 'react-hot-toast'
 import {getStatusBadgeClass} from "../../Helpers/Helpers.ts";
 import {Chip} from "@mui/material";
@@ -102,6 +107,30 @@ export const ProjectPage = () => {
         }
     };
 
+    const handleApplyForProject = async () => {
+        try {
+            const response = await applyForProjectAPI(projectId!, user!.id);
+            if (response && response.status === 200 && response.data) {
+                toast.success("Uspešna prijava.");
+            }
+        }
+        catch {
+            toast.error("Došlo je do greške prilikom prijave.")
+        }
+    }
+
+    const handleCancelProjectApplication = async () => {
+        try {
+            const response = await cancelProjectApplicationAPI(projectId!, user!.id);
+            if (response && response.status === 200 && response.data) {
+                toast.success("Uspešna odjava.");
+            }
+        }
+        catch {
+            toast.error("Došlo je do greške prilikom odjave.")
+        }
+    }
+
     const handleSaveEdit = async () => {
         try {
             const updatedProjectDto = new FormData();
@@ -155,6 +184,11 @@ export const ProjectPage = () => {
                                             className={`img-fluid rounded`}
                                             alt={project.title}
                                         />
+                                        {user?.id != project?.createdBy!.id &&
+                                            <>
+                                                <button onClick={handleApplyForProject}>Prijavi se</button>
+                                                <button onClick={handleCancelProjectApplication}>Odjavi se</button>
+                                            </>}
                                     </div>
 
                                     <div className={`col-md-8`}>
@@ -267,9 +301,9 @@ export const ProjectPage = () => {
                         (<>
                             <p>Nema podataka o projektu.</p>
                         </>)}
+                    <ProjectUsers projectId={projectId ?? ""} authorId={project?.createdBy!.id ?? ""}/>
                 </>)
             }
-            <ProjectUsers projectId={projectId ?? ""} />
         </div>
     );
 };

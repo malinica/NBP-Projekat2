@@ -240,7 +240,7 @@ public class ProjectService
     {
         try
         {
-            var query = new CypherQuery("MATCH (u:User {Id: $userId}), (p:Project {Id: $projectId}) CREATE (u)-[:APPLIED_FOR]->(p)",
+            var query = new CypherQuery("MATCH (u:User {Id: $userId}), (p:Project {Id: $projectId}) MERGE (u)-[:APPLIED_TO]->(p)",
                                         new Dictionary<string, object>
                                         {
                                             {"userId", userId},
@@ -255,6 +255,28 @@ public class ProjectService
         catch (Exception)
         {
             return "Greska prilikom prijavljivanja za projekat. ".ToError();
+        }
+    }
+    
+    public async Task<Result<bool, ErrorMessage>> CancelApplicationForProject(string projectId, string userId)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId})-[r:APPLIED_TO]->(p:Project {Id: $projectId}) DELETE r",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId},
+                    {"projectId", projectId}
+                },
+                CypherResultMode.Set, "neo4j");
+
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return "Greška prilikom odjavljivanja sa projekta. ".ToError();
         }
     }
 

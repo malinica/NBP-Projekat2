@@ -16,7 +16,7 @@ export const loginAPI = async (email: string, password: string) => {
         return data;
     }
     catch (error: any) {
-        toast.error(error.response.data);
+        toast.error(error.response?.data ?? "Neuspešna prijava.");
         return undefined;
     }
 }
@@ -32,7 +32,7 @@ export const registerAPI = async (email: string, username: string, password: str
         return data;
     }
     catch (error: any) {
-        toast.error(error.response.data);
+        toast.error(error.response?.data ?? "Neuspešna registracija.");
         return undefined;
     }
 }

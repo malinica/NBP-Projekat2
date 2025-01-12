@@ -16,7 +16,7 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({ project }) => {
 
   return (
     <div className="project-card">
-      <img src={project.image} alt={project.title} className="project-image" />
+      <img src={`${import.meta.env.VITE_SERVER_URL}/${project.image}`} alt={project.title} className="project-image" />
       <h2 className="project-title">{project.title}</h2>
       <p className="project-description">{project.description}</p>
       <p className="project-author">

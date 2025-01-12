@@ -82,3 +82,23 @@ export const searchProjectsAPI = async (
         return null;
     }
 };
+
+export const applyForProjectAPI = async (projectId: string, userId: string) => {
+    try {
+        return await axios.post<boolean>(api+`/ApplyForProject/${projectId}/${userId}`, {});
+    }
+    catch(error:any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}
+
+export const cancelProjectApplicationAPI = async (projectId: string, userId: string) => {
+    try {
+        return await axios.delete<boolean>(api+`/CancelProjectApplication/${projectId}/${userId}`, {});
+    }
+    catch(error:any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}
