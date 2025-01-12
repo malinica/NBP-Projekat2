@@ -168,32 +168,71 @@ public class ProjectService
         }
     }
 
-    public async Task<Result<bool, ErrorMessage>> UpdateProject(UpdateProjectDTO projectDto, string id)
+    public async Task<Result<ProjectResultDTO, ErrorMessage>> UpdateProject(UpdateProjectDTO projectDto, string id)
     {
         try
         {
-            var query = new CypherQuery("MATCH (p:Project {Id: $id}) SET p.Title = $title, p.Image = $image, p.Description = $description RETURN p",
+            var projectImagePathQuery = new CypherQuery("MATCH(p:Project {Id: $projectId}) RETURN p.Image",
+                new Dictionary<string, object>
+                {
+                    {
+                        "projectId", id
+                    }
+                }, CypherResultMode.Set, "neo4j");
+            
+            var projectImagePath = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<string>(projectImagePathQuery)).First();
+            
+            if (projectDto.Image != null)
+            {
+                if (!string.IsNullOrEmpty(projectImagePath))
+                {
+                    var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                    var filePath = Path.Combine(wwwrootPath, projectImagePath);
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(projectDto.Image.FileName);
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ProjectsImages");
+                var newFilePath = Path.Combine(path, fileName);
+                await using (var stream = new FileStream(newFilePath, FileMode.Create))
+                {
+                    await projectDto.Image.CopyToAsync(stream);
+                }
+                projectImagePath = $"ProjectsImages/{fileName}";
+            }
+            var query = new CypherQuery("MATCH (p:Project {Id: $id}) " +
+                                        "SET p.Title = $title, " +
+                                        "p.Image = $image, " +
+                                        "p.Description = $description," +
+                                        "p.Status = $status," +
+                                        "p.UpdatedAt = $updatedAt RETURN p",
                                         new Dictionary<string, object>
                                         {
                                             {"id", id},
                                             {"title", projectDto.Title},
-                                            {"image", projectDto.Image},
-                                            {"description", projectDto.Description}
+                                            {"image", projectImagePath},
+                                            {"description", projectDto.Description},
+                                            {"status", projectDto.Status},
+                                            {"updatedAt", DateTime.UtcNow}
                                         },
                                         CypherResultMode.Set, "neo4j");
 
-            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+            var updatedProjects = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query)).ToList();
 
-            if (result != null)
+            if (updatedProjects.Any())
             {
-                return true;
+                return updatedProjects.First();
             }
 
-            return "Projekat sa datim ID-em nije pronadjen. ".ToError(404);
+            return "Projekat nije pronađen. ".ToError(404);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            return "Doslo je do greske prilikom azuriranja projekta. ".ToError();
+            return e.Message.ToError();
+            return "Došlo je do greške prilikom ažuriranja projekta. ".ToError();
         }
     }
 

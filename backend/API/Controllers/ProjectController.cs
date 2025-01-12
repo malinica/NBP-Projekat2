@@ -59,7 +59,8 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPut("UpdateProject/{id}")]
-    public async Task<IActionResult> UpdateProject([FromBody] UpdateProjectDTO projectDto, string id)
+    [Authorize]
+    public async Task<IActionResult> UpdateProject([FromForm] UpdateProjectDTO projectDto, string id)
     {
         (bool isError, var response, ErrorMessage? error) = await projectService.UpdateProject(projectDto, id);
         
@@ -72,6 +73,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpDelete("DeleteProject/{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteProject(string id)
     {
         (bool isError, _ , ErrorMessage? error) = await projectService.DeleteProject(id);

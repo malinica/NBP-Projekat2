@@ -55,6 +55,20 @@ export const searchProjectsAPI = async (
     }
 };
 
+export const updateProjectAPI = async (projectId: string, projectDto: FormData) => {
+    try {
+        return await axios.put<Project>(api+`/UpdateProject/${projectId}`, projectDto, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+    }
+    catch(error:any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}
+
 export const deleteProjectAPI = async (projectId: string) => {
     try {
         return await axios.delete<Project>(api+`/DeleteProject/${projectId}`, {});
