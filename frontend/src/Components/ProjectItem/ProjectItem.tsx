@@ -10,7 +10,8 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({ project }) => {
   const navigate = useNavigate();
 
   const handleViewMore = () => {
-    navigate(`/projects/${project.id}`);
+    navigate(`/projects/${project.id}`, { state: { projectData: project } });
+
   };
 
   return (
