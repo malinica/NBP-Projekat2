@@ -1,37 +1,36 @@
 import styles from "./SearchProjectsPage.module.css";
-import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useState } from 'react';
-import { useAuth } from "../../Context/useAuth";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import {searchProjectsAPI} from "../../Services/ProjectService";
-import { ProjectPage } from "../ProjectPage/ProjectPage";
 import { Project } from "../../Interfaces/Project/Project";
+import {Pagination} from "../Pagination/Pagination";
 import { useEffect } from "react";
+import { TagPicker } from "../TagPicker/TagPicker";
+import { Tag } from "../../Interfaces/Tag/Tag";
+import ProjectItem from "../ProjectItem/ProjectItem";
 
 type Props = {};
 const SearchProjectsPage = () => {
     const { id } = useParams();
-    const [currentPageNumber, setCurrentPageNumber] = useState<number>(id ? parseInt(id, 10) : 1);
-    const [projectsPerPage, setProjectsPerPage] = useState<number>(10);
-    const [projectsPageArray, setProjectsPerPageArray] = useState<number[]>([5, 10, 15,]);
+    const [totalItemsCount, setTotalItemsCount] = useState<number>(0);
     const [serachName, setSearchName] = useState<string>("");
-    const [tags, setTags] = useState<string[]>([]);
     const [dateFrom,setDateFrom]=useState<Date|null>(null);
     const [dateTo,setDateTo]=useState<Date|null>(null);
     const [projects,setProjects]=useState<Project[]|null>([]);
-    
-    useEffect(() => {
-        loadProjects();
-    }, []);
-    
-    useEffect(()=>{loadProjects();},[currentPageNumber,projectsPerPage]);
-    
+    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
+    const handleAddTag = (tag: Tag) => {
+            setSelectedTags((prev) => [...prev, tag]);
+        };
+    
+    const handleRemoveTag = (tagId: string) => {
+            setSelectedTags((prev) => prev.filter((tag) => tag.id !== tagId));
+        };
+    useEffect(() => {loadProjects(1,10);}, []);
+    
     const handleButtonSearchClick = () => {
-        loadProjects();
+        loadProjects(1,10);
     }
     const handleDateFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newDate = e.target.value ? new Date(e.target.value) : null;
@@ -47,47 +46,27 @@ const SearchProjectsPage = () => {
         setSearchName(e.target.value);
       };
 
-      const changePageNumber = (
-        e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
-      ) => {
-        const valueString = e.currentTarget.getAttribute("data-value");
-        const valueNumber = valueString !== null ? parseInt(valueString, 10) : 1;
-        setCurrentPageNumber(valueNumber);
-        window.history.pushState({}, '', `http://localhost:5173/search-page/${valueNumber}`);
-    };
-  
-    const changePageNumberPerPage = (
-        e: React.MouseEvent<HTMLAnchorElement>
-      ) => {
-        const selectedValue = e.currentTarget.getAttribute("data-value");
-        if (selectedValue !== null && Number(selectedValue) !== projectsPerPage) {
-          setProjectsPerPage(Number(selectedValue));
-        }
-      };
-
-      const handleTagChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        const isChecked = e.target.checked;
-  
-        if (isChecked) {
-          setTags((prev) => [...prev, value]);
-        } else {
-            setTags((prev) => prev.filter((cat) => cat !== value));
-        }
-      };
-
-      const loadProjects = async () => {
+      const loadProjects = async (page: number,pageSize: number) => {
   const data = await searchProjectsAPI(
     serachName,
-    tags,
+    selectedTags,
     dateFrom ?? undefined, 
     dateTo ?? undefined,
-    (currentPageNumber - 1) * projectsPerPage,
-    projectsPerPage
-);
+    page,
+    pageSize);
 
-setProjects(data ?? null);
+if (!data || data.length === 0) {
+    toast.error("Nema podataka za prikaz!");
+    setProjects(null);
+} else {
+    setProjects(data);
+}setTotalItemsCount(data?.length ?? 0);
+window.history.pushState({}, '', `http://localhost:5173/search-projects-page/${page}`);
 };
+
+const handlePaginateChange = async (page: number, pageSize: number) => {
+  await loadProjects(page,pageSize);
+}
 
 
       return (
@@ -95,18 +74,10 @@ setProjects(data ?? null);
           <div className={`row`}>
             <div className={`col-xxl-3 col-xl-3 col-lg-4 col-md-5 col-sm-12 my-2 mr-2`}>
               <div className={`m-2 px-2 py-3 bg-steel-blue rounded-3 d-flex flex-column`}>
-                <label className={`mx-2 text-cyan-blue`}>Odaberite tagove: </label>
-                {Object.values(tags).map((tag) => (
-                  <div key={tag} className={`m-2 text-coral`}>
-                    <input
-                      type="checkbox"
-                      id={tag}
-                      value={tag}
-                      onChange={handleTagChange}
-                    />
-                    <label htmlFor={tag}>{tag}</label>
-                  </div>
-                ))}
+               
+                <div className={`mb-3`}>
+                                               <TagPicker selectedTags={selectedTags} onAddTag={handleAddTag} onRemoveTag={handleRemoveTag} />
+                                           </div>
     
                 <label className={`mx-2 text-cyan-blue`}>Unesite naziv projekta: </label>
                 <div className={`d-flex flex-column ms-2 me-2 my-2`}>
@@ -146,75 +117,21 @@ setProjects(data ?? null);
                 >Pretraži Aukcije</button>
               </div>
             </div>
-    
-           
-    
-    
-            <div className={`d-flex justify-content-end`}>
-              <div className={`my-2 dropdown`}>
-                <button
-                  className={`${styles.ivica} rounded px-2 py-2 dropdown-toggle bg-orange text-white text-decoration-none border-none`}
-                  type="button"
-                  id="dropdownMenuButton1"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Broj projekta po stranici: {projectsPerPage}
-                </button>
-                <ul className={`dropdown-menu`} aria-labelledby="dropdownMenuButton1">
-                  {projectsPageArray.map((value) => (
-                    <li key={value}>
-                      <a
-                        className={`dropdown-item`}
-                        data-value={value}
-                        onClick={(e) => changePageNumberPerPage(e)}
-                      >
-                        {value}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-    
-    
-            <nav className={`mt-2 me-2 d-flex justify-content-end`}>
-                  <ul className={`pagination`}>
-                    {currentPageNumber != 1 && (
-                      <>
-                        <li className={`page-item`}>
-                          <a
-                            className={`btn btn-sm text-white text-center rounded py-1 px-1 ${styles.dugme2} ${styles.linija_ispod_dugmeta}`}
-                            data-value={currentPageNumber - 1}
-                            onClick={(e) => {
-                              changePageNumber(e);
-                            }}
-                          >
-                            Prethodna
-                          </a>
-                        </li>
-                      </>
-                    )}
-                              
-                    {(
-                      ((projects!=null) && projects.length==projectsPerPage)
-                    ) && (
-                      <>
-                        <li className={`page-item`}>
-                          <a
-                            className={`btn btn-sm text-white text-center rounded py-1 px-1 ${styles.dugme2} ${styles.linija_ispod_dugmeta}`}
-                            data-value={currentPageNumber + 1}
-                            onClick={(e) => {
-                              changePageNumber(e);
-                            }}
-                          >
-                            Sledeća
-                          </a>
-                        </li>
-                      </>
-                    )}
-                  </ul>
-                </nav>
+
+            <div className="project-list">
+      {projects && projects.length > 0 ? (
+        projects.map((project) => (
+          <ProjectItem key={project.id} project={project} />
+        ))
+      ) : (
+        <p>Nema projekata za prikazivanje.</p>
+      )}
+    </div>
+
+            {totalItemsCount > 0 && 
+          <div className="my-4">
+            <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
+          </div>}
     
           </div>
         </div>

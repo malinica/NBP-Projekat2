@@ -85,7 +85,8 @@ public class ProjectController : ControllerBase
 
         return StatusCode(204);
     }  
-    [HttpPost("SearchProjects")]
+    
+    [HttpGet("SearchProjects")]
 public async Task<IActionResult> SearchProjects(
     [FromQuery] string? title = null, 
     [FromQuery]List<string>? tags = null, 

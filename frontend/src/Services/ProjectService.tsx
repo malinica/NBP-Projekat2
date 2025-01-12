@@ -1,6 +1,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import {Project} from "../Interfaces/Project/Project.ts";
+import { Tag } from "../Interfaces/Tag/Tag.ts";
 
 const api = `${import.meta.env.VITE_API_URL}/Project`;
 
@@ -28,33 +29,6 @@ export const getProjectByIdAPI = async (projectId: string) => {
     }
 }
 
-export const searchProjectsAPI = async (
-    title?: string, 
-    tags?: string[], 
-    fromDate?: Date, 
-    toDate?: Date, 
-    skip: number = 0, 
-    limit: number = 5
-): Promise<Project[] | null> => {
-    try {
-        const params: any = {
-            ...(title ? { title } : {}),
-            ...(tags && tags.length ? { categories: tags.join(",") } : {}),
-            ...(fromDate ? { fromDate: fromDate.toISOString() } : {}),
-            ...(toDate ? { toDate: toDate.toISOString() } : {}),
-            skip,
-            limit
-        };
-
-        const response = await axios.post<Project[]>(`${api}/SearchProjects`, params);
-
-        return response.data;
-    } catch (error: any) {
-        toast.error(error.response?.data || "Došlo je do greške pri pretrazi projekata.");
-        return null;
-    }
-};
-
 export const updateProjectAPI = async (projectId: string, projectDto: FormData) => {
     try {
         return await axios.put<Project>(api+`/UpdateProject/${projectId}`, projectDto, {
@@ -78,3 +52,33 @@ export const deleteProjectAPI = async (projectId: string) => {
         return undefined;
     }
 }
+
+
+export const searchProjectsAPI = async (
+    title?: string, 
+    tags?: Tag[], 
+    fromDate?: Date, 
+    toDate?: Date, 
+    pagenumber: number = 1, 
+    limit: number = 10
+): Promise<Project[] | null> => {
+    try {
+        const params: any = {
+            ...(title ? { title } : {}),
+            ...(tags && tags.length ? { tags: tags.map(tag => tag.name).join(",") } : {}),
+            ...(fromDate ? { fromDate: fromDate.toISOString() } : {}),
+            ...(toDate ? { toDate: toDate.toISOString() } : {}),
+            skip: limit * (pagenumber - 1),
+            limit
+        };
+
+        const url = `${api}/SearchProjects`;
+
+        const response = await axios.get<Project[]>(url, { params });
+
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške pri pretrazi projekata.");
+        return null;
+    }
+};
