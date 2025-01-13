@@ -5,7 +5,11 @@ import {Pagination} from "../Pagination/Pagination.tsx";
 import {toast} from 'react-hot-toast'
 import UserCard from "../UserCard/UserCard.tsx";
 import {useAuth} from "../../Context/useAuth.tsx";
-import {acceptUserToProjectAPI} from "../../Services/ProjectService.tsx";
+import {
+    acceptUserToProjectAPI,
+    cancelProjectApplicationAPI, cancelUserInvitationAPI,
+    removeUserFromProjectAPI
+} from "../../Services/ProjectService.tsx";
 
 type Props = {
     projectId: string;
@@ -64,6 +68,20 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
         }
     }
 
+    const handleRemoveUser = async (userId: string) => {
+        switch (activeTab) {
+            case "accepted":
+                await removeUserFromProjectAPI(projectId, userId);
+                break;
+            case "applied":
+                await cancelProjectApplicationAPI(projectId, userId);
+                break;
+            case "invited":
+                await cancelUserInvitationAPI(projectId, userId);
+                break;
+        }
+    }
+
     const getTitle = (activeTab: string) => {
         switch (activeTab) {
             case "accepted":
@@ -106,7 +124,7 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
                                     {activeTab === "applied" && <button className={`bg-green`} onClick={() => handleAcceptUser(user.id)}>
                                         Prihvati
                                     </button>}
-                                    <button className={`bg-lilac`}>
+                                    <button className={`bg-lilac`} onClick={() => handleRemoveUser(user.id)}>
                                         Ukloni
                                     </button>
                                 </>}
