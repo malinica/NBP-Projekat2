@@ -1,0 +1,12 @@
+.slika {
+    max-width: 200px;
+}
+
+.dugme {
+    transition: 0.4s;
+    background-color: #006400;
+}
+
+.dugme:hover {
+    background-color: #43e961;
+}

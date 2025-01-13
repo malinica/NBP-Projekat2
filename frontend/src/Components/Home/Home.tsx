@@ -59,7 +59,7 @@ const Home = () => {
                         <h5 className={`mt-3 text-green`}>Povezivanje sa stručnjacima</h5>
                         <p className={`text-violet`}>Pronađite talentovane programere za svoj projekat u nekoliko klikova.</p>
                         <Link
-                                to=""
+                                to="/search-user-page"
                                 className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
                             >
                                 Pronađi Saradnike
@@ -70,7 +70,7 @@ const Home = () => {
                         <h5 className={`mt-3 text-green`}>Efikasna organizacija</h5>
                         <p className={`text-violet`}>Kreirajte projekte, dodajte članove tima i organizujte zadatke.</p>
                         <Link
-                                to="/"
+                                to="/create-project"
                                 className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
                             >
                                 Kreiraj Projekat
