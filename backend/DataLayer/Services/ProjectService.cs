@@ -373,13 +373,13 @@ public class ProjectService
     }
 
 
-    public async Task<ProjectResultDTO[]> SearchProjects(
+    public async Task<PaginatedResponseDTO<ProjectResultDTO>> SearchProjects(
         string? title = null,
         List<string>? tags = null,
         DateTime? fromDate = null,
         DateTime? toDate = null,
         int? skip = 0,
-        int? limit = 5)
+        int? limit = 10)
     {
         try
         {
@@ -431,15 +431,32 @@ public class ProjectService
                 p.UpdatedAt AS UpdatedAt, 
                 p.Status AS Status,
                 COLLECT({{ Id: t.Id, Name: t.Name, Description: t.Description }}) AS Tags
-            SKIP $skip
-            LIMIT $limit
+            
         ",
             parameters,
             CypherResultMode.Projection, "neo4j");
 
             var results = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
 
-            return results?.ToArray() ?? Array.Empty<ProjectResultDTO>();
+          if (results == null || !results.Any())
+        {
+            return new PaginatedResponseDTO<ProjectResultDTO>
+            {
+                Data = new List<ProjectResultDTO>(),  
+                TotalLength = 0 
+            };
+        }
+
+        var totalLength = results.Count();
+
+        var paginatedResults = results.Skip(skip.Value).Take(limit.Value).ToList();
+
+        return new PaginatedResponseDTO<ProjectResultDTO>
+        {
+            Data = paginatedResults ?? new List<ProjectResultDTO>(), 
+            TotalLength = totalLength
+        };
+
         }
         catch (Exception e)
         {

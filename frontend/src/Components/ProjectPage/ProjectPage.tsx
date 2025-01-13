@@ -23,9 +23,8 @@ import { useLocation } from 'react-router-dom';
 
 export const ProjectPage = () => {
     const {projectId} = useParams();
-    const { state } = useLocation();
     const {user} = useAuth();
-    const [project, setProject] = useState<Project | null>(state?.projectData || null);
+    const [project, setProject] = useState<Project | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedTitle, setEditedTitle] = useState("");
@@ -36,12 +35,9 @@ export const ProjectPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!project && projectId) {
             loadProject();
-        }
-        else
-        setIsLoading(false);
-    }, [projectId, state?.projectData]);
+
+    }, [projectId]);
 
     const loadProject = async () => {
         try {

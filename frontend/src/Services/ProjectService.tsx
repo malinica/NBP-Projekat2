@@ -2,6 +2,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import {Project} from "../Interfaces/Project/Project.ts";
 import { Tag } from "../Interfaces/Tag/Tag.ts";
+import { PaginatedResponseDTO } from "../Interfaces/Pagination/PaginatedResponseDTO.ts";
 
 const api = `${import.meta.env.VITE_API_URL}/Project`;
 
@@ -61,7 +62,7 @@ export const searchProjectsAPI = async (
     toDate?: Date, 
     pagenumber: number = 1, 
     limit: number = 10
-): Promise<Project[] | null> => {
+): Promise<PaginatedResponseDTO<Project> | null> => {
     try {
         const params: any = {
             ...(title ? { title } : {}),
@@ -74,7 +75,7 @@ export const searchProjectsAPI = async (
 
         const url = `${api}/SearchProjects`;
 
-        const response = await axios.get<Project[]>(url, { params });
+        const response = await axios.get<PaginatedResponseDTO<Project>>(url, { params });
 
         return response.data;
     } catch (error: any) {

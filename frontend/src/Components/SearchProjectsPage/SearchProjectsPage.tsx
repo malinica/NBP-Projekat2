@@ -51,15 +51,16 @@ const SearchProjectsPage = () => {
       dateTo ?? undefined,
       page,
       pageSize);
-
-    if (!data || data.length === 0) {
+    if (!data) 
+      {
       toast.error("Nema podataka za prikaz!");
       setProjects(null);
-    } else {
-      setProjects(data);
-    } setTotalItemsCount(data?.length ?? 0);
-    window.history.pushState({}, '', `http://localhost:5173/search-projects-page/${page}`);
-  };
+      setTotalItemsCount(0);
+    } 
+    else 
+      setProjects(data.data);
+      setTotalItemsCount(data?.totalLength ?? 0);
+    };
 
   const handlePaginateChange = async (page: number, pageSize: number) => {
     await loadProjects(page, pageSize);

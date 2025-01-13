@@ -81,7 +81,7 @@ const Home = () => {
                         <h5 className={`mt-3 text-green`}>Brza pretraga</h5>
                         <p className={`text-violet`}>Koristite napredne filtere za brzo pronalaženje projekata.</p>
                         <Link
-                                to="/search-projects-page/1"
+                                to="/search-projects-page"
                                 className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
                             >
                                 Brza Pretraga

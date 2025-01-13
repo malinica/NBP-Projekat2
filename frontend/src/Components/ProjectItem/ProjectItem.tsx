@@ -10,7 +10,7 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({ project }) => {
   const navigate = useNavigate();
 
   const handleViewMore = () => {
-    navigate(`/projects/${project.id}`, { state: { projectData: project } });
+    navigate(`/projects/${project.id}`);
 
   };
 
@@ -19,12 +19,19 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({ project }) => {
       <img src={`${import.meta.env.VITE_SERVER_URL}/${project.image}`} alt={project.title} className="project-image" />
       <h2 className="project-title">{project.title}</h2>
       <p className="project-description">{project.description}</p>
-      <p className="project-author">
-        {project.createdBy ? `Autor: ${project.createdBy.username}` : "Autor: Nepoznat"}
-      </p>
       <p className="project-date">
         Kreirano: {new Date(project.createdAt).toLocaleDateString("sr-RS")}
       </p>
+        
+      <div className="project-tags">
+  {project.tags && project.tags.filter((tag) => tag && tag.name).length > 0 ? (
+    <p>Tagovi: {project.tags.filter((tag) => tag && tag.name).map((tag) => tag.name).join(" · ")}</p>
+  ) : (
+    <p>Nema tagova za ovaj projekat</p>
+  )}
+</div>
+
+        
       <button onClick={handleViewMore} className="view-more-button">
         Više informacija
       </button>

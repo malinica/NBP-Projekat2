@@ -158,7 +158,7 @@ public class ProjectController : ControllerBase
     [FromQuery] DateTime? fromDate = null,
     [FromQuery] DateTime? toDate = null,
     [FromQuery] int skip = 0,
-    [FromQuery] int limit = 5)
+    [FromQuery] int limit = 10)
     {
         try
         {
