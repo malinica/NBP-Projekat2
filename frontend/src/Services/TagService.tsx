@@ -6,7 +6,7 @@ const api = `${import.meta.env.VITE_API_URL}/Tag`;
 
 export const getTagsByNameAPI = async (tagName:string) => {
     try {
-        return await axios.get<Tag[]>(api+`/GetTagsByName/${tagName}`);
+        return await axios.get<Tag[]>(api+`/GetTagsByName${tagName ? `?tagName=${tagName}` : ""}`);
     }
     catch(error:any) {
         toast.error(error.response.data);

@@ -25,8 +25,8 @@ public class TagController : ControllerBase
         return Ok(tag);
     }
     
-    [HttpGet("GetTagsByName/{tagName}")]
-    public async Task<IActionResult> GetTagsByName(string tagName)
+    [HttpGet("GetTagsByName")]
+    public async Task<IActionResult> GetTagsByName([FromQuery] string? tagName)
     {
         (bool isError, var tags, ErrorMessage? error) = await tagService.FilterTagsByName(tagName);
 

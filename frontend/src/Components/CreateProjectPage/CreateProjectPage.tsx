@@ -96,7 +96,7 @@ export const CreateProjectPage = () => {
                                 />
                             </div>
                             <div className={`mb-3`}>
-                                <TagPicker selectedTags={selectedTags} onAddTag={handleAddTag} onRemoveTag={handleRemoveTag} />
+                                <TagPicker selectedTags={selectedTags} maxNumberOfTags={10} onAddTag={handleAddTag} onRemoveTag={handleRemoveTag} />
                             </div>
                             <button type="submit" className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}>Sačuvaj Projekat</button>
                         </form>

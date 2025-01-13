@@ -335,7 +335,7 @@ export const ProjectPage = () => {
                                                 {user && project.createdBy?.id == user?.id
                                                     ?
                                                     (<>
-                                                        <TagPicker selectedTags={project.tags} onAddTag={handleAddTag}
+                                                        <TagPicker selectedTags={project.tags} maxNumberOfTags={10} onAddTag={handleAddTag}
                                                                    onRemoveTag={handleRemoveTag}/>
                                                     </>)
                                                     :

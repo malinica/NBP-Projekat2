@@ -1,5 +1,5 @@
 import {Tag} from "../../Interfaces/Tag/Tag.ts";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {getTagsByNameAPI} from "../../Services/TagService.tsx";
 import {toast} from 'react-hot-toast';
 import {Autocomplete, Chip, TextField} from "@mui/material";
@@ -8,17 +8,26 @@ import styles from "./TagPicker.module.css";
 
 type Props = {
     selectedTags: Tag[];
+    maxNumberOfTags?: number;
     onAddTag: (tag: Tag) => void;
     onRemoveTag: (tagId: string) => void;
 }
 
-export const TagPicker = ({selectedTags, onAddTag, onRemoveTag} : Props) => {
+export const TagPicker = ({selectedTags, maxNumberOfTags, onAddTag, onRemoveTag} : Props) => {
 
     const [, setInputValue] = useState("");
     const [options, setOptions] = useState<Tag[]>([]);
     const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
 
+    useEffect(() => {
+        handleSearch('');
+    }, []);
+
     const handleAddTag = () => {
+        if(selectedTags && maxNumberOfTags && selectedTags.length >= maxNumberOfTags) {
+            toast.error(`Nemoguće dodavanje više od ${maxNumberOfTags} tagova.`)
+            return;
+        }
         if (selectedTag && !selectedTags.some((tag) => tag.id === selectedTag.id)) {
             onAddTag(selectedTag);
             setSelectedTag(null);
@@ -27,19 +36,15 @@ export const TagPicker = ({selectedTags, onAddTag, onRemoveTag} : Props) => {
     }
 
     const handleSearch = async (tagName: string) => {
-        if (tagName.length > 1) {
-            try {
-                const response = await getTagsByNameAPI(tagName);
-                if(response && response.status === 200) {
-                    setOptions(response.data);
-                }
+        try {
+            const response = await getTagsByNameAPI(tagName);
+            if(response && response.status === 200) {
+                setOptions(response.data);
             }
-            catch(error) {
-                toast.error("Došlo je do greške prilikom pretrage tagova.");
-                console.error(error);
-            }
-        } else {
-            setOptions([]);
+        }
+        catch(error) {
+            toast.error("Došlo je do greške prilikom pretrage tagova.");
+            console.error(error);
         }
     };
 
