@@ -138,3 +138,12 @@ export const cancelUserInvitationAPI = async (projectId: string, userId: string)
         return undefined;
     }
 }
+
+export const searchProjectsCreatedByUserAPI = async (userId: string, status: string) => {
+    try {
+        return await axios.get<Project[]>(api+`/SearchProjectsCreatedByUser/${userId}/${status}`)
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške pri dobijanju korisnikovih projekata.");
+        return null;
+    }
+};

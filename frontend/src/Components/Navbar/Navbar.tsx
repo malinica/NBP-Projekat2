@@ -56,6 +56,9 @@ export const Navbar = () => {
                                         <Link to={"/search-projects-page"} className={`${getLinkClass("/search-projects-page")}`}>PROJEKTI</Link>
                                     </li>
                                     <li className="my-2 text-end">
+                                        <Link to={"/my-projects-page"} className={`${getLinkClass("/my-projects-page")}`}>MOJI PROJEKTI</Link>
+                                    </li>
+                                    <li className="my-2 text-end">
                                         <Link to={"/search-user-page"} className={`${getLinkClass("/search-user-page")}`}>KORISNICI</Link>
                                     </li>
                                     <li className={`ms-3 text-end`}>

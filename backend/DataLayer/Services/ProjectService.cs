@@ -23,10 +23,10 @@ public class ProjectService
         try
         {
             var userResult = await userService.GetById(authorId);
-            
+
             if (userResult.IsError)
                 return userResult.Error;
-            
+
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(projectDto.Image.FileName);
             var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ProjectsImages");
             var filePath = Path.Combine(path, fileName);
@@ -106,7 +106,7 @@ public class ProjectService
             return "Došlo je do greške prilikom preuzimanja podataka o projektu. ".ToError();
         }
     }
-    
+
     public async Task<Result<ProjectResultDTO, ErrorMessage>> GetProjectWithTagsAndAuthor(string id)
     {
         try
@@ -179,9 +179,9 @@ public class ProjectService
                         "projectId", id
                     }
                 }, CypherResultMode.Set, "neo4j");
-            
+
             var projectImagePath = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<string>(projectImagePathQuery)).First();
-            
+
             if (projectDto.Image != null)
             {
                 if (!string.IsNullOrEmpty(projectImagePath))
@@ -232,7 +232,6 @@ public class ProjectService
         catch (Exception e)
         {
             return e.Message.ToError();
-            return "Došlo je do greške prilikom ažuriranja projekta. ".ToError();
         }
     }
 
@@ -257,7 +256,7 @@ public class ProjectService
             return "Greska prilikom prijavljivanja za projekat. ".ToError();
         }
     }
-    
+
     public async Task<Result<bool, ErrorMessage>> CancelApplicationForProject(string projectId, string userId)
     {
         try
@@ -279,7 +278,7 @@ public class ProjectService
             return "Greška prilikom odjavljivanja sa projekta. ".ToError();
         }
     }
-    
+
     public async Task<Result<bool, ErrorMessage>> AcceptUserToProject(string projectId, string userId)
     {
         try
@@ -305,7 +304,7 @@ public class ProjectService
             return "Greška prilikom prihvatanja korisnika na projekat. ".ToError();
         }
     }
-    
+
     public async Task<Result<bool, ErrorMessage>> RemoveUserFromProject(string projectId, string userId)
     {
         try
@@ -327,7 +326,7 @@ public class ProjectService
             return "Greška prilikom uklanjanja korisnika sa projekta. ".ToError();
         }
     }
-    
+
     public async Task<Result<bool, ErrorMessage>> InviteUserToProject(string projectId, string userId)
     {
         try
@@ -350,7 +349,7 @@ public class ProjectService
             return "Greška prilikom slanja pozivnice. ".ToError();
         }
     }
-    
+
     public async Task<Result<bool, ErrorMessage>> CancelUserInvitation(string projectId, string userId)
     {
         try
@@ -372,54 +371,54 @@ public class ProjectService
             return "Greška prilikom uklanjanja pozivnice. ".ToError();
         }
     }
-    
 
-public async Task<ProjectResultDTO[]> SearchProjects(
-    string? title = null, 
-    List<string>? tags = null, 
-    DateTime? fromDate = null, 
-    DateTime? toDate = null,
-    int? skip = 0, 
-    int? limit = 5)
-{
-    try
+
+    public async Task<ProjectResultDTO[]> SearchProjects(
+        string? title = null,
+        List<string>? tags = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null,
+        int? skip = 0,
+        int? limit = 5)
     {
-        var filters = new List<string>();
+        try
+        {
+            var filters = new List<string>();
 
-        if (!string.IsNullOrWhiteSpace(title))
-            filters.Add("p.Title CONTAINS $title");
+            if (!string.IsNullOrWhiteSpace(title))
+                filters.Add("p.Title CONTAINS $title");
 
-        if (tags != null && tags.Any())
-            filters.Add("ALL(tag IN $tags WHERE EXISTS((p)-[:HAS_TAG]->(:Tag {Name: tag})))");
+            if (tags != null && tags.Any())
+                filters.Add("ALL(tag IN $tags WHERE EXISTS((p)-[:HAS_TAG]->(:Tag {Name: tag})))");
 
-        if (fromDate.HasValue)
-            filters.Add("p.CreatedAt >= $fromDate");
+            if (fromDate.HasValue)
+                filters.Add("p.CreatedAt >= $fromDate");
 
-        if (toDate.HasValue)
-            filters.Add("p.CreatedAt <= $toDate");
+            if (toDate.HasValue)
+                filters.Add("p.CreatedAt <= $toDate");
 
-        filters.Add("p.Status = 'Opened'");
+            filters.Add("p.Status = 'Opened'");
 
-        var whereClause = filters.Count > 0 ? $"WHERE {string.Join(" AND ", filters)}" : "";
+            var whereClause = filters.Count > 0 ? $"WHERE {string.Join(" AND ", filters)}" : "";
 
-        var parameters = new Dictionary<string, object>();
+            var parameters = new Dictionary<string, object>();
 
-        if (!string.IsNullOrWhiteSpace(title))
-            parameters.Add("title", title);
+            if (!string.IsNullOrWhiteSpace(title))
+                parameters.Add("title", title);
 
-        if (tags != null && tags.Any())
-            parameters.Add("tags", tags);
+            if (tags != null && tags.Any())
+                parameters.Add("tags", tags);
 
-        if (fromDate.HasValue)
-            parameters.Add("fromDate", fromDate.Value);
+            if (fromDate.HasValue)
+                parameters.Add("fromDate", fromDate.Value);
 
-        if (toDate.HasValue)
-            parameters.Add("toDate", toDate.Value);
+            if (toDate.HasValue)
+                parameters.Add("toDate", toDate.Value);
 
-        parameters.Add("skip", skip);
-        parameters.Add("limit", limit);
+            parameters.Add("skip", skip);
+            parameters.Add("limit", limit);
 
-        var query = new CypherQuery($@"
+            var query = new CypherQuery($@"
             MATCH (p:Project)
             {whereClause}
             OPTIONAL MATCH (p)-[:HAS_TAG]->(t:Tag)
@@ -435,19 +434,47 @@ public async Task<ProjectResultDTO[]> SearchProjects(
             SKIP $skip
             LIMIT $limit
         ",
-        parameters,
-        CypherResultMode.Projection, "neo4j");
+            parameters,
+            CypherResultMode.Projection, "neo4j");
 
-        var results = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+            var results = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
 
-        return results?.ToArray() ?? Array.Empty<ProjectResultDTO>();
+            return results?.ToArray() ?? Array.Empty<ProjectResultDTO>();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Greška: {e.Message}");
+            return null;
+        }
     }
-    catch (Exception e)
+
+    public async Task<Result<ProjectResultDTO[], ErrorMessage>> SearchProjectsCreatedByUser(string userId, string status)
     {
-        Console.WriteLine($"Greška: {e.Message}");
-        return null;
-    }
-}
+        try
+        {
+            var query = new CypherQuery("MATCH (p:Project {Status: $status})-[:CREATED_BY]->(u:User {Id: $userId}) RETURN p",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId},
+                    {"status", status}
+                },
+                CypherResultMode.Set, "neo4j");
 
+            var projects = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+
+            var projectArray = projects.ToArray();
+
+            if (projectArray.Length > 0)
+            {
+                return projectArray;
+            }
+
+            return "Nema projekata koje je kreirao korisnik. ".ToError();
+        }
+        catch (Exception)
+        {
+            return "Greška prilikom prikupljanja projekata. ".ToError();
+        }
+    }
 
 }
