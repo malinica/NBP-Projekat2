@@ -109,11 +109,11 @@ public class ProjectController : ControllerBase
 
         return Ok(response);
     }
-
-    [HttpDelete("CancelUserInvitation/{projectId}/{userId}")]
-    public async Task<IActionResult> CancelUserInvitation(string projectId, string userId)
+    
+    [HttpPost("AcceptInvitationToProject/{projectId}/{userId}")]
+    public async Task<IActionResult> AcceptInvitationToProject(string projectId, string userId)
     {
-        (bool isError, var response, ErrorMessage? error) = await projectService.CancelUserInvitation(projectId, userId);
+        (bool isError, var response, ErrorMessage? error) = await projectService.AcceptInvitationToProject(projectId, userId);
 
         if (isError)
         {
@@ -123,6 +123,40 @@ public class ProjectController : ControllerBase
         return Ok(response);
     }
 
+
+    [HttpDelete("CancelInvitationToProject/{projectId}/{userId}")]
+    public async Task<IActionResult> CancelInvitationToProject(string projectId, string userId)
+    {
+        (bool isError, var response, ErrorMessage? error) = await projectService.CancelInvitationToProject(projectId, userId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
+    
+    [HttpGet("GetUserProjectRelationship/{projectId}")]
+    [Authorize]
+    public async Task<IActionResult> GetUserProjectRelationship(string projectId)
+    {
+        var userResult = await userService.GetCurrentUser(User);
+
+        if (userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        (bool isError, var relationship, ErrorMessage? error) = 
+            await projectService.GetUserProjectRelationship(projectId, userResult.Data.Id);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+        
+        return Ok(relationship);
+    }
+    
     [HttpPut("UpdateProject/{id}")]
     [Authorize]
     public async Task<IActionResult> UpdateProject([FromForm] UpdateProjectDTO projectDto, string id)

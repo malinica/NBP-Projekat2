@@ -2,9 +2,12 @@ import {useParams} from "react-router-dom";
 import {Project} from "../../Interfaces/Project/Project.ts";
 import {useEffect, useState} from "react";
 import {
-    applyForProjectAPI, cancelProjectApplicationAPI,
+    acceptInvitationToProjectAPI,
+    applyForProjectAPI, cancelInvitationToProjectAPI,
+    cancelProjectApplicationAPI,
     deleteProjectAPI,
     getProjectByIdAPI,
+    getUserProjectRelationshipAPI, removeUserFromProjectAPI,
     updateProjectAPI
 } from "../../Services/ProjectService.tsx";
 import {toast} from 'react-hot-toast'
@@ -18,13 +21,13 @@ import {useNavigate} from "react-router";
 import styles from "./ProjectPage.module.css";
 import {ProjectStatus} from "../../Enums/ProjectStatus.ts";
 import {ProjectUsers} from "../ProjectUsers/ProjectUsers.tsx";
-import { useLocation } from 'react-router-dom';
-
+import {UserProjectRelationship} from "../../Enums/UserProjectRelationship.ts";
 
 export const ProjectPage = () => {
     const {projectId} = useParams();
     const {user} = useAuth();
     const [project, setProject] = useState<Project | null>(null);
+    const [userProjectRelationship, setUserProjectRelationship] = useState<UserProjectRelationship|null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [editedTitle, setEditedTitle] = useState("");
@@ -41,12 +44,16 @@ export const ProjectPage = () => {
 
     const loadProject = async () => {
         try {
-            const response = await getProjectByIdAPI(projectId ?? "");
-            if (response && response.status === 200) {
-                setProject(response.data);
-                setEditedTitle(response.data.title);
-                setEditedDescription(response.data.description);
-                setEditedStatus(response.data.status);
+            const projectResponse = await getProjectByIdAPI(projectId ?? "");
+            if (projectResponse && projectResponse.status === 200) {
+                setProject(projectResponse.data);
+                setEditedTitle(projectResponse.data.title);
+                setEditedDescription(projectResponse.data.description);
+                setEditedStatus(projectResponse.data.status);
+            }
+            const relationshipResponse = await getUserProjectRelationshipAPI(projectId ?? "");
+            if (relationshipResponse && relationshipResponse.status === 200) {
+                setUserProjectRelationship(relationshipResponse.data as UserProjectRelationship);
             }
         } catch {
             toast.error("Greška pri učitavanju projekta.");
@@ -108,6 +115,7 @@ export const ProjectPage = () => {
             const response = await applyForProjectAPI(projectId!, user!.id);
             if (response && response.status === 200 && response.data) {
                 toast.success("Uspešna prijava.");
+                setUserProjectRelationship(UserProjectRelationship.AppliedTo)
             }
         }
         catch {
@@ -120,6 +128,7 @@ export const ProjectPage = () => {
             const response = await cancelProjectApplicationAPI(projectId!, user!.id);
             if (response && response.status === 200 && response.data) {
                 toast.success("Uspešna odjava.");
+                setUserProjectRelationship(UserProjectRelationship.NoRelationship);
             }
         }
         catch {
@@ -127,7 +136,46 @@ export const ProjectPage = () => {
         }
     }
 
-    const handleSaveEdit = async () => {
+    const handleLeaveProject = async () => {
+        try {
+            const response = await removeUserFromProjectAPI(projectId!, user!.id);
+            if (response && response.status === 200 && response.data) {
+                toast.success("Uspešno ste napustili projekat.");
+                setUserProjectRelationship(UserProjectRelationship.NoRelationship);
+            }
+        }
+        catch {
+            toast.error("Došlo je do greške prilikom napuštanja projekta.")
+        }
+    }
+
+    const handleAcceptInvitation = async () => {
+        try {
+            const response = await acceptInvitationToProjectAPI(projectId!, user!.id);
+            if (response && response.status === 200 && response.data) {
+                toast.success("Uspešno ste prihvatili pozivnicu.");
+                setUserProjectRelationship(UserProjectRelationship.AcceptedTo);
+            }
+        }
+        catch {
+            toast.error("Došlo je do greške prilikom prihvatanja pozivnice.")
+        }
+    }
+
+    const handleDeclineInvitation = async () => {
+        try {
+            const response = await cancelInvitationToProjectAPI(projectId!, user!.id);
+            if (response && response.status === 200 && response.data) {
+                toast.success("Uspešno ste odbili pozivnicu.");
+                setUserProjectRelationship(UserProjectRelationship.NoRelationship);
+            }
+        }
+        catch {
+            toast.error("Došlo je do greške prilikom prihvatanja pozivnice.")
+        }
+    }
+
+    const handleUpdateProject = async () => {
         try {
             const updatedProjectDto = new FormData();
             updatedProjectDto.append("title", editedTitle);
@@ -161,6 +209,16 @@ export const ProjectPage = () => {
         }
     };
 
+    const actionButtons = {
+        NO_RELATIONSHIP: <button onClick={handleApplyForProject}>Prijavi se</button>,
+        ACCEPTED_TO: <button onClick={handleLeaveProject}>Napusti projekat</button>,
+        APPLIED_TO: <button onClick={handleCancelProjectApplication}>Odjavi se</button>,
+        INVITED_TO: <>
+            <button onClick={handleAcceptInvitation}>Prihvati pozivnicu</button>
+            <button onClick={handleDeclineInvitation}>Otkaži pozivnicu</button>
+        </>
+    };
+
     return (
         <div className={`container`}>
             {isLoading
@@ -180,11 +238,10 @@ export const ProjectPage = () => {
                                             className={`img-fluid rounded`}
                                             alt={project.title}
                                         />
-                                        {user?.id != project?.createdBy!.id &&
-                                            <>
-                                                <button onClick={handleApplyForProject}>Prijavi se</button>
-                                                <button onClick={handleCancelProjectApplication}>Odjavi se</button>
-                                            </>}
+                                        {user?.id !== project?.createdBy!.id &&
+                                            project.status === ProjectStatus.Opened &&
+                                            userProjectRelationship
+                                            && actionButtons[userProjectRelationship]}
                                     </div>
 
                                     <div className={`col-md-8`}>
@@ -237,7 +294,7 @@ export const ProjectPage = () => {
                                                     <div className="d-flex justify-content-start mt-3">
                                                         <button
                                                             className={`btn text-white text-center rounded py-1 px-2 mx-1 ${styles.dugme2}`}
-                                                            onClick={handleSaveEdit}
+                                                            onClick={handleUpdateProject}
                                                         >
                                                             Sačuvaj
                                                         </button>

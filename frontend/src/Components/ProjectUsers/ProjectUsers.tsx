@@ -7,7 +7,7 @@ import UserCard from "../UserCard/UserCard.tsx";
 import {useAuth} from "../../Context/useAuth.tsx";
 import {
     acceptUserToProjectAPI,
-    cancelProjectApplicationAPI, cancelUserInvitationAPI,
+    cancelProjectApplicationAPI, cancelInvitationToProjectAPI,
     removeUserFromProjectAPI
 } from "../../Services/ProjectService.tsx";
 
@@ -24,30 +24,28 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
     const {user: currentUser} = useAuth();
 
     useEffect(() => {
-        loadUsers(1,10, "accepted");
+        loadUsers(1, 10, "accepted");
     }, [projectId]);
 
     const handleTabChange = async (tab: string) => {
-        if(tab!="accepted" && tab!="applied" && tab!="invited")
+        if (tab != "accepted" && tab != "applied" && tab != "invited")
             return;
 
         setActiveTab(tab);
-        await loadUsers(1,10, tab);
+        await loadUsers(1, 10, tab);
     }
 
     const loadUsers = async (page: number, pageSize: number, type: string) => {
         try {
             setIsLoading(true);
             const response = await getProjectUsersByType(projectId, type, page, pageSize);
-            if(response && response.status === 200) {
+            if (response && response.status === 200) {
                 setUsers(response.data.data);
                 setTotalUsersCount(response.data.totalLength);
             }
-        }
-        catch {
+        } catch {
             toast.error("Došlo je do greške prilikom učitavanja korisnika.")
-        }
-        finally {
+        } finally {
             setIsLoading(false);
         }
     }
@@ -59,28 +57,33 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
     const handleAcceptUser = async (userId: string) => {
         try {
             const response = await acceptUserToProjectAPI(projectId, userId);
-            if(response && response.status === 200 && response.data) {
-                toast.success("Korisnik je uspešno prihvaćen na projekat.")
+            if (response && response.status === 200 && response.data) {
+                toast.success("Korisnik je uspešno prihvaćen na projekat.");
+                setUsers(prev => prev.filter(user => user.id != userId));
             }
-        }
-        catch {
-            toast.error("Došlo je do greške prilikom prihvatanja korisnika.")
+        } catch {
+            toast.error("Došlo je do greške prilikom prihvatanja korisnika.");
         }
     }
 
     const handleRemoveUser = async (userId: string) => {
+        let response;
         switch (activeTab) {
             case "accepted":
-                await removeUserFromProjectAPI(projectId, userId);
+                response = await removeUserFromProjectAPI(projectId, userId);
                 break;
             case "applied":
-                await cancelProjectApplicationAPI(projectId, userId);
+                response = await cancelProjectApplicationAPI(projectId, userId);
                 break;
             case "invited":
-                await cancelUserInvitationAPI(projectId, userId);
+                response = await cancelInvitationToProjectAPI(projectId, userId);
                 break;
         }
+        if (response && response.status === 200 && response.data) {
+            setUsers(prev => prev.filter(user => user.id != userId));
+        }
     }
+
 
     const getTitle = (activeTab: string) => {
         switch (activeTab) {
@@ -116,21 +119,30 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
                         </button>
                     </div>}
                     <h3>{getTitle(activeTab)}</h3>
-                    <ul className="list-group">
-                        {users.map(user => (
-                            <div key={user.id} className={`d-flex`}>
-                                <UserCard user={user} key={user.id}/>
-                                {currentUser?.id === authorId && <>
-                                    {activeTab === "applied" && <button className={`bg-green`} onClick={() => handleAcceptUser(user.id)}>
-                                        Prihvati
-                                    </button>}
-                                    <button className={`bg-lilac`} onClick={() => handleRemoveUser(user.id)}>
-                                        Ukloni
-                                    </button>
-                                </>}
-                            </div>
-                        ))}
-                    </ul>
+
+                    {users && users.length > 0 ?
+                        (<>
+                            <ul className="list-group">
+                                {users.map(user => (
+                                    <div key={user.id} className={`d-flex`}>
+                                        <UserCard user={user} key={user.id}/>
+                                        {currentUser?.id === authorId && <>
+                                            {activeTab === "applied" &&
+                                                <button className={`bg-green`}
+                                                        onClick={() => handleAcceptUser(user.id)}>
+                                                    Prihvati
+                                                </button>}
+                                            <button className={`bg-lilac`} onClick={() => handleRemoveUser(user.id)}>
+                                                Ukloni
+                                            </button>
+                                        </>}
+                                    </div>
+                                ))}
+                            </ul>
+                        </>) :
+                        (<>
+                            <p className={`text-center`}>Nema korisnika.</p>
+                        </>)}
                 </>)}
 
             {totalUsersCount > 0 &&

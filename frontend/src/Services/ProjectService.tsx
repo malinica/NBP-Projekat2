@@ -84,6 +84,7 @@ export const searchProjectsAPI = async (
     }
 };
 
+
 export const applyForProjectAPI = async (projectId: string, userId: string) => {
     try {
         return await axios.post<boolean>(api+`/ApplyForProject/${projectId}/${userId}`, {});
@@ -94,6 +95,7 @@ export const applyForProjectAPI = async (projectId: string, userId: string) => {
     }
 }
 
+//odbija korisnikovu prijavu na projekat, ili korisnik se sam odjavljuje nakon prijave
 export const cancelProjectApplicationAPI = async (projectId: string, userId: string) => {
     try {
         return await axios.delete<boolean>(api+`/CancelProjectApplication/${projectId}/${userId}`, {});
@@ -104,6 +106,7 @@ export const cancelProjectApplicationAPI = async (projectId: string, userId: str
     }
 }
 
+//prihvata prijavljenog korisnika na projekat
 export const acceptUserToProjectAPI = async (projectId: string, userId: string) => {
     try {
         return await axios.post<boolean>(api + `/AcceptUserToProject/${projectId}/${userId}`, {});
@@ -113,6 +116,7 @@ export const acceptUserToProjectAPI = async (projectId: string, userId: string) 
     }
 }
 
+//uklanja korisnika sa projekta ili korisnik sam napusta projekat
 export const removeUserFromProjectAPI = async (projectId: string, userId: string) => {
     try {
         return await axios.delete<boolean>(api + `/RemoveUserFromProject/${projectId}/${userId}`, {});
@@ -131,20 +135,40 @@ export const inviteUserToProjectAPI = async (projectId: string, userId: string) 
     }
 }
 
-export const cancelUserInvitationAPI = async (projectId: string, userId: string) => {
+//prihvata pozivnicu i postaje clan projekta
+export const acceptInvitationToProjectAPI = async (projectId: string, userId: string) => {
     try {
-        return await axios.delete<boolean>(api + `/CancelUserInvitation/${projectId}/${userId}`, {});
+        return await axios.post<boolean>(api + `/AcceptInvitationToProject/${projectId}/${userId}`, {});
     } catch (error: any) {
         toast.error(error.response?.data || "Došlo je do greške.");
         return undefined;
     }
 }
 
+export const cancelInvitationToProjectAPI = async (projectId: string, userId: string) => {
+    try {
+        return await axios.delete<boolean>(api + `/CancelInvitationToProject/${projectId}/${userId}`, {});
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}
+
+export const getUserProjectRelationshipAPI = async (projectId: string) => {
+    try {
+        return await axios.get<string>(api + `/GetUserProjectRelationship/${projectId}`, {});
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}
+
+
 export const searchProjectsCreatedByUserAPI = async (userId: string, status: string) => {
     try {
         return await axios.get<Project[]>(api+`/SearchProjectsCreatedByUser/${userId}/${status}`)
     } catch (error: any) {
-        toast.error(error.response?.data || "Došlo je do greške pri dobijanju korisnikovih projekata.");
+        toast.error(error.response?.data || "Došlo je do greške pri učitavanju korisnikovih projekata.");
         return null;
     }
 };

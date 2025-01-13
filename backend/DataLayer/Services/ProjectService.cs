@@ -331,6 +331,27 @@ public class ProjectService
     {
         try
         {
+            var checkIfUserCanBeInvitedQuery =
+                new CypherQuery(@"
+                                MATCH (u:User {Id: $userId}), (p:Project {Id: $projectId})
+                                OPTIONAL MATCH (u)-[r:ACCEPTED_TO|APPLIED_TO]->(p)
+                                WITH u, p, r
+                                WHERE r IS NOT NULL
+                                RETURN COUNT(r) AS relCount",
+                    new Dictionary<string, object>
+                    {
+                        { "userId", userId },
+                        { "projectId", projectId }
+                    },
+                    CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<int>(checkIfUserCanBeInvitedQuery);
+
+            if (result.FirstOrDefault() > 0)
+            {
+                return "Korisnik je već na projektu ili se prijavio. Nemoguće slanje pozivnice.".ToError(403);
+            }
+            
             var query = new CypherQuery("MATCH (u:User {Id: $userId}), (p:Project {Id: $projectId})" +
                                         "MERGE (u)-[:INVITED_TO]->(p)",
                 new Dictionary<string, object>
@@ -349,8 +370,34 @@ public class ProjectService
             return "Greška prilikom slanja pozivnice. ".ToError();
         }
     }
+    
+    public async Task<Result<bool, ErrorMessage>> AcceptInvitationToProject(string projectId, string userId)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId}), (p:Project {Id: $projectId}) " +
+                                        "MERGE (u)-[:ACCEPTED_TO]->(p) " +
+                                        "WITH u " +
+                                        "MATCH (u)-[r:INVITED_TO]->(p) " +
+                                        "DELETE r",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId},
+                    {"projectId", projectId}
+                },
+                CypherResultMode.Set, "neo4j");
 
-    public async Task<Result<bool, ErrorMessage>> CancelUserInvitation(string projectId, string userId)
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            return "Greška prilikom prihvatanja pozivnice.".ToError();
+        }
+    }
+
+    public async Task<Result<bool, ErrorMessage>> CancelInvitationToProject(string projectId, string userId)
     {
         try
         {
@@ -369,6 +416,30 @@ public class ProjectService
         catch (Exception)
         {
             return "Greška prilikom uklanjanja pozivnice. ".ToError();
+        }
+    }
+    
+    public async Task<Result<string?, ErrorMessage>> GetUserProjectRelationship(string projectId, string userId)
+    {
+        try
+        {
+            var query = new CypherQuery(@"
+                                    MATCH (u:User {Id: $userId})-[r]->(p:Project {Id: $projectId})
+                                    RETURN TYPE(r) AS relationshipType",
+                new Dictionary<string, object>
+                {
+                    { "userId", userId },
+                    { "projectId", projectId }
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<string>(query);
+
+            return result.FirstOrDefault() ?? "NO_RELATIONSHIP";
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom očitavanja veze između korisnika i projekta.".ToError();
         }
     }
 
@@ -436,27 +507,25 @@ public class ProjectService
             parameters,
             CypherResultMode.Projection, "neo4j");
 
-            var results = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+            var results = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query); 
+            if (results == null || !results.Any())
+            {
+                return new PaginatedResponseDTO<ProjectResultDTO>
+                {
+                    Data = new List<ProjectResultDTO>(),  
+                    TotalLength = 0 
+                };
+            }
 
-          if (results == null || !results.Any())
-        {
+            var totalLength = results.Count();
+
+            var paginatedResults = results.Skip(skip.Value).Take(limit.Value).ToList();
+
             return new PaginatedResponseDTO<ProjectResultDTO>
             {
-                Data = new List<ProjectResultDTO>(),  
-                TotalLength = 0 
+                Data = paginatedResults ?? new List<ProjectResultDTO>(), 
+                TotalLength = totalLength
             };
-        }
-
-        var totalLength = results.Count();
-
-        var paginatedResults = results.Skip(skip.Value).Take(limit.Value).ToList();
-
-        return new PaginatedResponseDTO<ProjectResultDTO>
-        {
-            Data = paginatedResults ?? new List<ProjectResultDTO>(), 
-            TotalLength = totalLength
-        };
-
         }
         catch (Exception e)
         {
