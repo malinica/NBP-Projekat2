@@ -16,7 +16,7 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({ project }) => {
   };
 
   return (
-    <div className={`row justify-content-center align-items-center rounded-3 bg-light-green mx-1 pt-4`}>
+    <div className={`row justify-content-center align-items-center rounded-3 bg-light-green mx-1 pt-4 mb-4`}>
       <div className={`col-12 col-lg-6 d-flex justify-content-center`}>
         <img src={`${import.meta.env.VITE_SERVER_URL}/${project.image}`} alt={project.title} className={`${styles.slika}`} />
       </div>

@@ -27,7 +27,7 @@ export const Pagination = ({ totalLength, onPaginateChange }: Props) => {
 
     return (
         <div style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center", marginTop: "10px" }}>
-            <MaterialPagination count={pageCount} page={page} onChange={handlePageChange} color="primary" />
+            <MaterialPagination count={pageCount} page={page} onChange={handlePageChange} color="standard" />
 
             <FormControl variant="outlined" size="small">
                 <InputLabel shrink>Po stranici</InputLabel>

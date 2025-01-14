@@ -250,19 +250,19 @@ export const ProjectPage = () => {
                                                 (<>
                                                     <input
                                                         type="text"
-                                                        className="form-control mb-2"
+                                                        className={`form-control mb-2`}
                                                         value={editedTitle}
                                                         onChange={(e) => setEditedTitle(e.target.value)}
                                                     />
 
                                                     <textarea
-                                                        className="form-control mb-2"
+                                                        className={`form-control mb-2`}
                                                         value={editedDescription}
                                                         onChange={(e) => setEditedDescription(e.target.value)}
                                                     />
 
                                                     <select
-                                                        className="form-control mb-2"
+                                                        className={`form-control mb-2`}
                                                         value={editedStatus}
                                                         onChange={(e) => setEditedStatus(e.target.value as ProjectStatus)}
                                                     >
@@ -276,7 +276,7 @@ export const ProjectPage = () => {
 
                                                     <input
                                                         type="file"
-                                                        className="form-control mb-2"
+                                                        className={`form-control mb-2`}
                                                         accept="image/*"
                                                         onChange={handleImageChange}
                                                     />
@@ -285,12 +285,12 @@ export const ProjectPage = () => {
                                                         <img
                                                             src={URL.createObjectURL(editedImage)}
                                                             alt="Nova slika"
-                                                            className="img-thumbnail mb-2"
+                                                            className={`img-thumbnail mb-2`}
                                                             style={{maxWidth: "200px"}}
                                                         />
                                                     )}
 
-                                                    <div className="d-flex justify-content-start mt-3">
+                                                    <div className={`d-flex justify-content-start mt-3`}>
                                                         <button
                                                             className={`btn text-white text-center rounded py-1 px-2 mx-1 ${styles.dugme2}`}
                                                             onClick={handleUpdateProject}
@@ -351,7 +351,7 @@ export const ProjectPage = () => {
                             </div>
                         </>) :
                         (<>
-                            <p>Nema podataka o projektu.</p>
+                            <p className={`text-center text-muted`}>Nema podataka o projektu.</p>
                         </>)}
                     <ProjectUsers projectId={projectId ?? ""} authorId={project?.createdBy!.id ?? ""}/>
                 </>)

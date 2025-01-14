@@ -1,0 +1,17 @@
+.dugme {
+    transition: 0.4s;
+    background-color: #35AC7A;
+}
+
+.dugme:hover {
+    background-color: #006400;
+}
+
+.dugme1 {
+    transition: 0.4s;
+    background-color: #7B1FA2;
+}
+
+.dugme1:hover {
+    background-color: #006400;
+}

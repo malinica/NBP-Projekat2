@@ -3,6 +3,7 @@ import {User} from "../../Interfaces/User/User.ts";
 import {getProjectUsersByTypeAPI} from "../../Services/UserService.tsx";
 import {Pagination} from "../Pagination/Pagination.tsx";
 import {toast} from 'react-hot-toast'
+import styles from "./ProjectUsers.module.css";
 import UserCard from "../UserCard/UserCard.tsx";
 import {useAuth} from "../../Context/useAuth.tsx";
 import {
@@ -97,43 +98,44 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
     }
 
     return (
-        <div className="project-users">
+        <div className={`project-users`}>
             {isLoading
                 ?
                 (<>
-                    <p className={`text-center`}>Učitavanje korisnika...</p>
+                    <p className={`text-center text-muted`}>Učitavanje korisnika...</p>
                 </>)
                 : (<>
-                    {currentUser?.id === authorId && <div className="btn-group mb-3">
-                        <button className={`btn ${activeTab === "accepted" ? "btn-primary" : "btn-secondary"}`}
+                    {currentUser?.id === authorId && <div className={`mb-3`}>
+                        <button className={`btn ${activeTab === "accepted" ? "btn-success mr-2" : "btn-muted mr-2"}`}
                                 onClick={() => handleTabChange("accepted")}>
                             Članovi
                         </button>
-                        <button className={`btn ${activeTab === "applied" ? "btn-primary" : "btn-secondary"}`}
+                        <button className={`btn ${activeTab === "applied" ? "btn-success mx-2 " : "btn-muted mx-2"}`}
                                 onClick={() => handleTabChange("applied")}>
                             Prijavljeni
                         </button>
-                        <button className={`btn ${activeTab === "invited" ? "btn-primary" : "btn-secondary"}`}
+                        <button className={`btn ${activeTab === "invited" ? "btn-success" : "btn-muted"}`}
                                 onClick={() => handleTabChange("invited")}>
                             Pozvani
                         </button>
                     </div>}
-                    <h3>{getTitle(activeTab)}</h3>
+                    <h3 className={`text-green mb-4`}>{getTitle(activeTab)}</h3>
 
                     {users && users.length > 0 ?
                         (<>
-                            <ul className="list-group">
+                            <ul className={`list-group`}>
                                 {users.map(user => (
                                     <div key={user.id} className={`d-flex`}>
                                         <UserCard user={user} key={user.id}/>
                                         {currentUser?.id === authorId && <>
                                             {activeTab === "applied" &&
-                                                <button className={`bg-green`}
+                                                <button className={`rounded-3 bg-blue p-3 ms-4 border-0 text-light ${styles.dugme}`}
                                                         onClick={() => handleAcceptUser(user.id)}>
                                                     Prihvati
                                                 </button>}
-                                            <button className={`bg-lilac`} onClick={() => handleRemoveUser(user.id)}>
-                                                Ukloni
+                                            <button className={`rounded-3 bg-blue p-3 mx-4 border-0 text-light ${styles.dugme1}`} 
+                                                        onClick={() => handleRemoveUser(user.id)}>
+                                                    Ukloni
                                             </button>
                                         </>}
                                     </div>
@@ -141,7 +143,7 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
                             </ul>
                         </>) :
                         (<>
-                            <p className={`text-center`}>Nema korisnika.</p>
+                            <p className={`text-center text-muted`}>Nema korisnika.</p>
                         </>)}
                 </>)}
 

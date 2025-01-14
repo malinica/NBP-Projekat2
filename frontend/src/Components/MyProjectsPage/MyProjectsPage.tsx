@@ -32,30 +32,30 @@ const MyProjectsPage = () => {
     };
 
     return (
-        <div className="container">
-            <h1 className="text-center my-4">Moji projekti</h1>
-            <div className="filter-section mb-4">
-                <h4>Status projekata:</h4>
+        <div className={`container`}>
+            <h1 className={`text-center my-4 text-green`}>Moji Projekti</h1>
+            <div className={`filter-section mb-4`}>
+                <h4 className={`text-dark-green mb-3`}>Status projekata:</h4>
                 <select
                     id="status-filter"
                     value={searchStatus}
                     onChange={handleStatusChange}
-                    className="form-select form-select-lg mb-3"
+                    className={`form-select form-select-lg mb-3`}
                 >
                     <option value="Opened">Opened</option>
                     <option value="Closed">Closed</option>
                     <option value="Completed">Completed</option>
                 </select>
             </div>
-            <div className="project-list">
+            <div className={``}>
                 {isLoading ? (
-                    <p>Učitavanje projekata...</p>
+                    <p className={`text-center text-muted`}>Učitavanje projekata...</p>
                 ) : projects && projects.length > 0 ? (
                     projects.map((project) => (
                         <ProjectItem key={project.id} project={project} />
                     ))
                 ) : (
-                    <p>Nema projekata za prikazivanje.</p>
+                    <p className={`text-muted text-center`}>Nema projekata za prikazivanje.</p>
                 )}
             </div>
         </div>

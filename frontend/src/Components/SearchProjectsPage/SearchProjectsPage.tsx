@@ -71,13 +71,12 @@ const SearchProjectsPage = () => {
     <div className={`container`}>
       <div className={`row`}>
         <div className={`col-xxl-3 col-xl-3 col-lg-4 col-md-5 col-sm-12 my-2 mr-2`}>
-          <div className={`m-2 px-2 py-3 bg-steel-blue rounded-3 d-flex flex-column`}>
-
-            <div className={`mb-3`}>
+          <div className={`m-2 px-2 py-3 rounded-3 d-flex flex-column bg-green`}>
+            <div className={`mb-3 mx-1`}>
               <TagPicker selectedTags={selectedTags} onAddTag={handleAddTag} onRemoveTag={handleRemoveTag} />
             </div>
 
-            <label className={`mx-2 text-cyan-blue`}>Unesite naziv projekta: </label>
+            <label className={`mx-2 text-dark-green`}>Unesite naziv projekta: </label>
             <div className={`d-flex flex-column ms-2 me-2 my-2`}>
               <input
                 className={`form-control rounded-2`}
@@ -87,28 +86,28 @@ const SearchProjectsPage = () => {
             </div>
 
 
-            <label className="mx-2 text-cyan-blue">Odaberite početni datum: </label>
-            <div className="d-flex flex-column ms-2 me-2 my-2">
+            <label className={`mx-2 text-dark-green`}>Odaberite početni datum: </label>
+            <div className={`d-flex flex-column ms-2 me-2 my-2`}>
               <input
                 type="date"
-                className="form-control rounded-2"
+                className={`form-control rounded-2`}
                 value={dateFrom ? dateFrom.toISOString().split('T')[0] : ''}
                 onChange={handleDateFromChange}
               />
             </div>
 
-            <label className="mx-2 text-cyan-blue">Odaberite krajnji datum: </label>
-            <div className="d-flex flex-column ms-2 me-2 my-2">
+            <label className={`mx-2 text-dark-green`}>Odaberite krajnji datum: </label>
+            <div className={`d-flex flex-column ms-2 me-2 my-2`}>
               <input
                 type="date"
-                className="form-control rounded-2"
+                className={`form-control rounded-2`}
                 value={dateTo ? dateTo.toISOString().split('T')[0] : ''}
                 onChange={handleDateToChange}
               />
             </div>
 
             <button
-              className={`btn-md m-2 text-white text-center rounded py-2 px-2 ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
+              className={`btn-md m-2 text-white text-center rounded py-2 px-2 mt-4 ${styles.fields} ${styles.dugme} ${styles.linija_ispod_dugmeta}`}
               type="button"
               id="buttonSearch"
               onClick={handleButtonSearchClick}
@@ -116,18 +115,18 @@ const SearchProjectsPage = () => {
           </div>
         </div>
 
-        <div className="project-list">
+        <div className={`col-xxl-9 col-xl-9 col-lg-8 col-md-7 col-sm-12 my-3`}>
           {projects && projects.length > 0 ? (
             projects.map((project) => (
               <ProjectItem key={project.id} project={project} />
             ))
           ) : (
-            <p>Nema projekata za prikazivanje.</p>
+            <p className={`text-center text-muted`}>Nema projekata za prikazivanje.</p>
           )}
         </div>
 
         {totalItemsCount > 0 &&
-          <div className="my-4">
+          <div className={`my-4`}>
             <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange} />
           </div>}
 
