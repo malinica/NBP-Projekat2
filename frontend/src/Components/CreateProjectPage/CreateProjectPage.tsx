@@ -59,9 +59,9 @@ export const CreateProjectPage = () => {
 
     return (
         <div className={`container-fluid bg-lilac d-flex justify-content-center flex-grow-1`}>
-            <div className={`col-xxl-6 col-xl-7 col-lg-6 col-md-10 col-sm-12 p-5 m-4 bg-light rounded d-flex flex-column`}>
-                <div className={`row justify-content-center bg-light rounded`}>
-                    <div className={`col-md-6 m-4`}>
+            <div className={`col-xxl-7 col-xl-7 col-lg-6 col-md-10 col-sm-12 m-4 bg-light rounded-3 d-flex flex-column`}>
+                <div className={`row justify-content-center bg-light rounded-3 py-4 `}>
+                    <div className={`col-md-8 m-4`}>
                         <h2 className={`mb-4 text-center text-violet`}>Kreiraj Projekat</h2>
                         <form onSubmit={handleSubmit}>
                             <div className={`mb-3`}>

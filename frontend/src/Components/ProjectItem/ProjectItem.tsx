@@ -16,8 +16,8 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({ project }) => {
   };
 
   return (
-    <div className={`row justify-content-center align-items-center rounded-3 bg-light-green mx-1 pt-4 mb-4`}>
-      <div className={`col-12 col-lg-6 d-flex justify-content-center`}>
+    <div className={`row justify-content-center align-items-center rounded-3 bg-light-green mx-1 py-4 mb-4`}>
+      <div className={`img-fluid col-12 col-lg-6 d-flex justify-content-center align-content-center`}>
         <img src={`${import.meta.env.VITE_SERVER_URL}/${project.image}`} alt={project.title} className={`${styles.slika}`} />
       </div>
       <div className={`col-lg-6 text-lg-start text-center mb-4`}>
@@ -33,7 +33,7 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({ project }) => {
       ) : (
         <p className={`text-green`}>Nema tagova za ovaj projekat</p>
       )}
-          <button onClick={handleViewMore} className={`rounded-3 bg-blue p-3 mt-2 border-0 text-light ${styles.dugme}`}>
+          <button onClick={handleViewMore} className={`rounded-3 border-0 p-3 mt-2 text-light ${styles.dugme}`}>
             Više informacija
           </button>
         </div>  

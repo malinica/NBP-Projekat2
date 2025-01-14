@@ -125,15 +125,17 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
                         (<>
                             <ul className={`list-group`}>
                                 {users.map(user => (
-                                    <div key={user.id} className={`d-flex`}>
-                                        <UserCard user={user} key={user.id}/>
+                                    <div key={user.id} className={`d-flex align-items-center justify-content-between`}>
+                                        <div className={`flex-grow-1`}>
+                                            <UserCard user={user} key={user.id}/>
+                                        </div>
                                         {currentUser?.id === authorId && <>
                                             {activeTab === "applied" &&
-                                                <button className={`rounded-3 bg-blue p-3 ms-4 border-0 text-light ${styles.dugme}`}
+                                                <button className={`rounded-3 bg-blue p-3 ms-4 border-0 text-light h-50 ${styles.dugme}`}
                                                         onClick={() => handleAcceptUser(user.id)}>
                                                     Prihvati
                                                 </button>}
-                                            <button className={`rounded-3 bg-blue p-3 mx-4 border-0 text-light ${styles.dugme1}`} 
+                                            <button className={`rounded-3 bg-blue p-3 ms-4 border-0 text-light h-50 ${styles.dugme1}`} 
                                                         onClick={() => handleRemoveUser(user.id)}>
                                                     Ukloni
                                             </button>
@@ -148,7 +150,7 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
                 </>)}
 
             {totalUsersCount > 0 &&
-                <div className="my-4">
+                <div className={`my-4`}>
                     <Pagination totalLength={totalUsersCount} onPaginateChange={handlePaginateChange}/>
                 </div>}
         </div>

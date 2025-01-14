@@ -209,12 +209,12 @@ export const ProjectPage = () => {
     };
 
     const actionButtons = {
-        NO_RELATIONSHIP: <button onClick={handleApplyForProject}>Prijavi se</button>,
-        ACCEPTED_TO: <button onClick={handleLeaveProject}>Napusti projekat</button>,
-        APPLIED_TO: <button onClick={handleCancelProjectApplication}>Odjavi se</button>,
+        NO_RELATIONSHIP: <button className={`rounded-3 bg-blue p-3 my-3 mx-3 border-0 text-light ${styles.slova} ${styles.dugme2}`} onClick={handleApplyForProject}>Prijavi se</button>,
+        ACCEPTED_TO: <button className={`rounded-3 bg-blue p-3 my-3 mx-3 border-0 text-light ${styles.slova} ${styles.dugme1}`} onClick={handleLeaveProject}>Napusti projekat</button>,
+        APPLIED_TO: <button className={`rounded-3 bg-blue p-3 my-3 mx-3 border-0 text-light ${styles.slova} ${styles.dugme1}`} onClick={handleCancelProjectApplication}>Odjavi se</button>,
         INVITED_TO: <>
-            <button onClick={handleAcceptInvitation}>Prihvati pozivnicu</button>
-            <button onClick={handleDeclineInvitation}>Otkaži pozivnicu</button>
+            <button className={`rounded-3 bg-blue p-3 my-3 mx-3 me-2 border-0 text-light ${styles.slova} ${styles.dugme2}`} onClick={handleAcceptInvitation}>Prihvati pozivnicu</button>
+            <button className={`rounded-3 bg-blue p-3 my-3 mx-3 border-0 text-light ${styles.slova} ${styles.dugme1}`} onClick={handleDeclineInvitation}>Otkaži pozivnicu</button>
         </>
     };
 

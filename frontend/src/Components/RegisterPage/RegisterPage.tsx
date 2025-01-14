@@ -121,7 +121,7 @@ const RegisterPage = () => {
             <FontAwesomeIcon icon={faEye} className={styles.password_eye} onClick={() => handlePasswordVisible(true)} />}
         </div>
         <button
-          className={`rounded-3 bg-blue p-3 mt-2 border-0 text-light ${styles.dugme}`}
+          className={`rounded-3 p-3 mt-2 border-0 text-light ${styles.dugme}`}
           onClick={handleRegister}
         >
           Registrujte Se

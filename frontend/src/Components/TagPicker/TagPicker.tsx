@@ -66,7 +66,7 @@ export const TagPicker = ({selectedTags, maxNumberOfTags, onAddTag, onRemoveTag}
 
             <div className={`d-flex align-items-center gap-3 mt-3`}>
                 <button
-                    className={`btn-lg text-white text-center rounded py-2 px-2 flex-shrink-0 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
+                    className={`btn-lg text-white text-center rounded-3 border-0 py-2 px-2 flex-shrink-0 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
                     onClick={handleAddTag}
                     disabled={!selectedTag}
                     type="button"
