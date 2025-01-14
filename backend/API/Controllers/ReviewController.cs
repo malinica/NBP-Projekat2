@@ -70,5 +70,18 @@ public class ReviewController : ControllerBase
 
         return StatusCode(204);
     }
+    [HttpGet("GetReviewsFromUsername/{username}")]
+    public async Task<IActionResult> GetReviewsFromUsername(string username)
+    {
+        try{
+
+        var result= await reviewService.GetReviewsFromUser(username);
+return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Došlo je do greške: {ex.Message}");
+        }        
+    }
 
 }

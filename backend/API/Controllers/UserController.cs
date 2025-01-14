@@ -98,4 +98,17 @@ public class UserController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpGet("GetUserByUsername/{username}")]
+    public async Task<IActionResult> GetUserByUsername(string username)
+    {
+        (bool isError, var user, ErrorMessage? error) = await userService.GetByUsername(username);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(user);
+    }
 }

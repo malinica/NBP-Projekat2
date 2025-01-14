@@ -147,4 +147,69 @@ public class ReviewService
         }
     }
 
+
+   public async Task<PaginatedResponseDTO<ReviewResultDTO>> GetReviewsFromUser(string username, int? skip = 0, int limit = 10)
+{
+    try
+    {
+        var userResult = await userService.GetByUsername(username);
+        if (userResult.IsError)
+        {
+            return new PaginatedResponseDTO<ReviewResultDTO>
+            {
+                Data = null,
+                TotalLength = 0
+            };
+        }
+
+        var query = new CypherQuery("""
+            MATCH (u:User {Username: $username})-[:CREATED_BY]->(r:Review)
+            RETURN r
+            """,
+            new Dictionary<string, object>
+            {
+                {"username", username}
+            },
+            CypherResultMode.Set, "neo4j");
+
+        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<Review>(query);
+
+        if (result != null && result.Any())
+        {
+            var reviewDtos = result
+                .Skip(skip ?? 0)
+                .Take(limit)
+                .Select(r => new ReviewResultDTO
+                {
+                    Id = r.Id,
+                    Content = r.Content,
+                    Rating = r.Rating,
+                })
+                .ToList();
+
+            return new PaginatedResponseDTO<ReviewResultDTO>
+            {
+                Data = reviewDtos,
+                TotalLength = result.Count()
+            };
+        }
+
+        return new PaginatedResponseDTO<ReviewResultDTO>
+        {
+            Data = new List<ReviewResultDTO>(),
+            TotalLength = 0
+        };
+    }
+    catch (Exception)
+    {
+        return new PaginatedResponseDTO<ReviewResultDTO>
+        {
+            Data = new List<ReviewResultDTO>(),
+            TotalLength = 0
+        };
+    }
+}
+
+
+
 }

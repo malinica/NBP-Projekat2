@@ -295,4 +295,32 @@ public class UserService
             return "Došlo je do greške prilikom učitavanja korisnika.".ToError();
         }
     }
+
+    public async Task<Result<UserResultDTO, ErrorMessage>> GetByUsername(string username)
+{
+    try
+    {
+        var query = new CypherQuery(
+            "MATCH (u:User {Username: $username}) RETURN u",
+            new Dictionary<string, object>
+            {
+                { "username", username }
+            },
+            CypherResultMode.Set,
+            "neo4j"
+        );
+
+        var users = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query)).ToList();
+
+        if (users.Any())
+            return users.First();
+
+        return "Korisnik sa zadatim korisničkim imenom nije pronađen.".ToError(404);
+    }
+    catch (Exception)
+    {
+        return "Došlo je do greške prilikom preuzimanja podataka o korisniku.".ToError();
+    }
+}
+
 }

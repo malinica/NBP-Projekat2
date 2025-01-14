@@ -12,6 +12,7 @@ import {ProjectPage} from "./Components/ProjectPage/ProjectPage.tsx";
 import SearchProjectsPage from "./Components/SearchProjectsPage/SearchProjectsPage.tsx";
 import SearchUserPage from './Components/SearchUserPage/SearchUserPage.tsx'
 import MyProjectsPage from './Components/MyProjectsPage/MyProjectsPage.tsx'
+import UserProfilePage from './Components/UserProfilePage/UserProfilePage.tsx'
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
                                 <Route path="/register" element={<RegisterPage/>}/>
                                 <Route path="/create-project" element={<CreateProjectPage/>}/>
                                 <Route path="/projects/:projectId" element={<ProjectPage/>}/>
+                                <Route path="/profile-page/:usernameFromParams" element={<UserProfilePage />} />
                                 <Route path="/search-projects-page" element ={<SearchProjectsPage/>}/>
                                 <Route path="/my-projects-page" element ={<MyProjectsPage/>}/>
                                 <Route path="/search-user-page" element ={<SearchUserPage/>}/>

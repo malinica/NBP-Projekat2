@@ -77,3 +77,13 @@ export const filterUsersAPI = async (username: string, tags: Tag[], page: number
         return undefined;
     }
 };
+
+export const getUserByUsernameAPI = async (username: string) => {
+    try {
+        const response = await axios.get<User>(`${api}/GetUserByUsername/${username}`);
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom preuzimanja korisnika.");
+        return undefined;
+    }
+};
