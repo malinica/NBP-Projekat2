@@ -14,9 +14,11 @@ const SearchUserPage = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [totalUsersCount, setTotalUsersCount] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [viewMode, setViewMode] = useState<"search"|"suggested">("suggested");
 
     useEffect(() => {
-        filterUsers(1,10);
+        // filterUsers(1,10);
+        // treba da se ucitaju predlozeni korisnici
     }, []);
 
     const handlePaginateChange = async (page: number, pageSize: number) => {
@@ -24,6 +26,9 @@ const SearchUserPage = () => {
     }
 
     const handleButtonSearchClick = async () => {
+        if(viewMode === "suggested")
+            setViewMode("search");
+
         await filterUsers(1,10);
     };
 
@@ -86,7 +91,9 @@ const SearchUserPage = () => {
                     </div>
                 </div>
 
-                <h2 className={`my-5 text-center text-dark-green`}>Programeri</h2>
+                <h2 className={`my-5 text-center text-dark-green`}>
+                    {viewMode === "search" ? "Rezultati pretrage" : "Osobe koje možda poznajete (nije uradjeno)"}
+                </h2>
                 {isLoading ?
                     (<>
                         <p className={`text-center`}>Učitavanje korisnika...</p>
