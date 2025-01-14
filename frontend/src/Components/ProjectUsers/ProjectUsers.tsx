@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {User} from "../../Interfaces/User/User.ts";
-import {getProjectUsersByType} from "../../Services/UserService.tsx";
+import {getProjectUsersByTypeAPI} from "../../Services/UserService.tsx";
 import {Pagination} from "../Pagination/Pagination.tsx";
 import {toast} from 'react-hot-toast'
 import UserCard from "../UserCard/UserCard.tsx";
@@ -38,7 +38,7 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
     const loadUsers = async (page: number, pageSize: number, type: string) => {
         try {
             setIsLoading(true);
-            const response = await getProjectUsersByType(projectId, type, page, pageSize);
+            const response = await getProjectUsersByTypeAPI(projectId, type, page, pageSize);
             if (response && response.status === 200) {
                 setUsers(response.data.data);
                 setTotalUsersCount(response.data.totalLength);

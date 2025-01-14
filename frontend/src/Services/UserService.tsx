@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { AuthResponseDTO } from "../Interfaces/User/AuthResponseDTO";
 import { User } from "../Interfaces/User/User";
 import {PaginatedResponseDTO} from "../Interfaces/Pagination/PaginatedResponseDTO.ts";
+import {Tag} from "../Interfaces/Tag/Tag.ts";
 
 const api = `${import.meta.env.VITE_API_URL}/User`;
 
@@ -48,7 +49,7 @@ export const getAllUsersAPI = async () => {
     }
 };
 
-export const getProjectUsersByType = async (projectId: string, type: string, page: number = 1, pageSize: number = 10) => {
+export const getProjectUsersByTypeAPI = async (projectId: string, type: string, page: number = 1, pageSize: number = 10) => {
     try {
         return await axios.get<PaginatedResponseDTO<User>>(
             `${api}/GetProjectUsersByType/${type}/${projectId}?page=${page}&pageSize=${pageSize}`
@@ -56,6 +57,23 @@ export const getProjectUsersByType = async (projectId: string, type: string, pag
     }
     catch (error: any) {
         toast.error(error.response?.data || "Došlo je do greške prilikom preuzimanja korisnika.");
+        return undefined;
+    }
+};
+
+export const filterUsersAPI = async (username: string, tags: Tag[], page: number = 1, pageSize: number = 10) => {
+    try {
+        const params: any = {
+            ...(username ? { username } : {}),
+            ...(tags && tags.length ? { tagsIds: tags.map(tag => tag.id).join(",") } : {}),
+            page,
+            pageSize
+        };
+
+        return await axios.get<PaginatedResponseDTO<User>>(`${api}/FilterUsers`, { params });
+    }
+    catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom pretrage korisnika.");
         return undefined;
     }
 };

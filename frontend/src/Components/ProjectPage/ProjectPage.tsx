@@ -38,8 +38,7 @@ export const ProjectPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-            loadProject();
-
+        loadProject();
     }, [projectId]);
 
     const loadProject = async () => {

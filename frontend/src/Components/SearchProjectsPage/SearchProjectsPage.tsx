@@ -112,7 +112,7 @@ const SearchProjectsPage = () => {
               type="button"
               id="buttonSearch"
               onClick={handleButtonSearchClick}
-            >Pretraži Aukcije</button>
+            >Pretraži projekte</button>
           </div>
         </div>
 

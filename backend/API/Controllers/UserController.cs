@@ -82,4 +82,20 @@ public class UserController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("FilterUsers")]
+    public async Task<IActionResult> FilterUsers(
+        [FromQuery] string? username = null,
+        [FromQuery] List<string>? tagsIds = null,
+        [FromQuery] int? page = 1,
+        [FromQuery] int? pageSize = 10)
+    {
+        (bool isError, var response, ErrorMessage? error) = await userService.FilterUsers(username, tagsIds, page, pageSize);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
 }

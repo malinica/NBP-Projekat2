@@ -165,6 +165,80 @@ public class UserService
         }
     }
     
+    public async Task<Result<PaginatedResponseDTO<UserResultDTO>, ErrorMessage>> FilterUsers(
+        string? username = null,
+        List<string>? tagsIds = null,
+        int? page = 1,
+        int? pageSize = 10
+        )
+    {
+        try
+        {
+            var filters = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(username))
+                filters.Add("toLower(u.Username) CONTAINS toLower($username)");
+
+            if (tagsIds != null && tagsIds.Any())
+                filters.Add("ALL(tagId IN $tagsIds WHERE EXISTS((u)-[:HAS_TAG]->(:Tag {Id: tagId})))");
+            
+            var whereClause = filters.Count > 0 ? $"WHERE {string.Join(" AND ", filters)}" : "";
+
+            var parameters = new Dictionary<string, object>();
+
+            if (!string.IsNullOrWhiteSpace(username))
+                parameters.Add("username", username);
+
+            if (tagsIds != null && tagsIds.Any())
+                parameters.Add("tagsIds", tagsIds);
+
+            var paginationClause = "";
+
+            if (page.HasValue && pageSize.HasValue)
+            {
+                paginationClause = $" SKIP $skip LIMIT $limit ";
+                parameters.Add("skip", (page-1)*pageSize);
+                parameters.Add("limit", pageSize);
+            }
+
+            var usersQuery = new CypherQuery($@"
+                MATCH (u:User)
+                {whereClause}
+                {paginationClause}
+                RETURN 
+                    u.Id AS Id, 
+                    u.Username AS Username, 
+                    u.Email AS Email, 
+                    u.Role AS Role, 
+                    u.ProfileImage AS ProfileImage
+                ",
+                parameters,
+                CypherResultMode.Projection, "neo4j");
+            
+            var users = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(usersQuery)).ToList();
+            
+            var totalUsersQuery = new CypherQuery($@"
+                MATCH (u:User)
+                {whereClause}
+                RETURN COUNT(u) AS TotalUsersCount",
+                parameters,
+                CypherResultMode.Set, "neo4j");
+            
+            var totalUsersCount = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<int>(totalUsersQuery);
+
+            return new PaginatedResponseDTO<UserResultDTO>
+            {
+                Data = users,
+                TotalLength = totalUsersCount.FirstOrDefault()
+            };
+        }
+        catch(Exception e)
+        {
+            return e.Message.ToError();
+            return "Došlo je do greške prilikom pretrage korisnika. ".ToError();
+        }
+    }
+    
     public async Task<Result<UserResultDTO, ErrorMessage>> GetCurrentUser(ClaimsPrincipal user) {
         try
         {
@@ -216,9 +290,8 @@ public class UserService
                 TotalLength = users.Count()
             };
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return e.Message.ToError();
             return "Došlo je do greške prilikom učitavanja korisnika.".ToError();
         }
     }
