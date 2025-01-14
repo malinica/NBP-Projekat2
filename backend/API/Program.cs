@@ -75,6 +75,17 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+var parentFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+var childFolder = Path.Combine(parentFolder, "ProjectsImages");
+if (!Directory.Exists(parentFolder))
+{
+    Directory.CreateDirectory(parentFolder);
+}
+if (!Directory.Exists(childFolder))
+{
+    Directory.CreateDirectory(childFolder);
+}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
