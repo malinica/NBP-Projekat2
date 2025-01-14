@@ -86,7 +86,7 @@ public class ReviewService
         }
         catch (Exception)
         {
-            return "Došlo je do greške prilikom pruzimanja podataka o review-u.".ToError();
+            return "Došlo je do greške prilikom preuzimanja podataka o review-u.".ToError();
         }
     }
 

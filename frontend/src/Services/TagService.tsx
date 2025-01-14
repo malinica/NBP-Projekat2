@@ -9,7 +9,7 @@ export const getTagsByNameAPI = async (tagName:string) => {
         return await axios.get<Tag[]>(api+`/GetTagsByName${tagName ? `?tagName=${tagName}` : ""}`);
     }
     catch(error:any) {
-        toast.error(error.response.data);
+        toast.error(error.response?.data ?? "Došlo je do greške.");
         return undefined;
     }
 }

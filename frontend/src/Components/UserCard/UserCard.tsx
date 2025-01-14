@@ -1,7 +1,8 @@
 import { User } from "../../Interfaces/User/User";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser} from "@fortawesome/free-solid-svg-icons";
+import {faLink, faUser} from "@fortawesome/free-solid-svg-icons";
 import styles from "./UserCard.module.css";
+import {Link} from "react-router-dom";
 
 type Props = { 
     user:User;
@@ -28,6 +29,9 @@ const UserCard = ({ user }:Props) => {
                 <div>
                     <h5 className={`text-violet`}>{user.username}</h5>
                     <p className={`text-lilac`}>{user.email}</p>
+                    <Link to={`/profile-page/${user.username}`}>
+                        <FontAwesomeIcon icon={faLink} />
+                    </Link>
                 </div>
             </div>
         </div>

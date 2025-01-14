@@ -234,7 +234,6 @@ public class UserService
         }
         catch(Exception e)
         {
-            return e.Message.ToError();
             return "Došlo je do greške prilikom pretrage korisnika. ".ToError();
         }
     }
@@ -297,30 +296,139 @@ public class UserService
     }
 
     public async Task<Result<UserResultDTO, ErrorMessage>> GetByUsername(string username)
-{
-    try
     {
-        var query = new CypherQuery(
-            "MATCH (u:User {Username: $username}) RETURN u",
-            new Dictionary<string, object>
-            {
-                { "username", username }
-            },
-            CypherResultMode.Set,
-            "neo4j"
-        );
+        try
+        {
+            var query = new CypherQuery(
+                "MATCH (u:User {Username: $username}) RETURN u",
+                new Dictionary<string, object>
+                {
+                    { "username", username }
+                },
+                CypherResultMode.Set,
+                "neo4j"
+            );
 
-        var users = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query)).ToList();
+            var users = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query)).ToList();
 
-        if (users.Any())
-            return users.First();
+            if (users.Any())
+                return users.First();
 
-        return "Korisnik sa zadatim korisničkim imenom nije pronađen.".ToError(404);
+            return "Korisnik sa zadatim korisničkim imenom nije pronađen.".ToError(404);
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom preuzimanja podataka o korisniku.".ToError();
+        }
     }
-    catch (Exception)
+    
+    public async Task<Result<bool, ErrorMessage>> FollowUser(string requesterId, string targetUserId)
     {
-        return "Došlo je do greške prilikom preuzimanja podataka o korisniku.".ToError();
-    }
-}
+        try
+        {
+            var query = new CypherQuery(@"
+                                        MATCH (requester:User {Id: $requesterId}), (targetUser:User {Id: $targetUserId})
+                                        MERGE (requester)-[:FOLLOWS]->(targetUser)
+                                        ",
+                new Dictionary<string, object>
+                {
+                    { "requesterId", requesterId },
+                    { "targetUserId", targetUserId }
+                },
+                CypherResultMode.Set, "neo4j");
+            
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
 
+            return true;
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom zapraćivanja korisnika.".ToError();
+        }
+    }
+    
+    public async Task<Result<bool, ErrorMessage>> UnfollowUser(string requesterId, string targetUserId)
+    {
+        try
+        {
+            var query = new CypherQuery(@"
+                                        MATCH (requester:User {Id: $requesterId})-[r:FOLLOWS]->(targetUser:User {Id: $targetUserId})
+                                        DELETE r
+                                        ",
+                new Dictionary<string, object>
+                {
+                    { "requesterId", requesterId },
+                    { "targetUserId", targetUserId }
+                },
+                CypherResultMode.Set, "neo4j");
+            
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom otpraćivanja korisnika.".ToError();
+        }
+    }
+    
+    public async Task<Result<bool, ErrorMessage>> CheckIfUserFollows(string requesterId, string targetUserId)
+    {
+        try
+        {
+            var query = new CypherQuery(@"
+                                        MATCH (requester:User {Id: $requesterId})-[r:FOLLOWS]->(targetUser:User {Id: $targetUserId})
+                                        RETURN COUNT(r) > 0 AS follows",
+                new Dictionary<string, object>
+                {
+                    { "requesterId", requesterId },
+                    { "targetUserId", targetUserId }
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<bool>(query);
+
+            return result.FirstOrDefault();
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom očitavanja veze između korisnika.".ToError();
+        }
+    }
+    
+    public async Task<Result<List<UserResultDTO>, ErrorMessage>> GetSuggestedUsers(string requesterId)
+    {
+        try
+        {
+            var query = new CypherQuery(@"
+                            MATCH (requester:User {Id: $requesterId})
+                                  -[:FOLLOWS]->
+                                  (commonFollower:User)
+                                  -[:FOLLOWS]->
+                                  (suggestedUser:User)
+                            WHERE requester <> suggestedUser
+                            RETURN suggestedUser.Id AS Id, 
+                                   suggestedUser.Username AS Username,
+                                   suggestedUser.Email AS Email,
+                                   suggestedUser.Role as Role
+                                   suggestedUser.ProfileImage AS ProfileImage,
+                                   COUNT(commonFollower) AS mutualFollowersCount
+                            ORDER BY mutualFollowersCount DESC
+                            LIMIT 10",
+                new Dictionary<string, object>
+                {
+                    { "requesterId", requesterId }
+                },
+                CypherResultMode.Projection, "neo4j");
+
+            
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query);
+            
+            return result.ToList();
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom predlaganja korisnika.".ToError();
+        }
+    }
 }

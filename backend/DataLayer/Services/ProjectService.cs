@@ -490,30 +490,30 @@ public class ProjectService
             parameters.Add("limit", limit);
 
             var query = new CypherQuery($@"
-            MATCH (p:Project)
-            {whereClause}
-            OPTIONAL MATCH (p)-[:HAS_TAG]->(t:Tag)
-            RETURN 
-                p.Id AS Id, 
-                p.Title AS Title, 
-                p.Image AS Image, 
-                p.Description AS Description, 
-                p.CreatedAt AS CreatedAt, 
-                p.UpdatedAt AS UpdatedAt, 
-                p.Status AS Status,
-                COLLECT({{ Id: t.Id, Name: t.Name, Description: t.Description }}) AS Tags
+                MATCH (p:Project)
+                {whereClause}
+                OPTIONAL MATCH (p)-[:HAS_TAG]->(t:Tag)
+                RETURN 
+                    p.Id AS Id, 
+                    p.Title AS Title, 
+                    p.Image AS Image, 
+                    p.Description AS Description, 
+                    p.CreatedAt AS CreatedAt, 
+                    p.UpdatedAt AS UpdatedAt, 
+                    p.Status AS Status,
+                    COLLECT({{ Id: t.Id, Name: t.Name, Description: t.Description }}) AS Tags
             
-        ",
-            parameters,
-            CypherResultMode.Projection, "neo4j");
+                ",
+                parameters,
+                CypherResultMode.Projection, "neo4j");
 
-            var results = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query); 
+            var results = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
             if (results == null || !results.Any())
             {
                 return new PaginatedResponseDTO<ProjectResultDTO>
                 {
-                    Data = new List<ProjectResultDTO>(),  
-                    TotalLength = 0 
+                    Data = new List<ProjectResultDTO>(),
+                    TotalLength = 0
                 };
             }
 
@@ -523,7 +523,7 @@ public class ProjectService
 
             return new PaginatedResponseDTO<ProjectResultDTO>
             {
-                Data = paginatedResults ?? new List<ProjectResultDTO>(), 
+                Data = paginatedResults ?? new List<ProjectResultDTO>(),
                 TotalLength = totalLength
             };
         }

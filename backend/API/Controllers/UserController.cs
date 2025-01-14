@@ -111,4 +111,84 @@ public class UserController : ControllerBase
 
         return Ok(user);
     }
+    
+    [HttpPost("FollowUser/{userId}")]
+    [Authorize]
+    public async Task<IActionResult> FollowUser(string userId)
+    {
+        var userResult = await userService.GetCurrentUser(User);
+
+        if (userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        (bool isError, var isSuccessful, ErrorMessage? error) = 
+            await userService.FollowUser(userResult.Data.Id, userId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+        
+        return Ok(isSuccessful);
+    }
+    
+    [HttpDelete("UnfollowUser/{userId}")]
+    [Authorize]
+    public async Task<IActionResult> UnfollowUser(string userId)
+    {
+        var userResult = await userService.GetCurrentUser(User);
+
+        if (userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        (bool isError, var isSuccessful, ErrorMessage? error) = 
+            await userService.UnfollowUser(userResult.Data.Id, userId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+        
+        return Ok(isSuccessful);
+    }
+    
+    [HttpGet("CheckIfUserFollows/{userId}")]
+    [Authorize]
+    public async Task<IActionResult> CheckIfUserFollows(string userId)
+    {
+        var userResult = await userService.GetCurrentUser(User);
+
+        if (userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        (bool isError, var isFollowing, ErrorMessage? error) = 
+            await userService.CheckIfUserFollows(userResult.Data.Id, userId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+        
+        return Ok(isFollowing);
+    }
+    
+    [HttpGet("GetSuggestedUsers")]
+    [Authorize]
+    public async Task<IActionResult> GetSuggestedUsers()
+    {
+        var userResult = await userService.GetCurrentUser(User);
+
+        if (userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        (bool isError, var suggestedUsers, ErrorMessage? error) = 
+            await userService.GetSuggestedUsers(userResult.Data.Id);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+        
+        return Ok(suggestedUsers);
+    }
 }

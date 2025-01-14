@@ -87,3 +87,39 @@ export const getUserByUsernameAPI = async (username: string) => {
         return undefined;
     }
 };
+
+export const followUserAPI = async (userId: string) => {
+    try {
+        return await axios.post<boolean>(`${api}/FollowUser/${userId}`);
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom zapraćivanja korisnika.");
+        return undefined;
+    }
+};
+
+export const unfollowUserAPI = async (userId: string) => {
+    try {
+        return await axios.delete<boolean>(`${api}/UnfollowUser/${userId}`);
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom otpraćivanja korisnika.");
+        return undefined;
+    }
+};
+
+export const checkIfUserFollowsAPI = async (userId: string) => {
+    try {
+        return await axios.get<boolean>(`${api}/CheckIfUserFollows/${userId}`);
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom provere veze između korisnika.");
+        return undefined;
+    }
+};
+
+export const getSuggestedUsersAPI = async () => {
+    try {
+        return await axios.get<User[]>(`${api}/GetSuggestedUsers`);
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom preuzimanja predloženih korisnika.");
+        return undefined;
+    }
+};
