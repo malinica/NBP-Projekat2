@@ -1,5 +1,5 @@
 import {ChangeEvent, useEffect, useState} from "react";
-import {filterUsersAPI} from "../../Services/UserService";
+import {filterUsersAPI, getSuggestedUsersAPI} from "../../Services/UserService";
 import { User } from "../../Interfaces/User/User";
 import UserCard from "../UserCard/UserCard";
 import {TagPicker} from "../TagPicker/TagPicker.tsx";
@@ -17,8 +17,7 @@ const SearchUserPage = () => {
     const [viewMode, setViewMode] = useState<"search"|"suggested">("suggested");
 
     useEffect(() => {
-        // filterUsers(1,10);
-        // treba da se ucitaju predlozeni korisnici
+        loadSuggestedUsers();
     }, []);
 
     const handlePaginateChange = async (page: number, pageSize: number) => {
@@ -48,6 +47,23 @@ const SearchUserPage = () => {
             setIsLoading(false);
         }
     };
+
+    const loadSuggestedUsers = async () => {
+        try {
+            setIsLoading(true);
+            const response = await getSuggestedUsersAPI();
+            if(response && response.status === 200) {
+                setUsers(response.data);
+                setTotalUsersCount(0);
+            }
+        }
+        catch {
+            toast.error("Došlo je do greške prilikom učitavanja predloženih korisnika.");
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }
 
     const handleAddTag = (tag:Tag) => {
         setSelectedTags(prevTags => [...prevTags, tag]);
@@ -92,7 +108,7 @@ const SearchUserPage = () => {
 
                     <div className={`col-xxl-7 col-xl-7 col-lg-6 col-md-5 col-sm-12 my-2 mr-2`}>
                         <h2 className={`my-5 text-center text-dark-green`}>
-                            {viewMode === "search" ? "Rezultati pretrage" : "Osobe koje možda poznajete (nije uradjeno)"}
+                            {viewMode === "search" ? "Rezultati pretrage" : "Osobe koje možda poznajete"}
                         </h2>
                         {isLoading ?
                             (<>

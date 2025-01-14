@@ -407,13 +407,13 @@ public class UserService
                                   -[:FOLLOWS]->
                                   (suggestedUser:User)
                             WHERE requester <> suggestedUser
+                            WITH suggestedUser, COUNT(commonFollower) AS mutualFollowersCount
+                            ORDER BY mutualFollowersCount DESC
                             RETURN suggestedUser.Id AS Id, 
                                    suggestedUser.Username AS Username,
                                    suggestedUser.Email AS Email,
-                                   suggestedUser.Role as Role
-                                   suggestedUser.ProfileImage AS ProfileImage,
-                                   COUNT(commonFollower) AS mutualFollowersCount
-                            ORDER BY mutualFollowersCount DESC
+                                   suggestedUser.Role as Role,
+                                   suggestedUser.ProfileImage AS ProfileImage
                             LIMIT 10",
                 new Dictionary<string, object>
                 {
@@ -426,8 +426,9 @@ public class UserService
             
             return result.ToList();
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            return e.Message.ToError();
             return "Došlo je do greške prilikom predlaganja korisnika.".ToError();
         }
     }
