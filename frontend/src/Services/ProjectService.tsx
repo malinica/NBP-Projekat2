@@ -163,12 +163,38 @@ export const getUserProjectRelationshipAPI = async (projectId: string) => {
     }
 }
 
-
 export const searchProjectsCreatedByUserAPI = async (userId: string, status: string) => {
     try {
         return await axios.get<Project[]>(api+`/SearchProjectsCreatedByUser/${userId}/${status}`)
     } catch (error: any) {
-        toast.error(error.response?.data || "Došlo je do greške pri učitavanju korisnikovih projekata.");
+        toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
+        return null;
+    }
+};
+
+export const SearchProjectsCompletedByUserAPI = async (userId: string) => {
+    try {
+        return await axios.get<Project[]>(api+`/SearchProjectsCompletedByUser/${userId}`)
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
+        return null;
+    }
+};
+
+export const SearchProjectsUserWokringOnAPI = async (userId: string) => {
+    try {
+        return await axios.get<Project[]>(api+`/SearchProjectsUserWokringOn/${userId}`)
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
+        return null;
+    }
+};
+
+export const SearchProjectsWhereUserAppliedToAPI = async (userId: string) => {
+    try {
+        return await axios.get<Project[]>(api+`/SearchProjectsWhereUserAppliedTo/${userId}`)
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
         return null;
     }
 };

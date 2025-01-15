@@ -223,4 +223,43 @@ public class ProjectController : ControllerBase
 
         return Ok(projects);
     }
+
+    [HttpGet("SearchProjectsCompletedByUser/{userId}")]
+    public async Task<IActionResult> SearchProjectsCompletedByUser(string userId)
+    {
+        (bool isError, var projects, ErrorMessage? error) = await projectService.SearchProjectsCompletedByUser(userId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(projects);
+    }
+
+    [HttpGet("SearchProjectsUserWokringOn/{userId}")]
+    public async Task<IActionResult> SearchProjectsUserWokringOn(string userId)
+    {
+        (bool isError, var projects, ErrorMessage? error) = await projectService.SearchProjectsUserWokringOn(userId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(projects);
+    }
+    
+    [HttpGet("SearchProjectsWhereUserAppliedTo/{userId}")]
+    public async Task<IActionResult> SearchProjectsWhereUserAppliedTo(string userId)
+    {
+        (bool isError, var projects, ErrorMessage? error) = await projectService.SearchProjectsWhereUserAppliedTo(userId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(projects);
+    }
 }

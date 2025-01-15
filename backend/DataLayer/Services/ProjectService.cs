@@ -563,4 +563,88 @@ public class ProjectService
         }
     }
 
+    public async Task<Result<ProjectResultDTO[], ErrorMessage>> SearchProjectsCompletedByUser(string userId)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId})-[r:ACCEPTED_TO]->(p:Project) WHERE p.Status='Completed' RETURN p",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId}
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var projects = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+
+            var projectArray = projects.ToArray();
+
+            if (projectArray.Length > 0)
+            {
+                return projectArray;
+            }
+
+            return "Nema projekata na kojima je ucestvovao korisnik. ".ToError();
+        }
+        catch (Exception)
+        {
+            return "Greška prilikom prikupljanja projekata. ".ToError();
+        }
+    }
+
+    public async Task<Result<ProjectResultDTO[], ErrorMessage>> SearchProjectsUserWokringOn(string userId)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId})-[r:ACCEPTED_TO]->(p:Project) WHERE p.Status='Opened' RETURN p",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId}
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var projects = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+
+            var projectArray = projects.ToArray();
+
+            if (projectArray.Length > 0)
+            {
+                return projectArray;
+            }
+
+            return "Nema projekata na kojima je ucestvovao korisnik. ".ToError();
+        }
+        catch (Exception)
+        {
+            return "Greška prilikom prikupljanja projekata. ".ToError();
+        }
+    }
+
+    public async Task<Result<ProjectResultDTO[], ErrorMessage>> SearchProjectsWhereUserAppliedTo(string userId)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId})-[r:APPLIED_FOR]->(p:Project) RETURN p",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId}
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var projects = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+
+            var projectArray = projects.ToArray();
+
+            if (projectArray.Length > 0)
+            {
+                return projectArray;
+            }
+
+            return "Nema projekata na kojima se prijavio korisnik. ".ToError();
+        }
+        catch (Exception)
+        {
+            return "Greška prilikom prikupljanja projekata. ".ToError();
+        }
+    }
+
 }
