@@ -275,7 +275,11 @@ public class UserService
             };
             
             var query = new CypherQuery("MATCH (p:Project {Id: $projectId})<-[:"+relationName+"]-(u:User)" +
-                                        "RETURN  u.Id AS Id, u.Username AS Username, u.Email AS Email, u.Role AS Role, u.ProfileImage AS ProfileImage",
+                                        "RETURN  u.Id AS Id, " +
+                                        "u.Username AS Username, " +
+                                        "u.Email AS Email, " +
+                                        "u.Role AS Role, " +
+                                        "u.ProfileImage AS ProfileImage",
                 new Dictionary<string, object>
                 {
                     {"projectId", projectId}
@@ -400,6 +404,61 @@ public class UserService
             return "Došlo je do greške prilikom očitavanja veze između korisnika.".ToError();
         }
     }
+    
+    public async Task<Result<List<UserResultDTO>, ErrorMessage>> GetFollowers(string userId, int page = 1, int pageSize = 10)
+    {
+        try
+        {
+            var query = new CypherQuery(@"
+                                    MATCH (user:User {Id: $userId})<-[:FOLLOWS]-(follower:User)
+                                    RETURN follower 
+                                    SKIP $skip 
+                                    LIMIT $limit
+                                    ",
+                new Dictionary<string, object>
+                {
+                    { "userId", userId },
+                    { "skip", (page-1)*pageSize },
+                    { "limit", pageSize }
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var followers = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query);
+            return followers.ToList();
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom učitavanja pratilaca.".ToError();
+        }
+    }
+
+    public async Task<Result<List<UserResultDTO>, ErrorMessage>> GetFollowing(string userId, int page = 1, int pageSize = 10)
+    {
+        try
+        {
+            var query = new CypherQuery(@"
+                                        MATCH (user:User {Id: $userId})-[:FOLLOWS]->(following:User)
+                                        RETURN following 
+                                        SKIP $skip 
+                                        LIMIT $limit
+                                        ",
+                new Dictionary<string, object>
+                {
+                    { "userId", userId },
+                    { "skip", (page-1) * pageSize },
+                    { "limit", pageSize }
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var following = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query);
+            return following.ToList();
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom učitavanja liste korisnika koje prati.".ToError();
+        }
+    }
+
     
     public async Task<Result<List<UserResultDTO>, ErrorMessage>> GetSuggestedUsers(string requesterId)
     {

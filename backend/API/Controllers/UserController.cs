@@ -179,6 +179,33 @@ public class UserController : ControllerBase
         return Ok(isFollowing);
     }
     
+    [HttpGet("GetFollowers/{userId}")]
+    public async Task<IActionResult> GetFollowers(string userId, int? page = 1, int? pageSize = 10)
+    {
+        (bool isError, var followers, ErrorMessage? error) = await userService.GetFollowers(userId, page ?? 1, pageSize ?? 10);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(followers);
+    }
+
+    [HttpGet("GetFollowing/{userId}")]
+    public async Task<IActionResult> GetFollowing(string userId, int? page = 1, int? pageSize = 10)
+    {
+        (bool isError, var following, ErrorMessage? error) = await userService.GetFollowing(userId, page ?? 1, pageSize ?? 10);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(following);
+    }
+
+    
     [HttpGet("GetSuggestedUsers")]
     [Authorize]
     public async Task<IActionResult> GetSuggestedUsers()

@@ -9,12 +9,10 @@ const api = `${import.meta.env.VITE_API_URL}/User`;
 
 export const loginAPI = async (email: string, password: string) => {
     try {
-        const data = await axios.post<AuthResponseDTO>(api + "/Login", {
+        return await axios.post<AuthResponseDTO>(api + "/Login", {
             email,
             password
         });
-
-        return data;
     }
     catch (error: any) {
         toast.error(error.response?.data ?? "Neuspešna prijava.");
@@ -24,13 +22,11 @@ export const loginAPI = async (email: string, password: string) => {
 
 export const registerAPI = async (email: string, username: string, password: string) => {
     try {
-        const data = await axios.post<AuthResponseDTO>(api + "/register", {
+        return await axios.post<AuthResponseDTO>(api + "/register", {
             email: email,
             username: username,
             password: password
         });
-
-        return data;
     }
     catch (error: any) {
         toast.error(error.response?.data ?? "Neuspešna registracija.");
@@ -111,6 +107,28 @@ export const checkIfUserFollowsAPI = async (userId: string) => {
         return await axios.get<boolean>(`${api}/CheckIfUserFollows/${userId}`);
     } catch (error: any) {
         toast.error(error.response?.data || "Došlo je do greške prilikom provere veze između korisnika.");
+        return undefined;
+    }
+};
+
+export const getFollowersAPI = async (userId: string, page: number = 1, pageSize: number = 10) => {
+    try {
+        return await axios.get<User[]>(`${api}/GetFollowers/${userId}`, {
+            params: { page, pageSize }
+        });
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom učitavanja pratilaca.");
+        return undefined;
+    }
+};
+
+export const getFollowingAPI = async (userId: string, page: number = 1, pageSize: number = 10) => {
+    try {
+        return await axios.get<User[]>(`${api}/GetFollowing/${userId}`, {
+            params: { page, pageSize }
+        });
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom učitavanja liste korisnika koje prati.");
         return undefined;
     }
 };

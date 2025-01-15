@@ -9,6 +9,7 @@ import {useParams} from "react-router-dom";
 import { User } from "../../Interfaces/User/User";
 import {checkIfUserFollowsAPI, followUserAPI, getUserByUsernameAPI, unfollowUserAPI} from "../../Services/UserService";
 import {getReviewsFromUsernameAPI,createReviewAPI, getReviewsForUsernameAPI} from "../../Services/ReviewService";
+import {FollowersFollowingModal} from "../FollowersFollowingModal/FollowersFollowingModal.tsx";
 
 
 const UserProfilePage = () => {
@@ -21,6 +22,9 @@ const UserProfilePage = () => {
     const [typeForReviews,setTypeForReviews]=useState<boolean>(true);//true ako je reviews koje je korisnik dao, false ako je reviews koje je korisnik dobio
     const [reviewGrade,setReviewGrade]=useState<number|null>(null);
     const [reviewText,setReviewText]=useState<string|null>(null);
+    const [isFollowersModalOpened, setIsFollowersModalOpened] = useState(false);
+    const [activeTab, setActiveTab] = useState<"followers" | "following">("followers");
+
     const {user} = useAuth();
 
     useEffect(() => {
@@ -143,6 +147,14 @@ const UserProfilePage = () => {
         }
     };
 
+    const openModal = (tab: "followers" | "following") => {
+        setActiveTab(tab);
+        setIsFollowersModalOpened(true);
+    };
+
+    const closeModal = () => {
+        setIsFollowersModalOpened(false);
+    };
 
     return (
         <div>
@@ -159,35 +171,48 @@ const UserProfilePage = () => {
                         <p>Profilna slika nije dostupna</p>
                     )}
 
-<div>
-      {user==null ? (
-        <p>Logujte se da biste ocenili korisnika.</p>
-      ) : usernameFromParams != user!.username ? (
-        <>
-          <input
-            type="number"
-            min="0"
-            max="5"
-            onChange={handleReviewGrade}
-            placeholder="Ocena (0-5)"
-            style={{ display: "block", margin: "10px 0" }}
-          />
-          <textarea
-            onChange={handleReviewText}
-            placeholder="Unesite komentar"
-            rows={5}
-            cols={30}
-            style={{ display: "block", margin: "10px 0" }}
-          />
-           <button 
-                onClick={handleSubmit} 
-                style={{ marginTop: "10px" }}
-            >
-                Ocenite
-            </button>
-        </>
-      ) : null}
-    </div>
+                    <div>
+                        {user == null ? (
+                            <p>Logujte se da biste ocenili korisnika.</p>
+                        ) : usernameFromParams != user!.username ? (
+                            <>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="5"
+                                    onChange={handleReviewGrade}
+                                    placeholder="Ocena (0-5)"
+                                    style={{display: "block", margin: "10px 0"}}
+                                />
+                                <textarea
+                                    onChange={handleReviewText}
+                                    placeholder="Unesite komentar"
+                                    rows={5}
+                                    cols={30}
+                                    style={{display: "block", margin: "10px 0"}}
+                                />
+                                <button
+                                    onClick={handleSubmit}
+                                    style={{marginTop: "10px"}}
+                                >
+                                    Ocenite
+                                </button>
+                            </>
+                        ) : null}
+                    </div>
+
+
+                    <div>
+                        <button onClick={() => openModal("followers")}>Pratioci</button>
+                        <button onClick={() => openModal("following")}>Praćenja</button>
+
+                        <FollowersFollowingModal
+                            isOpen={isFollowersModalOpened}
+                            onClose={closeModal}
+                            userId={profileUser.id}
+                            activeTab={activeTab}
+                        />
+                    </div>
 
                     {user?.id !== profileUser?.id &&
                         <>
@@ -199,7 +224,7 @@ const UserProfilePage = () => {
                                     onClick={handleUnfollowUser}>
                                     Otprati
                                 </button>
-                                ): (
+                            ) : (
                                 <button
                                     className="btn btn-primary"
                                     onClick={handleFollowUser}>
@@ -220,14 +245,14 @@ const UserProfilePage = () => {
                     </select>
 
                     {totalItemsCount > 0 ? (
-    <div className={`my-4`}>
-        <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
-    </div>
-) : (
-    <div className="my-4 text-center text-gray-500">
-        Nema recenzija za prikaz
-    </div>
-)}
+                        <div className={`my-4`}>
+                            <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
+                        </div>
+                    ) : (
+                        <div className="my-4 text-center text-gray-500">
+                            Nema recenzija za prikaz
+                        </div>
+                    )}
 
                 </div>
 
