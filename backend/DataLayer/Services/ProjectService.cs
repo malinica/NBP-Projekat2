@@ -253,7 +253,7 @@ public class ProjectService
         }
         catch (Exception)
         {
-            return "Greska prilikom prijavljivanja za projekat. ".ToError();
+            return "Greška prilikom prijavljivanja za projekat. ".ToError();
         }
     }
 
@@ -334,7 +334,7 @@ public class ProjectService
             var checkIfUserCanBeInvitedQuery =
                 new CypherQuery(@"
                                 MATCH (u:User {Id: $userId}), (p:Project {Id: $projectId})
-                                OPTIONAL MATCH (u)-[r:ACCEPTED_TO|APPLIED_TO]->(p)
+                                OPTIONAL MATCH (u)-[r:ACCEPTED_TO|APPLIED_TO|INVITED_TO]->(p)
                                 WITH u, p, r
                                 WHERE r IS NOT NULL
                                 RETURN COUNT(r) AS relCount",
@@ -349,7 +349,7 @@ public class ProjectService
 
             if (result.FirstOrDefault() > 0)
             {
-                return "Korisnik je već na projektu ili se prijavio. Nemoguće slanje pozivnice.".ToError(403);
+                return "Korisnik je već na projektu ili se prijavio ili je već pozvan.".ToError(403);
             }
             
             var query = new CypherQuery("MATCH (u:User {Id: $userId}), (p:Project {Id: $projectId})" +

@@ -49,7 +49,7 @@ const UserProfilePage = () => {
                 updatedAt: new Date()
             };
 
-            var result=await createReviewAPI(usernameFromParams,reviewData);
+            const result=await createReviewAPI(usernameFromParams,reviewData);
             if(result)
                 toast.success("Uspesno ste dodali recenziju");
             else 
@@ -110,7 +110,7 @@ const UserProfilePage = () => {
                     setReviews(data.data);
                     setTotalItemsCount(data.totalLength);
                 }
-            } catch (error) {
+            } catch {
                 toast.error("Došlo je do greške pri učitavanju recenzija.");
                 setReviews(null);
                 setTotalItemsCount(0);

@@ -74,7 +74,7 @@ export const TagPicker = ({selectedTags, maxNumberOfTags, onAddTag, onRemoveTag}
                     Dodaj Tag
                 </button>
 
-                <div className={`mt-3 d-flex flex-wrap gap-2`}>
+                <div className={`d-flex align-items-center flex-wrap gap-2`}>
                 {selectedTags.map((tag) => (
                     <Chip key={tag.id} label={tag.name} onDelete={() => onRemoveTag(tag.id)} color="success"/>
                 ))}

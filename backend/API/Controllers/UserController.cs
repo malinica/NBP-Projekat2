@@ -83,13 +83,20 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("FilterUsers")]
+    [Authorize]
     public async Task<IActionResult> FilterUsers(
         [FromQuery] string? username = null,
         [FromQuery] List<string>? tagsIds = null,
         [FromQuery] int? page = 1,
         [FromQuery] int? pageSize = 10)
     {
-        (bool isError, var response, ErrorMessage? error) = await userService.FilterUsers(username, tagsIds, page, pageSize);
+        var userResult = await userService.GetCurrentUser(User);
+
+        if (userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+
+        (bool isError, var response, ErrorMessage? error) =
+            await userService.FilterUsers(userResult.Data.Id, username, tagsIds, page, pageSize);
 
         if (isError)
         {

@@ -9,8 +9,9 @@ import {useAuth} from "../../Context/useAuth.tsx";
 import {
     acceptUserToProjectAPI,
     cancelProjectApplicationAPI, cancelInvitationToProjectAPI,
-    removeUserFromProjectAPI
+    removeUserFromProjectAPI, inviteUserToProjectAPI
 } from "../../Services/ProjectService.tsx";
+import {UserPicker} from "../UserPicker/UserPicker.tsx";
 
 type Props = {
     projectId: string;
@@ -18,7 +19,7 @@ type Props = {
 }
 
 export const ProjectUsers = ({projectId, authorId}: Props) => {
-    const [activeTab, setActiveTab] = useState<"accepted" | "applied" | "invited">("accepted");
+    const [activeTab, setActiveTab] = useState<"accepted" | "applied" | "invited" | "toInvite">("accepted");
     const [users, setUsers] = useState<User[]>([]);
     const [totalUsersCount, setTotalUsersCount] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -29,11 +30,16 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
     }, [projectId]);
 
     const handleTabChange = async (tab: string) => {
-        if (tab != "accepted" && tab != "applied" && tab != "invited")
+        if (tab != "accepted" && tab != "applied" && tab != "invited" && tab!="toInvite")
             return;
 
         setActiveTab(tab);
-        await loadUsers(1, 10, tab);
+        if(tab=="toInvite") {
+            setUsers([]);
+            setTotalUsersCount(0);
+        }
+        else
+            await loadUsers(1, 10, tab);
     }
 
     const loadUsers = async (page: number, pageSize: number, type: string) => {
@@ -94,6 +100,21 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
                 return "Prijavljeni korisnici";
             case "invited":
                 return "Pozvani korisnici";
+            case "toInvite":
+                return "Pozovite korisnike";
+        }
+    }
+
+    const handleInviteUser = async (user: User) => {
+        try {
+            const response = await inviteUserToProjectAPI(projectId, user.id);
+            if (response && response.status === 200 && response.data) {
+                toast.success("Korisnik je uspešno pozvan na projekat.");
+            }
+        }
+        catch(error) {
+            toast.error("Došlo je do greške prilikom slanja pozivnice korisniku.")
+            console.error(error);
         }
     }
 
@@ -106,27 +127,33 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
                 </>)
                 : (<>
                     {currentUser?.id === authorId && <div className={`mb-3`}>
-                        <button className={`btn ${activeTab === "accepted" ? "btn-success mr-2" : "btn-muted mr-2"}`}
+                        <button className={`btn mr-2 ${activeTab === "accepted" ? "btn-success" : "btn-muted"}`}
                                 onClick={() => handleTabChange("accepted")}>
                             Članovi
                         </button>
-                        <button className={`btn ${activeTab === "applied" ? "btn-success mx-2 " : "btn-muted mx-2"}`}
+                        <button className={`btn mr-2 ${activeTab === "applied" ? "btn-success" : "btn-muted"}`}
                                 onClick={() => handleTabChange("applied")}>
                             Prijavljeni
                         </button>
-                        <button className={`btn ${activeTab === "invited" ? "btn-success" : "btn-muted"}`}
+                        <button className={`btn mr-2 ${activeTab === "invited" ? "btn-success" : "btn-muted"}`}
                                 onClick={() => handleTabChange("invited")}>
                             Pozvani
+                        </button>
+                        <button className={`btn ${activeTab === "toInvite" ? "btn-success" : "btn-muted"}`}
+                                onClick={() => handleTabChange("toInvite")}>
+                            Pozovite korisnike
                         </button>
                     </div>}
                     <h3 className={`text-green mb-4`}>{getTitle(activeTab)}</h3>
 
+                    {activeTab == "toInvite" && <div className={`my-3`}><UserPicker onInviteUser={handleInviteUser} /></div>}
+
                     {users && users.length > 0 ?
                         (<>
                             <ul className={`list-group`}>
-                                {users.map(user => (
+                            {users.map(user => (
                                     <div key={user.id} className={`d-flex align-items-center justify-content-between`}>
-                                        <div className={`flex-grow-1`}>
+                                        <div className={`flex-grow-1 mb-2`}>
                                             <UserCard user={user} key={user.id}/>
                                         </div>
                                         {currentUser?.id === authorId && <>
@@ -145,7 +172,7 @@ export const ProjectUsers = ({projectId, authorId}: Props) => {
                             </ul>
                         </>) :
                         (<>
-                            <p className={`text-center text-muted`}>Nema korisnika.</p>
+                            {activeTab != "toInvite" && <p className={`text-center text-muted`}>Nema korisnika.</p>}
                         </>)}
                 </>)}
 

@@ -166,6 +166,7 @@ public class UserService
     }
     
     public async Task<Result<PaginatedResponseDTO<UserResultDTO>, ErrorMessage>> FilterUsers(
+        string requesterId,
         string? username = null,
         List<string>? tagsIds = null,
         int? page = 1,
@@ -182,9 +183,13 @@ public class UserService
             if (tagsIds != null && tagsIds.Any())
                 filters.Add("ALL(tagId IN $tagsIds WHERE EXISTS((u)-[:HAS_TAG]->(:Tag {Id: tagId})))");
             
+            filters.Add("u.Id <> $requesterId");
+            
             var whereClause = filters.Count > 0 ? $"WHERE {string.Join(" AND ", filters)}" : "";
 
             var parameters = new Dictionary<string, object>();
+
+            parameters.Add("requesterId", requesterId);
 
             if (!string.IsNullOrWhiteSpace(username))
                 parameters.Add("username", username);
@@ -232,7 +237,7 @@ public class UserService
                 TotalLength = totalUsersCount.FirstOrDefault()
             };
         }
-        catch(Exception e)
+        catch(Exception)
         {
             return "Došlo je do greške prilikom pretrage korisnika. ".ToError();
         }
