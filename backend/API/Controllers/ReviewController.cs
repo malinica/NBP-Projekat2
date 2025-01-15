@@ -28,16 +28,20 @@ public class ReviewController : ControllerBase
         return Ok(project);
     }
 
-    [HttpPost("CreateReview")]
+    [HttpPost("CreateReview/{targetUser}")]
     [Authorize]
-    public async Task<IActionResult> Create([FromBody] CreateReviewDTO reviewDto)
+    public async Task<IActionResult> Create([FromBody] CreateReviewDTO reviewDto, string targetUser)
     {
         var userResult = await userService.GetCurrentUser(User);
 
         if(userResult.IsError)
             return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
         
-        var reviewResult = await reviewService.CreateReview(reviewDto, userResult.Data.Id);
+        var reviewedUser=await userService.GetByUsername(targetUser);
+
+        if(reviewedUser.IsError)
+            return StatusCode(reviewedUser.Error?.StatusCode ?? 400, reviewedUser.Error?.Message);
+        var reviewResult = await reviewService.CreateReview(reviewDto, userResult.Data.Id,reviewedUser.Data.Id);
 
         if (reviewResult.IsError)
             return StatusCode(reviewResult.Error?.StatusCode ?? 400, reviewResult.Error?.Message);
@@ -71,11 +75,27 @@ public class ReviewController : ControllerBase
         return StatusCode(204);
     }
     [HttpGet("GetReviewsFromUsername/{username}")]
-    public async Task<IActionResult> GetReviewsFromUsername(string username)
+public async Task<IActionResult> GetReviewsFromUsername(string username, [FromQuery] int skip = 0, [FromQuery] int limit = 10)
     {
         try{
 
-        var result= await reviewService.GetReviewsFromUser(username);
+        var result= await reviewService.GetReviewsFromUser(username,skip,limit);
+return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Došlo je do greške: {ex.Message}");
+        }        
+    }
+
+
+    
+    [HttpGet("GetReviewsForUsername/{username}")]
+public async Task<IActionResult> GetReviewsForUsername(string username, [FromQuery] int skip = 0, [FromQuery] int limit = 10)
+    {
+        try{
+
+        var result= await reviewService.GetReviewsForUser(username,skip,limit);
 return Ok(result);
         }
         catch (Exception ex)
@@ -85,3 +105,5 @@ return Ok(result);
     }
 
 }
+
+

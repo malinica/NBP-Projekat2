@@ -2,17 +2,24 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Link} from "react-router-dom";
 import styles from './Navbar.module.css'
 import {useAuth} from "../../Context/useAuth.tsx";
-import {useLocation} from "react-router";
+import {useLocation, useNavigate} from "react-router";
 import {faBars, faUser} from "@fortawesome/free-solid-svg-icons";
 import {Dropdown} from "react-bootstrap";
 
+
 export const Navbar = () => {
+    const navigate = useNavigate();
     const {isLoggedIn, logout, user} = useAuth();
 
     const location = useLocation();
 
     const handleLogout = () => {
         logout();
+    };
+    const handleProfileRedirect = () => {
+        if (user) {
+            navigate(`/profile-page/${user.username}`);
+        }
     };
 
     const getLinkClass = (path: string) => {
@@ -69,10 +76,9 @@ export const Navbar = () => {
                                             </Dropdown.Toggle>
 
                                             <Dropdown.Menu align={'end'}>
-                                                <Dropdown.Divider/>
-                                                <Dropdown.Item onClick={handleLogout}
-                                                               className={styles['custom-dropdown-item1']}>ODJAVI
-                                                    SE</Dropdown.Item>
+                                                <Dropdown.Divider/>                                              
+                                                <Dropdown.Item onClick={handleProfileRedirect}className={styles['custom-dropdown-item1']}>MOJ PROFIL</Dropdown.Item>
+                                                <Dropdown.Item onClick={handleLogout}className={styles['custom-dropdown-item1']}>ODJAVI SE</Dropdown.Item>
                                             </Dropdown.Menu>
                                         </Dropdown>
                                     </li>

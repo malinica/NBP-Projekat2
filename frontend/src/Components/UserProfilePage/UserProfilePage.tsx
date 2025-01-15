@@ -1,4 +1,5 @@
 import styles from "./UserProfilePage.module.css";
+import { v4 as uuidv4 } from 'uuid';
 import { Pagination } from "../Pagination/Pagination";
 import { useEffect, useState } from 'react';
 import toast from "react-hot-toast";
@@ -7,7 +8,7 @@ import { useAuth } from "../../Context/useAuth";
 import {useParams} from "react-router-dom";
 import { User } from "../../Interfaces/User/User";
 import {checkIfUserFollowsAPI, followUserAPI, getUserByUsernameAPI, unfollowUserAPI} from "../../Services/UserService";
-import {getReviewsFromUsernameAPI} from "../../Services/ReviewService";
+import {getReviewsFromUsernameAPI,createReviewAPI, getReviewsForUsernameAPI} from "../../Services/ReviewService";
 
 
 const UserProfilePage = () => {
@@ -18,6 +19,8 @@ const UserProfilePage = () => {
     const [isFollowing, setIsFollowing] = useState<boolean>(false);//da li pratim tog korisnika ili ne
     const [isRelationshipLoading, setIsRelationshipLoading] = useState<boolean>(true);
     const [typeForReviews,setTypeForReviews]=useState<boolean>(true);//true ako je reviews koje je korisnik dao, false ako je reviews koje je korisnik dobio
+    const [reviewGrade,setReviewGrade]=useState<number|null>(null);
+    const [reviewText,setReviewText]=useState<string|null>(null);
     const {user} = useAuth();
 
     useEffect(() => {
@@ -31,6 +34,43 @@ const UserProfilePage = () => {
     const handlePaginateChange = async (page: number, pageSize: number) => {
         await loadReviews(page, pageSize);
     }
+
+    const handleSubmit = async () => {
+        if(reviewGrade==null )
+            toast.error("Unesite ocenu");
+        else if (usernameFromParams!=null)
+        {
+
+            const reviewData: Review = {
+                id: uuidv4(),
+                rating: reviewGrade,
+                content: reviewText? reviewText : "",
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+
+            var result=await createReviewAPI(usernameFromParams,reviewData);
+            if(result)
+                toast.success("Uspesno ste dodali recenziju");
+            else 
+            toast.error("Greska prilikom dodavanja recenzije");
+    }
+}
+
+    const handleReviewText = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setReviewText(e.target.value);
+      };
+
+    const handleReviewGrade = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const price = parseInt(e.target.value, 10);
+        
+        if (isNaN(price) || price < 0 || price > 5) {
+          setReviewGrade(null);
+        } else {
+          setReviewGrade(price);
+        }
+      };
+      
 
     const loadUser = async () => {
         if (usernameFromParams != undefined) {
@@ -55,21 +95,29 @@ const UserProfilePage = () => {
     };
 
     const loadReviews = async (page: number, pageSize: number) => {
-        if (typeForReviews && usernameFromParams != undefined) {
-            const data = await getReviewsFromUsernameAPI(usernameFromParams, (page - 1) * pageSize, pageSize)
-            if (!data) {
-                toast.error("Ne postoje recenzije korisnika za prikaz!");
+        if (usernameFromParams) {
+            const fetchReviews = typeForReviews 
+                ? getReviewsFromUsernameAPI(usernameFromParams, (page - 1) * pageSize, pageSize)
+                : getReviewsForUsernameAPI(usernameFromParams, (page - 1) * pageSize, pageSize);
+    
+            try {
+                const data = await fetchReviews;
+                if (!data) {
+                    toast.error("Ne postoje recenzije korisnika za prikaz!");
+                    setReviews(null);
+                    setTotalItemsCount(0);
+                } else {
+                    setReviews(data.data);
+                    setTotalItemsCount(data.totalLength);
+                }
+            } catch (error) {
+                toast.error("Došlo je do greške pri učitavanju recenzija.");
                 setReviews(null);
                 setTotalItemsCount(0);
-            } else {
-                setReviews(data.data);
-                setTotalItemsCount(data.totalLength);
             }
-
-        } else {
-            //OVDE TREBA DODATI DRUGI API ZA RECENZIJE KOJE JE DOBIO KORISNIK
         }
     };
+    
 
     const handleFollowUser = async () => {
         try {
@@ -111,6 +159,36 @@ const UserProfilePage = () => {
                         <p>Profilna slika nije dostupna</p>
                     )}
 
+<div>
+      {user==null ? (
+        <p>Logujte se da biste ocenili korisnika.</p>
+      ) : usernameFromParams != user!.username ? (
+        <>
+          <input
+            type="number"
+            min="0"
+            max="5"
+            onChange={handleReviewGrade}
+            placeholder="Ocena (0-5)"
+            style={{ display: "block", margin: "10px 0" }}
+          />
+          <textarea
+            onChange={handleReviewText}
+            placeholder="Unesite komentar"
+            rows={5}
+            cols={30}
+            style={{ display: "block", margin: "10px 0" }}
+          />
+           <button 
+                onClick={handleSubmit} 
+                style={{ marginTop: "10px" }}
+            >
+                Ocenite
+            </button>
+        </>
+      ) : null}
+    </div>
+
                     {user?.id !== profileUser?.id &&
                         <>
                             {isRelationshipLoading ? (
@@ -141,10 +219,16 @@ const UserProfilePage = () => {
                         <option value="received">Recenzije koje je dobio korisnik</option>
                     </select>
 
-                    {totalItemsCount > 0 &&
-                        <div className={`my-4`}>
-                            <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
-                        </div>}
+                    {totalItemsCount > 0 ? (
+    <div className={`my-4`}>
+        <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
+    </div>
+) : (
+    <div className="my-4 text-center text-gray-500">
+        Nema recenzija za prikaz
+    </div>
+)}
+
                 </div>
 
             ) : (

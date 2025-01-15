@@ -18,51 +18,59 @@ public class ReviewService
         catch (Exception) { }
     }
 
-    public async Task<Result<bool, ErrorMessage>> CreateReview(CreateReviewDTO reviewDTO, string authorId)
+   public async Task<Result<bool, ErrorMessage>> CreateReview(CreateReviewDTO reviewDTO, string authorId, string targetID)
+{
+    try
     {
-        try
-        {
-            var userResult = await userService.GetById(authorId);
+        var userResult = await userService.GetById(authorId);
+        if (userResult.IsError)
+            return userResult.Error;
 
-            if (userResult.IsError)
-                return userResult.Error;
+        var targetUserResult = await userService.GetById(targetID);
+        if (targetUserResult.IsError)
+            return targetUserResult.Error;
 
+    
             var query = new CypherQuery("""
-                                        MATCH (u:User {Id: $authorId})
-                                        CREATE (r:Review {
-                                            Id: $id,
-                                            Rating: $rating,
-                                            Content: $content,
-                                            CreatedAt: $createdAt,
-                                            UpdatedAt: $updatedAt
-                                        })-[:CREATED_BY]->(u)
-                                        RETURN r
-                                        """,
-                                        new Dictionary<string, object>
-                                        {
-                                            {"id", Guid.NewGuid().ToString()},
-                                            {"rating", reviewDTO.Rating},
-                                            {"content", reviewDTO.Content},
-                                            {"createdAt", DateTime.UtcNow},
-                                            {"updatedAt", DateTime.UtcNow},
-                                            {"authorId", authorId}
-                                        },
-                                        CypherResultMode.Set, "neo4j");
+                                    MATCH (u:User {Id: $authorId}), (t:User {Id: $targetId})
+                                    CREATE (r:Review {
+                                        Id: $id,
+                                        Rating: $rating,
+                                        Content: $content,
+                                        CreatedAt: $createdAt,
+                                        UpdatedAt: $updatedAt
+                                    })
+                                     CREATE (r)-[:FOR_USER]->(t)
+                                    CREATE (u)-[:CREATED]->(r)
+                                    RETURN r
+                                    """,
+                                    new Dictionary<string, object>
+                                    {
+                                        {"id", Guid.NewGuid().ToString()},
+                                        {"rating", reviewDTO.Rating},
+                                        {"content", reviewDTO.Content},
+                                        {"createdAt", DateTime.UtcNow},
+                                        {"updatedAt", DateTime.UtcNow},
+                                        {"authorId", authorId},
+                                        {"targetId", targetID}
+                                    },
+                                    CypherResultMode.Set, "neo4j");
 
-            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<Review>(query);
+        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<Review>(query);
 
-            if (result != null)
-            {
-                return true;
-            }
-
-            return "Greška prilikom dodavanja review-a. ".ToError();
-        }
-        catch (Exception)
+        if (result != null && result.Any())
         {
-            return "Došlo je do greške prilikom kreiranje review-a. ".ToError();
+            return true;
         }
+
+        return "Greška prilikom dodavanja review-a.".ToError();
     }
+    catch (Exception)
+    {
+        return "Došlo je do greške prilikom kreiranja review-a.".ToError();
+    }
+}
+
 
     public async Task<Result<ReviewResultDTO, ErrorMessage>> GetReviewById(string id)
     {
@@ -163,7 +171,72 @@ public class ReviewService
         }
 
         var query = new CypherQuery("""
-            MATCH (u:User {Username: $username})-[:CREATED_BY]->(r:Review)
+            MATCH (u:User {Username: $username})-[:CREATED]->(r:Review)
+            RETURN r
+            """,
+            new Dictionary<string, object>
+            {
+                {"username", username}
+            },
+            CypherResultMode.Set, "neo4j");
+
+        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<Review>(query);
+
+        if (result != null && result.Any())
+        {
+            var reviewDtos = result
+                .Skip(skip ?? 0)
+                .Take(limit)
+                .Select(r => new ReviewResultDTO
+                {
+                    Id = r.Id,
+                    Content = r.Content,
+                    Rating = r.Rating,
+                })
+                .ToList();
+
+            return new PaginatedResponseDTO<ReviewResultDTO>
+            {
+                Data = reviewDtos,
+                TotalLength = result.Count()
+            };
+        }
+
+        return new PaginatedResponseDTO<ReviewResultDTO>
+        {
+            Data = new List<ReviewResultDTO>(),
+            TotalLength = 0
+        };
+    }
+    catch (Exception)
+    {
+        return new PaginatedResponseDTO<ReviewResultDTO>
+        {
+            Data = new List<ReviewResultDTO>(),
+            TotalLength = 0
+        };
+    }
+}
+
+
+
+
+   public async Task<PaginatedResponseDTO<ReviewResultDTO>> GetReviewsForUser(string username, int? skip = 0, int limit = 10)
+{
+    try
+    {
+        var userResult = await userService.GetByUsername(username);
+        if (userResult.IsError)
+        {
+            return new PaginatedResponseDTO<ReviewResultDTO>
+            {
+                Data = null,
+                TotalLength = 0
+            };
+        }
+
+        var query = new CypherQuery("""
+            MATCH (u:User {Username: $username})<-[:FOR_USER]-(r:Review)
             RETURN r
             """,
             new Dictionary<string, object>
