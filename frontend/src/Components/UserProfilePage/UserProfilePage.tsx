@@ -157,23 +157,23 @@ const UserProfilePage = () => {
     };
 
     return (
-        <div>
+        <div className={`container my-4 bg-light-green rounded-3`}>
             {profileUser ? (
-                <div>
-                    <h1>Profil korisnika</h1>
-                    <p><strong>Username:</strong> {profileUser.username}</p>
-                    <p><strong>Email:</strong> {profileUser.email}</p>
-                    <p><strong>Uloga:</strong> {profileUser.role}</p>
+                <div className={`m-4`}>
+                    <h1 className={`text-violet text-center`}>Profil korisnika</h1>
+                    <p className={`text-dark-green`}><strong>Username:</strong> {profileUser.username}</p>
+                    <p className={`text-green`}><strong>Email:</strong> {profileUser.email}</p>
+                    <p className={`text-green`}><strong>Uloga:</strong> {profileUser.role}</p>
                     {profileUser.profileImage ? (
                         <img src={`${import.meta.env.VITE_SERVER_URL}/${user?.profileImage}`} alt={profileUser.id}
                              className={`${styles.slika}`}/>
                     ) : (
-                        <p>Profilna slika nije dostupna</p>
+                        <p className={`text-muted`}>Profilna slika nije dostupna</p>
                     )}
 
                     <div>
                         {user == null ? (
-                            <p>Logujte se da biste ocenili korisnika.</p>
+                            <p className={`text-center text-muted`}>Logujte se da biste ocenili korisnika.</p>
                         ) : usernameFromParams != user!.username ? (
                             <>
                                 <input
@@ -257,7 +257,7 @@ const UserProfilePage = () => {
                 </div>
 
             ) : (
-                <p>Korisnik nije pronađen.</p>
+                <p className={`text-center text-muted`}>Korisnik nije pronađen.</p>
             )}
         </div>
     );

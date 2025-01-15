@@ -32,7 +32,7 @@ const Home = () => {
         <div className={`container-fluid p-0 bg-light-lilac`}>
             <div className={`container d-flex justify-content-between flex-grow-1`}>
                 <div className={`row container-fluid d-flex justify-content-center my-4`}>
-                    <div className={`col-xxl-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 text-center mx-5 mt-5`}>
+                    <div className={`col-xxl-3 col-xl-3 col-lg-4 col-md-12 col-sm-12 text-center mx-5 mt-5`}>
                         <h1 className={`text-green`}>Tvoj projekat zaslužuje sjajne saradnike!</h1>
                         <p className={`lead text-violet fw-normal my-4`}>
                         Bilo da ti treba front-end, back-end ili full-stack programer, naš cilj je da ti pomognemo da pronađeš najbolje ljude za svoj tim. Započni svoj projekat i poveži se sa talentima već danas!
