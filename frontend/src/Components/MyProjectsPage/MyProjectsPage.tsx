@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
 import { Project } from "../../Interfaces/Project/Project";
 import ProjectItem from "../ProjectItem/ProjectItem";
-import { useAuth } from "../../Context/useAuth";
 import {
     searchProjectsCreatedByUserAPI,
     SearchProjectsCompletedByUserAPI,
     SearchProjectsUserWorkingOnAPI,
     SearchProjectsWhereUserAppliedToAPI,
 } from "../../Services/ProjectService";
+import { useParams } from "react-router-dom";
+import { useAuth } from "../../Context/useAuth";
 
 const MyProjectsPage = () => {
     const [searchStatus, setSearchStatus] = useState<string>("Opened");
     const [projectType, setProjectType] = useState<string>("myProjects");
     const [projects, setProjects] = useState<Project[] | null>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { userId } = useParams<{ userId: string }>();
     const { user } = useAuth();
+
+    const isCurrentUser = user?.id === userId;
 
     const fetchProjects = async () => {
         setIsLoading(true);
@@ -22,16 +26,16 @@ const MyProjectsPage = () => {
             let response;
             switch (projectType) {
                 case "myProjects":
-                    response = await searchProjectsCreatedByUserAPI(user!.id, searchStatus);
+                    response = await searchProjectsCreatedByUserAPI(userId!, searchStatus);
                     break;
                 case "completedProjects":
-                    response = await SearchProjectsCompletedByUserAPI(user!.id);
+                    response = await SearchProjectsCompletedByUserAPI(userId!);
                     break;
                 case "workingOn":
-                    response = await SearchProjectsUserWorkingOnAPI(user!.id);
+                    response = await SearchProjectsUserWorkingOnAPI(userId!);
                     break;
                 case "appliedTo":
-                    response = await SearchProjectsWhereUserAppliedToAPI(user!.id);
+                    response = await SearchProjectsWhereUserAppliedToAPI(userId!);
                     break;
                 default:
                     response = null;
@@ -46,8 +50,9 @@ const MyProjectsPage = () => {
     };
 
     useEffect(() => {
+        console.log("Ulogovani korisnik:", userId);
         fetchProjects();
-    }, [projectType, searchStatus]);
+    }, [projectType, searchStatus, userId]);
 
     const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSearchStatus(event.target.value);
@@ -72,9 +77,13 @@ const MyProjectsPage = () => {
                     className={`form-select form-select-lg mb-3`}
                 >
                     <option value="myProjects">Moji projekti</option>
-                    <option value="completedProjects">Projekti koje sam odradio</option>
-                    <option value="workingOn">Projekti na kojima učestvujem</option>
-                    <option value="appliedTo">Projekti za koje sam se prijavio</option>
+                    {isCurrentUser && (
+                        <>
+                            <option value="completedProjects">Projekti koje sam odradio</option>
+                            <option value="workingOn">Projekti na kojima učestvujem</option>
+                            <option value="appliedTo">Projekti za koje sam se prijavio</option>
+                        </>
+                    )}
                 </select>
             </div>
             {projectType === "myProjects" && (

@@ -1,15 +1,15 @@
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {Link} from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 import styles from './Navbar.module.css'
-import {useAuth} from "../../Context/useAuth.tsx";
-import {useLocation, useNavigate} from "react-router";
-import {faBars, faUser} from "@fortawesome/free-solid-svg-icons";
-import {Dropdown} from "react-bootstrap";
+import { useAuth } from "../../Context/useAuth.tsx";
+import { useLocation, useNavigate } from "react-router";
+import { faBars, faUser } from "@fortawesome/free-solid-svg-icons";
+import { Dropdown } from "react-bootstrap";
 
 
 export const Navbar = () => {
     const navigate = useNavigate();
-    const {isLoggedIn, logout, user} = useAuth();
+    const { isLoggedIn, logout, user } = useAuth();
 
     const location = useLocation();
 
@@ -43,8 +43,8 @@ export const Navbar = () => {
                     </div>
 
                     <button className={`navbar-toggler`} type="button" data-bs-toggle="collapse"
-                            data-bs-target="#navbarResponsive">
-                        <FontAwesomeIcon icon={faBars}/>
+                        data-bs-target="#navbarResponsive">
+                        <FontAwesomeIcon icon={faBars} />
                     </button>
                     <div className={`collapse navbar-collapse justify-content-xl-end`} id="navbarResponsive">
                         <ul className={`navbar-nav justify-content-center flex-wrap`}>
@@ -56,19 +56,18 @@ export const Navbar = () => {
                                 ?
                                 <>
                                     <li className={`my-2 text-end`}>
-                                        <Link to={"/create-project"} className={`${getLinkClass("/create-project")}`}>KREIRAJ
-                                            PROJEKAT</Link>
+                                        <Link to={"/create-project"} className={`${getLinkClass("/create-project")}`}>KREIRAJ PROJEKAT</Link>
                                     </li>
                                     <li className={`my-2 text-end`}>
                                         <Link to={"/search-projects-page"} className={`${getLinkClass("/search-projects-page")}`}>PROJEKTI</Link>
                                     </li>
                                     <li className={`my-2 text-end`}>
-                                        <Link to={"/my-projects-page"} className={`${getLinkClass("/my-projects-page")}`}>MOJI PROJEKTI</Link>
+                                        <Link to={`/my-projects-page/${user?.id}`} className={`${getLinkClass(`/my-projects-page/${user?.id}`)}`}>MOJI PROJEKTI</Link>
                                     </li>
                                     <li className={`my-2 text-end`}>
                                         <Link to={"/search-user-page"} className={`${getLinkClass("/search-user-page")}`}>KORISNICI</Link>
                                     </li>
-                                    {user?.role=='Admin' &&
+                                    {user?.role == 'Admin' &&
                                         <li className={`my-2 text-end`}>
                                             <Link to={"/tags"} className={`${getLinkClass("/tags")}`}>TAGOVI</Link>
                                         </li>
@@ -76,14 +75,14 @@ export const Navbar = () => {
                                     <li className={`ms-3 text-end`}>
                                         <Dropdown>
                                             <Dropdown.Toggle className={styles['user-dropdown']} variant="light"
-                                                             id="dropdown-basic">
-                                                <FontAwesomeIcon icon={faUser}/> {user!.username.toUpperCase()}
+                                                id="dropdown-basic">
+                                                <FontAwesomeIcon icon={faUser} /> {user!.username.toUpperCase()}
                                             </Dropdown.Toggle>
 
                                             <Dropdown.Menu align={'end'}>
-                                                <Dropdown.Divider/>                                              
-                                                <Dropdown.Item onClick={handleProfileRedirect}className={styles['custom-dropdown-item1']}>MOJ PROFIL</Dropdown.Item>
-                                                <Dropdown.Item onClick={handleLogout}className={styles['custom-dropdown-item1']}>ODJAVI SE</Dropdown.Item>
+                                                <Dropdown.Divider />
+                                                <Dropdown.Item onClick={handleProfileRedirect} className={styles['custom-dropdown-item1']}>MOJ PROFIL</Dropdown.Item>
+                                                <Dropdown.Item onClick={handleLogout} className={styles['custom-dropdown-item1']}>ODJAVI SE</Dropdown.Item>
                                             </Dropdown.Menu>
                                         </Dropdown>
                                     </li>
@@ -91,10 +90,10 @@ export const Navbar = () => {
                                 :
                                 <>
                                     <li className={`my-2 text-end`}><Link to="/login"
-                                                                          className={`${getLinkClass("/login")} ${styles.link} ${styles['link-hover']}`}>PRIJAVA</Link>
+                                        className={`${getLinkClass("/login")} ${styles.link} ${styles['link-hover']}`}>PRIJAVA</Link>
                                     </li>
                                     <li className={`my-2 text-end`}><Link to="/register"
-                                                                          className={`${getLinkClass("/register")} ${styles.link} ${styles['link-hover']}`}>REGISTRACIJA</Link>
+                                        className={`${getLinkClass("/register")} ${styles.link} ${styles['link-hover']}`}>REGISTRACIJA</Link>
                                     </li>
                                 </>
                             }

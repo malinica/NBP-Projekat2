@@ -39,7 +39,7 @@ function App() {
                                        element={<ProtectedRoute><UserProfilePage/></ProtectedRoute>}/>
                                 <Route path="/search-projects-page"
                                        element={<ProtectedRoute><SearchProjectsPage/></ProtectedRoute>}/>
-                                <Route path="/my-projects-page"
+                                <Route path="/my-projects-page/:userId"
                                        element={<ProtectedRoute><MyProjectsPage/></ProtectedRoute>}/>
                                 <Route path="/search-user-page"
                                        element={<ProtectedRoute><SearchUserPage/></ProtectedRoute>}/>

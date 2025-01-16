@@ -5,28 +5,29 @@ import { useEffect, useState } from 'react';
 import toast from "react-hot-toast";
 import { Review } from "../../Interfaces/Review/Review";
 import { useAuth } from "../../Context/useAuth";
-import {useParams} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { User } from "../../Interfaces/User/User";
-import {checkIfUserFollowsAPI, followUserAPI, getUserByUsernameAPI, unfollowUserAPI} from "../../Services/UserService";
-import {getReviewsFromUsernameAPI,createReviewAPI, getReviewsForUsernameAPI} from "../../Services/ReviewService";
-import {FollowersFollowingModal} from "../FollowersFollowingModal/FollowersFollowingModal.tsx";
+import { checkIfUserFollowsAPI, followUserAPI, getUserByUsernameAPI, unfollowUserAPI } from "../../Services/UserService";
+import { getReviewsFromUsernameAPI, createReviewAPI, getReviewsForUsernameAPI } from "../../Services/ReviewService";
+import { FollowersFollowingModal } from "../FollowersFollowingModal/FollowersFollowingModal.tsx";
 import Rating from '@mui/material/Rating';
 
 
 const UserProfilePage = () => {
-    const {usernameFromParams} = useParams();
-    const [profileUser,setProfileUser]=useState<User|null>(null);
+    const { usernameFromParams } = useParams();
+    const [profileUser, setProfileUser] = useState<User | null>(null);
     const [totalItemsCount, setTotalItemsCount] = useState<number>(0);
     const [reviews, setReviews] = useState<Review[] | null>(null);
     const [isFollowing, setIsFollowing] = useState<boolean>(false);//da li pratim tog korisnika ili ne
     const [isRelationshipLoading, setIsRelationshipLoading] = useState<boolean>(true);
-    const [typeForReviews,setTypeForReviews]=useState<boolean>(true);//true ako je reviews koje je korisnik dao, false ako je reviews koje je korisnik dobio
-    const [reviewGrade,setReviewGrade]=useState<number|null>(null);
-    const [reviewText,setReviewText]=useState<string|null>(null);
+    const [typeForReviews, setTypeForReviews] = useState<boolean>(true);//true ako je reviews koje je korisnik dao, false ako je reviews koje je korisnik dobio
+    const [reviewGrade, setReviewGrade] = useState<number | null>(null);
+    const [reviewText, setReviewText] = useState<string | null>(null);
     const [isFollowersModalOpened, setIsFollowersModalOpened] = useState(false);
     const [activeTab, setActiveTab] = useState<"followers" | "following">("followers");
+    const navigate = useNavigate();
 
-    const {user} = useAuth();
+    const { user } = useAuth();
 
     useEffect(() => {
         loadUser();
@@ -41,41 +42,40 @@ const UserProfilePage = () => {
     }
 
     const handleSubmit = async () => {
-        if(reviewGrade==null )
+        if (reviewGrade == null)
             toast.error("Unesite ocenu");
-        else if (usernameFromParams!=null)
-        {
+        else if (usernameFromParams != null) {
 
             const reviewData: Review = {
                 id: uuidv4(),
                 rating: reviewGrade,
-                content: reviewText? reviewText : "",
+                content: reviewText ? reviewText : "",
                 createdAt: new Date(),
                 updatedAt: new Date()
             };
 
-            const result=await createReviewAPI(usernameFromParams,reviewData);
-            if(result)
+            const result = await createReviewAPI(usernameFromParams, reviewData);
+            if (result)
                 toast.success("Uspesno ste dodali recenziju");
-            else 
-            toast.error("Greska prilikom dodavanja recenzije");
+            else
+                toast.error("Greska prilikom dodavanja recenzije");
+        }
     }
-}
 
     const handleReviewText = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setReviewText(e.target.value);
-      };
+    };
 
     const handleReviewGrade = (e: React.ChangeEvent<HTMLInputElement>) => {
         const price = parseInt(e.target.value, 10);
-        
+
         if (isNaN(price) || price < 0 || price > 5) {
-          setReviewGrade(null);
+            setReviewGrade(null);
         } else {
-          setReviewGrade(price);
+            setReviewGrade(price);
         }
-      };
-      
+    };
+
 
     const loadUser = async () => {
         if (usernameFromParams != undefined) {
@@ -86,7 +86,7 @@ const UserProfilePage = () => {
                 setProfileUser(data);
                 try {
                     const userFollowsResponse = await checkIfUserFollowsAPI(data.id);
-                    if(userFollowsResponse && userFollowsResponse.status === 200)
+                    if (userFollowsResponse && userFollowsResponse.status === 200)
                         setIsFollowing(userFollowsResponse.data);
                 }
                 catch {
@@ -101,10 +101,10 @@ const UserProfilePage = () => {
 
     const loadReviews = async (page: number, pageSize: number) => {
         if (usernameFromParams) {
-            const fetchReviews = typeForReviews 
+            const fetchReviews = typeForReviews
                 ? getReviewsFromUsernameAPI(usernameFromParams, (page - 1) * pageSize, pageSize)
                 : getReviewsForUsernameAPI(usernameFromParams, (page - 1) * pageSize, pageSize);
-    
+
             try {
                 const data = await fetchReviews;
                 if (!data) {
@@ -122,7 +122,7 @@ const UserProfilePage = () => {
             }
         }
     };
-    
+
 
     const handleFollowUser = async () => {
         try {
@@ -157,6 +157,10 @@ const UserProfilePage = () => {
         setIsFollowersModalOpened(false);
     };
 
+    const handleNavigate = (userId: string) => {
+        navigate(`/my-projects-page/${userId}`);
+    };
+
     return (
         <div className={`container my-4 bg-light-green rounded-3`}>
             {profileUser ? (
@@ -167,7 +171,7 @@ const UserProfilePage = () => {
                     <p className={`text-green`}><strong>Uloga:</strong> {profileUser.role}</p>
                     {profileUser.profileImage ? (
                         <img src={`${import.meta.env.VITE_SERVER_URL}/${user?.profileImage}`} alt={profileUser.id}
-                             className={`${styles.slika}`}/>
+                            className={`${styles.slika}`} />
                     ) : (
                         <p className={`text-muted`}>Profilna slika nije dostupna</p>
                     )}
@@ -189,11 +193,11 @@ const UserProfilePage = () => {
                                     placeholder="Unesite komentar"
                                     rows={5}
                                     cols={30}
-                                    style={{display: "block", margin: "10px 0"}}
+                                    style={{ display: "block", margin: "10px 0" }}
                                 />
                                 <button
                                     onClick={handleSubmit}
-                                    style={{marginTop: "10px"}}
+                                    style={{ marginTop: "10px" }}
                                 >
                                     Ocenite
                                 </button>
@@ -244,9 +248,15 @@ const UserProfilePage = () => {
                         <option value="received">Recenzije koje je dobio korisnik</option>
                     </select>
 
+                    <div>
+                        <button onClick={() => handleNavigate(profileUser.id)}>
+                            Korisnikovi projekti
+                        </button>
+                    </div>
+
                     {totalItemsCount > 0 ? (
                         <div className={`my-4`}>
-                            <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
+                            <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange} />
                         </div>
                     ) : (
                         <div className="my-4 text-center text-gray-500">
