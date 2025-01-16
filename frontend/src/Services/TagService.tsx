@@ -33,3 +33,39 @@ export const removeTagFromProjectAPI = async (projectId: string, tagId: string) 
         return undefined;
     }
 }
+
+export const createTagAPI = async (name: string, description: string) => {
+    try {
+        return await axios.post<Tag>(api + "/CreateTag", {
+            name, 
+            description
+        });
+    }
+    catch(error:any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}
+
+export const updateTagAPI = async (tagId: string, name: string, description: string) => {
+    try {
+        return await axios.put<Tag>(api+`/UpdateTag/${tagId}`, {
+            name,
+            description
+        });
+    }
+    catch(error:any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}
+
+export const getTagByIdAPI = async (tagId: string) => {
+    try {
+        return await axios.get<Tag>(api+`/GetProjectById/${tagId}`, {});
+    }
+    catch(error:any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}

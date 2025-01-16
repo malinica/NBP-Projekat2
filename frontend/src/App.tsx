@@ -14,7 +14,9 @@ import SearchUserPage from './Components/SearchUserPage/SearchUserPage.tsx'
 import MyProjectsPage from './Components/MyProjectsPage/MyProjectsPage.tsx'
 import UserProfilePage from './Components/UserProfilePage/UserProfilePage.tsx'
 import {ProtectedRoute} from "./Components/ProtectedRoute/ProtectedRoute.tsx";
-import {ConfirmationProvider} from "./Context/ConfirmationContext.tsx";
+//import {ConfirmationProvider} from "./Context/ConfirmationContext.tsx";
+import TagsPage from './Components/TagsPage/TagsPage.tsx'
+import CreateTagForm from './Components/CreateTagForm/CreateTagForm.tsx'
 
 function App() {
 
@@ -41,6 +43,8 @@ function App() {
                                        element={<ProtectedRoute><MyProjectsPage/></ProtectedRoute>}/>
                                 <Route path="/search-user-page"
                                        element={<ProtectedRoute><SearchUserPage/></ProtectedRoute>}/>
+                                <Route path="/tags"
+                                       element={<ProtectedRoute><TagsPage/></ProtectedRoute>}/>
                             </Routes>
                         </div>
                         <Footer/>

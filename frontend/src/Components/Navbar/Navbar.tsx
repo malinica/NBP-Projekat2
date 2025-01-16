@@ -48,26 +48,31 @@ export const Navbar = () => {
                     </button>
                     <div className={`collapse navbar-collapse justify-content-xl-end`} id="navbarResponsive">
                         <ul className={`navbar-nav justify-content-center flex-wrap`}>
-                            <li className="my-2 text-end">
+                            <li className={`my-2 text-end`}>
                                 <Link to={"/"} className={` ${getLinkClass("#onama")}`}>O NAMA</Link>
                             </li>
 
                             {isLoggedIn()
                                 ?
                                 <>
-                                    <li className="my-2 text-end">
+                                    <li className={`my-2 text-end`}>
                                         <Link to={"/create-project"} className={`${getLinkClass("/create-project")}`}>KREIRAJ
                                             PROJEKAT</Link>
                                     </li>
-                                    <li className="my-2 text-end">
+                                    <li className={`my-2 text-end`}>
                                         <Link to={"/search-projects-page"} className={`${getLinkClass("/search-projects-page")}`}>PROJEKTI</Link>
                                     </li>
-                                    <li className="my-2 text-end">
+                                    <li className={`my-2 text-end`}>
                                         <Link to={"/my-projects-page"} className={`${getLinkClass("/my-projects-page")}`}>MOJI PROJEKTI</Link>
                                     </li>
-                                    <li className="my-2 text-end">
+                                    <li className={`my-2 text-end`}>
                                         <Link to={"/search-user-page"} className={`${getLinkClass("/search-user-page")}`}>KORISNICI</Link>
                                     </li>
+                                    {user?.role=='Admin' &&
+                                        <li className={`my-2 text-end`}>
+                                            <Link to={"/tags"} className={`${getLinkClass("/tags")}`}>TAGOVI</Link>
+                                        </li>
+                                    }
                                     <li className={`ms-3 text-end`}>
                                         <Dropdown>
                                             <Dropdown.Toggle className={styles['user-dropdown']} variant="light"

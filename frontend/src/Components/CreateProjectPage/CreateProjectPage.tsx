@@ -59,8 +59,8 @@ export const CreateProjectPage = () => {
 
     return (
         <div className={`container-fluid bg-lilac d-flex justify-content-center flex-grow-1`}>
-            <div className={`col-xxl-7 col-xl-7 col-lg-6 col-md-10 col-sm-12 m-4 bg-light rounded-3 d-flex flex-column`}>
-                <div className={`row justify-content-center bg-light rounded-3 py-4 `}>
+            <div className={`col-xxl-7 col-xl-7 col-lg-6 col-md-10 col-sm-12 m-4 rounded-3 d-flex flex-column`}>
+                <div className={`row justify-content-center bg-light-green rounded-3 py-4 `}>
                     <div className={`col-md-8 m-4`}>
                         <h2 className={`mb-4 text-center text-violet`}>Kreiraj Projekat</h2>
                         <form onSubmit={handleSubmit}>
@@ -98,7 +98,7 @@ export const CreateProjectPage = () => {
                             <div className={`mb-3`}>
                                 <TagPicker selectedTags={selectedTags} maxNumberOfTags={10} onAddTag={handleAddTag} onRemoveTag={handleRemoveTag} />
                             </div>
-                            <button type="submit" className={`btn-lg text-white text-center rounded py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}>Sačuvaj Projekat</button>
+                            <button type="submit" className={`btn-lg text-white text-center rounded-3 border-0 py-2 px-2 ${styles.slova} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}>Sačuvaj Projekat</button>
                         </form>
                     </div>
                 </div>
