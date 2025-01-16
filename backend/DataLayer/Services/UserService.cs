@@ -143,6 +143,69 @@ public class UserService
             return "Došlo je do greške prilikom preuzimanja podataka o korisniku.".ToError();
         }
     }
+    
+    public async Task<Result<UserResultDTO, ErrorMessage>> Update(string userId, UpdateUserDTO userDto)
+    {
+        try
+        {
+            var profileImagePathQuery = new CypherQuery("MATCH(u:User {Id: $userId}) RETURN u.ProfileImage",
+                new Dictionary<string, object>
+                {
+                    {
+                        "userId", userId
+                    }
+                }, CypherResultMode.Set, "neo4j");
+
+            var profileImagePath = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<string>(profileImagePathQuery)).First();
+
+            if (userDto.ProfileImage != null)
+            {
+                if (!string.IsNullOrEmpty(profileImagePath))
+                {
+                    var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                    var filePath = Path.Combine(wwwrootPath, profileImagePath);
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(userDto.ProfileImage.FileName);
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ProfileImages");
+                var newFilePath = Path.Combine(path, fileName);
+                await using (var stream = new FileStream(newFilePath, FileMode.Create))
+                {
+                    await userDto.ProfileImage.CopyToAsync(stream);
+                }
+                profileImagePath = $"ProfileImages/{fileName}";
+            }
+            var query = new CypherQuery("MATCH (u:User {Id: $userId}) " +
+                                        "SET u.ProfileImage = $image" +
+                                        (userDto.Username != null ? ", u.Username = $username " : " ") + 
+                                        "RETURN u",
+                                        new Dictionary<string, object>
+                                        {
+                                            {"userId", userId},
+                                            {"username", userDto?.Username ?? ""},
+                                            {"image", profileImagePath}
+                                        },
+                                        CypherResultMode.Set, "neo4j");
+
+            var updatedProjects = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<UserResultDTO>(query)).ToList();
+
+            if (updatedProjects.Any())
+            {
+                return updatedProjects.First();
+            }
+
+            return "Korisnik nije pronađen.".ToError(404);
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom izmene podataka o korisniku.".ToError();
+        }
+    }
+
 
     public async Task<Result<List<UserResultDTO>, ErrorMessage>> GetAllUsers()
     {

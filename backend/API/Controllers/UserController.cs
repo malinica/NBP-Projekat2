@@ -42,7 +42,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("Register")]
-    public async Task<IActionResult> Create([FromBody] CreateUserDTO userDto)
+    public async Task<IActionResult> Register([FromBody] CreateUserDTO userDto)
     {
         (bool isError, var response, ErrorMessage? error) = await userService.Register(userDto);
 
@@ -65,6 +65,24 @@ public class UserController : ControllerBase
         }
 
         return Ok(response);
+    }
+    
+    [HttpPut("Update")]
+    public async Task<IActionResult> Update([FromForm] UpdateUserDTO userDto)
+    {
+        var userResult = await userService.GetCurrentUser(User);
+
+        if(userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        (bool isError, var updatedUser, ErrorMessage? error) = await userService.Update(userResult.Data.Id, userDto);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(updatedUser);
     }
 
     [HttpGet("GetProjectUsersByType/{type}/{projectId}")]

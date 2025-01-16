@@ -76,7 +76,7 @@ const MyProjectsPage = () => {
                     onChange={handleTypeChange}
                     className={`form-select form-select-lg mb-3`}
                 >
-                    <option value="myProjects">Moji projekti</option>
+                    <option value="myProjects">Kreirani projekti</option>
                     {isCurrentUser && (
                         <>
                             <option value="completedProjects">Projekti koje sam odradio</option>

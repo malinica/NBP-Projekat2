@@ -17,4 +17,6 @@ public class User : IdentityUser
     public List<Project>? AppliedTo { get; set; } // projekti na koje se korisnik prijavio
     public List<Project>? AcceptedIn { get; set; } // projekti na kojima je prihvacen
     public List<Project>? InvitedTo { get; set; } // projekti na koje je invajtovan
+    public List<User>? Followers { get; set; }
+    public List<User>? Following { get; set; }
 }

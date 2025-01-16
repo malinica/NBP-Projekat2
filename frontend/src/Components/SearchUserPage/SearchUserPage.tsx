@@ -79,61 +79,63 @@ const SearchUserPage = () => {
 
     return (
         <div className={`container-fluid bg-light-lilac`}>
-            <div className={`row mx-2 my-4 py-2 rounded-3 bg-light-green`}>
-                <div className={`col-xxl-3 col-xl-3 col-lg-4 col-md-5 col-sm-12 my-2 px-2 py-3 rounded-3 d-flex flex-column`}>
+            <div className="container">
+                <div className={`row mx-2 my-4 py-2 rounded-3 bg-light-green`}>
+                    <div className={`col-xxl-3 col-xl-3 col-lg-4 col-md-5 col-sm-12 my-2 px-2 py-3 rounded-3 d-flex flex-column`}>
 
-                    <div className={`mb-3 mx-2`}>
-                        <TagPicker selectedTags={selectedTags} onAddTag={handleAddTag}
-                                    onRemoveTag={handleRemoveTag}/>
+                        <div className={`mb-3 mx-2`}>
+                            <TagPicker selectedTags={selectedTags} onAddTag={handleAddTag}
+                                        onRemoveTag={handleRemoveTag}/>
+                        </div>
+
+                        <label className={`text-dark-green ms-2 me-4`}>Unesite korisničko ime: </label>
+                        <div className={`d-flex flex-column ms-2 me-2 my-2`}>
+                            <input
+                                className={`form-control rounded-2`}
+                                value={username}
+                                onChange={handleUsernameChange}
+                            ></input>
+                        </div>
+
+                        <button
+                            className={`btn-md m-2 text-white text-center rounded py-2 px-2 mt-4 ${styles.fields} ${styles.dugme} ${styles.linija_ispod_dugmeta}`}
+                            type="button"
+                            id="buttonSearch"
+                            onClick={handleButtonSearchClick}
+                        >Pretraži
+                        </button>
                     </div>
 
-                    <label className={`text-dark-green ms-2 me-4`}>Unesite korisničko ime: </label>
-                    <div className={`d-flex flex-column ms-2 me-2 my-2`}>
-                        <input
-                            className={`form-control rounded-2`}
-                            value={username}
-                            onChange={handleUsernameChange}
-                        ></input>
-                    </div>
-
-                    <button
-                        className={`btn-md m-2 text-white text-center rounded py-2 px-2 mt-4 ${styles.fields} ${styles.dugme} ${styles.linija_ispod_dugmeta}`}
-                        type="button"
-                        id="buttonSearch"
-                        onClick={handleButtonSearchClick}
-                    >Pretraži
-                    </button>
-                </div>
-
-                <div className={`col-xxl-9 col-xl-9 col-lg-8 col-md-7 col-sm-12 my-2`}>
-                    <h2 className={`my-5 text-center text-dark-green`}>
-                        {viewMode === "search" ? "Rezultati pretrage" : "Osobe koje možda poznajete"}
-                    </h2>
-                    {isLoading ?
-                        (<>
-                            <p className={`text-center`}>Učitavanje korisnika...</p>
-                        </>) :
-                        (<>
-                            {users && users.length > 0 ? (
-                                users.map((user) => (
-                                    <div key={user.id} className={`row mb-3`}>
-                                        <div className={`col`}>
-                                            <UserCard user={user}/>
+                    <div className={`col-xxl-9 col-xl-9 col-lg-8 col-md-7 col-sm-12 my-2`}>
+                        <h2 className={`my-5 text-center text-dark-green`}>
+                            {viewMode === "search" ? "Rezultati pretrage" : "Osobe koje možda poznajete"}
+                        </h2>
+                        {isLoading ?
+                            (<>
+                                <p className={`text-center`}>Učitavanje korisnika...</p>
+                            </>) :
+                            (<>
+                                {users && users.length > 0 ? (
+                                    users.map((user) => (
+                                        <div key={user.id} className={`row mb-3`}>
+                                            <div className={`col`}>
+                                                <UserCard user={user}/>
+                                            </div>
                                         </div>
+                                    ))
+                                ) : (
+                                    <div className={`col-12`}>
+                                        <p className={`text-center text-muted`}>Nema korisnika za prikaz.</p>
                                     </div>
-                                ))
-                            ) : (
-                                <div className={`col-12`}>
-                                    <p className={`text-center text-muted`}>Nema korisnika za prikaz.</p>
-                                </div>
-                            )}
-                        </>)}
-                </div>
+                                )}
+                            </>)}
+                    </div>
 
-                {totalUsersCount > 0 &&
-                    <div className={`my-4`}>
-                        <Pagination totalLength={totalUsersCount} onPaginateChange={handlePaginateChange} />
-                    </div>}
+                    {totalUsersCount > 0 &&
+                        <div className={`my-4`}>
+                            <Pagination totalLength={totalUsersCount} onPaginateChange={handlePaginateChange} />
+                        </div>}
+                </div>
             </div>
         </div>
     );

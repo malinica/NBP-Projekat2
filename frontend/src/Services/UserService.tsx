@@ -45,6 +45,20 @@ export const getAllUsersAPI = async () => {
     }
 };
 
+export const updateUserAPI = async (userDto: FormData) => {
+    try {
+        return await axios.put<User>(`${api}/Update`, userDto, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+    }
+    catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom ažuriranja podataka o korisniku.");
+        return undefined;
+    }
+};
+
 export const getProjectUsersByTypeAPI = async (projectId: string, type: string, page: number = 1, pageSize: number = 10) => {
     try {
         return await axios.get<PaginatedResponseDTO<User>>(

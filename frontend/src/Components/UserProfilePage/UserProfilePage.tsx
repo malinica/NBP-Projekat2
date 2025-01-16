@@ -1,16 +1,23 @@
 import styles from "./UserProfilePage.module.css";
 import { v4 as uuidv4 } from 'uuid';
 import { Pagination } from "../Pagination/Pagination";
-import { useEffect, useState } from 'react';
+import {ChangeEvent, useEffect, useState} from 'react';
 import toast from "react-hot-toast";
 import { Review } from "../../Interfaces/Review/Review";
 import { useAuth } from "../../Context/useAuth";
 import { useNavigate, useParams } from "react-router-dom";
 import { User } from "../../Interfaces/User/User";
-import { checkIfUserFollowsAPI, followUserAPI, getUserByUsernameAPI, unfollowUserAPI } from "../../Services/UserService";
+import {
+    checkIfUserFollowsAPI,
+    followUserAPI,
+    getUserByUsernameAPI,
+    unfollowUserAPI,
+    updateUserAPI
+} from "../../Services/UserService";
 import { getReviewsFromUsernameAPI, createReviewAPI, getReviewsForUsernameAPI } from "../../Services/ReviewService";
 import { FollowersFollowingModal } from "../FollowersFollowingModal/FollowersFollowingModal.tsx";
 import Rating from '@mui/material/Rating';
+import {ImageCropModal} from "../ImageCropModal/ImageCropModal.tsx";
 
 
 const UserProfilePage = () => {
@@ -19,12 +26,16 @@ const UserProfilePage = () => {
     const [totalItemsCount, setTotalItemsCount] = useState<number>(0);
     const [reviews, setReviews] = useState<Review[] | null>(null);
     const [isFollowing, setIsFollowing] = useState<boolean>(false);//da li pratim tog korisnika ili ne
-    const [isRelationshipLoading, setIsRelationshipLoading] = useState<boolean>(true);
+    const [isRelationshipLoading, setIsRelationshipLoading] = useState<boolean>(false);
     const [typeForReviews, setTypeForReviews] = useState<boolean>(true);//true ako je reviews koje je korisnik dao, false ako je reviews koje je korisnik dobio
     const [reviewGrade, setReviewGrade] = useState<number | null>(null);
     const [reviewText, setReviewText] = useState<string | null>(null);
     const [isFollowersModalOpened, setIsFollowersModalOpened] = useState(false);
     const [activeTab, setActiveTab] = useState<"followers" | "following">("followers");
+    const [isCropModalOpen, setCropModalOpen] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+
     const navigate = useNavigate();
 
     const { user } = useAuth();
@@ -66,17 +77,6 @@ const UserProfilePage = () => {
         setReviewText(e.target.value);
     };
 
-    const handleReviewGrade = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const price = parseInt(e.target.value, 10);
-
-        if (isNaN(price) || price < 0 || price > 5) {
-            setReviewGrade(null);
-        } else {
-            setReviewGrade(price);
-        }
-    };
-
-
     const loadUser = async () => {
         if (usernameFromParams != undefined) {
             const data = await getUserByUsernameAPI(usernameFromParams);
@@ -84,7 +84,13 @@ const UserProfilePage = () => {
                 toast.error("Ne postoji korisnik za prikaz!");
             } else {
                 setProfileUser(data);
+                console.log(data);
+
+                if(user?.id == profileUser?.id)
+                    return;
+
                 try {
+                    setIsRelationshipLoading(true);
                     const userFollowsResponse = await checkIfUserFollowsAPI(data.id);
                     if (userFollowsResponse && userFollowsResponse.status === 200)
                         setIsFollowing(userFollowsResponse.data);
@@ -161,6 +167,41 @@ const UserProfilePage = () => {
         navigate(`/my-projects-page/${userId}`);
     };
 
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const file = event.target.files[0];
+            setSelectedImage(URL.createObjectURL(file));
+            setCropModalOpen(true);
+        }
+    };
+
+    const handleSaveCroppedImage = async (croppedImage: Blob) => {
+        try {
+            const formData = new FormData();
+            formData.append("profileImage", croppedImage, "profile-image.png");
+            const response = await updateUserAPI(formData);
+            if (response && response.status === 200) {
+                toast.success("Uspešno ažurirana slika.");
+                setProfileUser((prev:User|null) => {
+                    if (!prev)
+                        return null;
+
+                    return {
+                        ...prev,
+                        profileImage: response.data.profileImage
+                    }
+                })
+            }
+        }
+        catch {
+            toast.error("Došlo je do greške prilikom ažuriranja slike.");
+        }
+        finally {
+            setCropModalOpen(false);
+        }
+
+    };
+
     return (
         <div className={`container my-4 bg-light-green rounded-3`}>
             {profileUser ? (
@@ -169,12 +210,27 @@ const UserProfilePage = () => {
                     <p className={`text-dark-green`}><strong>Username:</strong> {profileUser.username}</p>
                     <p className={`text-green`}><strong>Email:</strong> {profileUser.email}</p>
                     <p className={`text-green`}><strong>Uloga:</strong> {profileUser.role}</p>
-                    {profileUser.profileImage ? (
-                        <img src={`${import.meta.env.VITE_SERVER_URL}/${user?.profileImage}`} alt={profileUser.id}
-                            className={`${styles.slika}`} />
+                    {profileUser?.profileImage ? (
+                        <img src={`${import.meta.env.VITE_SERVER_URL}/${profileUser?.profileImage}`} alt={profileUser.id}
+                            className={`${styles.slika} rounded-circle`} />
                     ) : (
                         <p className={`text-muted`}>Profilna slika nije dostupna</p>
                     )}
+
+                    {user?.id == profileUser.id && (<>
+                        <label htmlFor={`fileInput`} className={`btn btn-primary`}>Promeni sliku</label>
+                        <input type="file" id={`fileInput`} hidden accept="image/*"
+                               onChange={handleFileChange}/>
+
+                        {selectedImage && (
+                            <ImageCropModal
+                                isOpen={isCropModalOpen}
+                                onClose={() => setCropModalOpen(false)}
+                                onSave={handleSaveCroppedImage}
+                                imageSrc={selectedImage}
+                            />
+                        )}
+                    </>)}
 
                     <div>
                         {user == null ? (

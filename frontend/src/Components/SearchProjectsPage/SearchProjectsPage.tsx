@@ -1,7 +1,7 @@
 import styles from "./SearchProjectsPage.module.css";
 import { useState } from 'react';
 import toast from "react-hot-toast";
-import { searchProjectsAPI } from "../../Services/ProjectService";
+import {getRecommendedProjects, searchProjectsAPI} from "../../Services/ProjectService";
 import { Project } from "../../Interfaces/Project/Project";
 import { Pagination } from "../Pagination/Pagination";
 import { useEffect } from "react";
@@ -10,12 +10,14 @@ import { Tag } from "../../Interfaces/Tag/Tag";
 import ProjectItem from "../ProjectItem/ProjectItem";
 
 const SearchProjectsPage = () => {
-  const [totalItemsCount, setTotalItemsCount] = useState<number>(0);
+  const [totalProjectsCount, setTotalProjectsCount] = useState<number>(0);
   const [serachName, setSearchName] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
   const [projects, setProjects] = useState<Project[] | null>([]);
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [viewMode, setViewMode] = useState<"search"|"suggested">("suggested");
 
   const handleAddTag = (tag: Tag) => {
     setSelectedTags((prev) => [...prev, tag]);
@@ -24,10 +26,16 @@ const SearchProjectsPage = () => {
   const handleRemoveTag = (tagId: string) => {
     setSelectedTags((prev) => prev.filter((tag) => tag.id !== tagId));
   };
-  useEffect(() => { loadProjects(1, 10); }, []);
 
-  const handleButtonSearchClick = () => {
-    loadProjects(1, 10);
+    useEffect(() => {
+        loadSuggestedProjects();
+    }, []);
+
+  const handleButtonSearchClick = async () => {
+      if(viewMode === "suggested")
+          setViewMode("search");
+
+      await loadProjects(1,10);
   }
   const handleDateFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = e.target.value ? new Date(e.target.value) : null;
@@ -44,26 +52,44 @@ const SearchProjectsPage = () => {
   };
 
   const loadProjects = async (page: number, pageSize: number) => {
+    setIsLoading(true);
     const data = await searchProjectsAPI(
-      serachName,
-      selectedTags,
-      dateFrom ?? undefined,
-      dateTo ?? undefined,
-      page,
-      pageSize);
-    if (!data) 
-      {
+        serachName,
+        selectedTags,
+        dateFrom ?? undefined,
+        dateTo ?? undefined,
+        page,
+        pageSize);
+    if (!data) {
       toast.error("Nema podataka za prikaz!");
       setProjects(null);
-      setTotalItemsCount(0);
-    } 
-    else 
+      setTotalProjectsCount(0);
+    } else {
       setProjects(data.data);
-      setTotalItemsCount(data?.totalLength ?? 0);
-    };
+      setTotalProjectsCount(data?.totalLength ?? 0);
+    }
+    setIsLoading(false);
+  };
 
   const handlePaginateChange = async (page: number, pageSize: number) => {
     await loadProjects(page, pageSize);
+  }
+
+  const loadSuggestedProjects = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getRecommendedProjects();
+      if(response && response.status === 200) {
+        setProjects(response.data);
+        setTotalProjectsCount(0);
+      }
+    }
+    catch {
+      toast.error("Došlo je do greške prilikom učitavanja predloženih projekata.");
+    }
+    finally {
+      setIsLoading(false);
+    }
   }
 
 
@@ -114,21 +140,30 @@ const SearchProjectsPage = () => {
             >Pretraži projekte</button>
           </div>
         </div>
+          <div className={`col-xxl-9 col-xl-9 col-lg-8 col-md-7 col-sm-12 my-3`}>
+              {viewMode === "suggested" &&
+                  <h2 className={`mb-4 text-green text-center`}>Predloženi projekti</h2>}
+              {isLoading ?
+                  (<p className={`text-center`}>Učitavanje projekata...</p>)
+                  :
+                  (<>
+                      {projects && projects.length > 0 ? (
+                          projects.map((project) => (
+                              <ProjectItem key={project.id} project={project}/>
+                          ))
+                      ) : (<>
+                          <p className={`text-center text-muted`}>Nema projekata za prikazivanje.</p>
+                          {viewMode==="suggested" && <p className={`text-center text-muted`}>
+                              Zapratite druge korisnike ili dodajte tagove na svoj profil.</p>}
+                      </>
+                      )}
+                  </>)}
+          </div>
 
-        <div className={`col-xxl-9 col-xl-9 col-lg-8 col-md-7 col-sm-12 my-3`}>
-          {projects && projects.length > 0 ? (
-            projects.map((project) => (
-              <ProjectItem key={project.id} project={project} />
-            ))
-          ) : (
-            <p className={`text-center text-muted`}>Nema projekata za prikazivanje.</p>
-          )}
-        </div>
-
-        {totalItemsCount > 0 &&
-          <div className={`my-4`}>
-            <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange} />
-          </div>}
+          {totalProjectsCount > 0 &&
+              <div className={`my-4`}>
+                  <Pagination totalLength={totalProjectsCount} onPaginateChange={handlePaginateChange}/>
+              </div>}
 
       </div>
     </div>
