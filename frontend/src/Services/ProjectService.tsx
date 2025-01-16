@@ -181,9 +181,9 @@ export const SearchProjectsCompletedByUserAPI = async (userId: string) => {
     }
 };
 
-export const SearchProjectsUserWokringOnAPI = async (userId: string) => {
+export const SearchProjectsUserWorkingOnAPI = async (userId: string) => {
     try {
-        return await axios.get<Project[]>(api+`/SearchProjectsUserWokringOn/${userId}`)
+        return await axios.get<Project[]>(api+`/SearchProjectsUserWorkingOn/${userId}`)
     } catch (error: any) {
         toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
         return null;
@@ -193,6 +193,15 @@ export const SearchProjectsUserWokringOnAPI = async (userId: string) => {
 export const SearchProjectsWhereUserAppliedToAPI = async (userId: string) => {
     try {
         return await axios.get<Project[]>(api+`/SearchProjectsWhereUserAppliedTo/${userId}`)
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
+        return null;
+    }
+};
+
+export const getRecommendedProjects = async () => {
+    try {
+        return await axios.get<Project[]>(api+`/GetRecommendedProjects`)
     } catch (error: any) {
         toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
         return null;

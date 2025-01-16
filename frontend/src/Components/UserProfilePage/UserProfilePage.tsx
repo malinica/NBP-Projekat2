@@ -10,6 +10,7 @@ import { User } from "../../Interfaces/User/User";
 import {checkIfUserFollowsAPI, followUserAPI, getUserByUsernameAPI, unfollowUserAPI} from "../../Services/UserService";
 import {getReviewsFromUsernameAPI,createReviewAPI, getReviewsForUsernameAPI} from "../../Services/ReviewService";
 import {FollowersFollowingModal} from "../FollowersFollowingModal/FollowersFollowingModal.tsx";
+import Rating from '@mui/material/Rating';
 
 
 const UserProfilePage = () => {
@@ -176,13 +177,12 @@ const UserProfilePage = () => {
                             <p className={`text-center text-muted`}>Logujte se da biste ocenili korisnika.</p>
                         ) : usernameFromParams != user!.username ? (
                             <>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="5"
-                                    onChange={handleReviewGrade}
-                                    placeholder="Ocena (0-5)"
-                                    style={{display: "block", margin: "10px 0"}}
+                                <Rating
+                                    name="simple-controlled"
+                                    value={reviewGrade}
+                                    onChange={(_, newValue) => {
+                                        setReviewGrade(newValue);
+                                    }}
                                 />
                                 <textarea
                                     onChange={handleReviewText}

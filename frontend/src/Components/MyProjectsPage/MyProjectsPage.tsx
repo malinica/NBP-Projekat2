@@ -5,7 +5,7 @@ import { useAuth } from "../../Context/useAuth";
 import {
     searchProjectsCreatedByUserAPI,
     SearchProjectsCompletedByUserAPI,
-    SearchProjectsUserWokringOnAPI,
+    SearchProjectsUserWorkingOnAPI,
     SearchProjectsWhereUserAppliedToAPI,
 } from "../../Services/ProjectService";
 
@@ -28,7 +28,7 @@ const MyProjectsPage = () => {
                     response = await SearchProjectsCompletedByUserAPI(user!.id);
                     break;
                 case "workingOn":
-                    response = await SearchProjectsUserWokringOnAPI(user!.id);
+                    response = await SearchProjectsUserWorkingOnAPI(user!.id);
                     break;
                 case "appliedTo":
                     response = await SearchProjectsWhereUserAppliedToAPI(user!.id);

@@ -237,10 +237,10 @@ public class ProjectController : ControllerBase
         return Ok(projects);
     }
 
-    [HttpGet("SearchProjectsUserWokringOn/{userId}")]
-    public async Task<IActionResult> SearchProjectsUserWokringOn(string userId)
+    [HttpGet("SearchProjectsUserWorkingOn/{userId}")]
+    public async Task<IActionResult> SearchProjectsUserWorkingOn(string userId)
     {
-        (bool isError, var projects, ErrorMessage? error) = await projectService.SearchProjectsUserWokringOn(userId);
+        (bool isError, var projects, ErrorMessage? error) = await projectService.SearchProjectsUserWorkingOn(userId);
 
         if (isError)
         {
@@ -260,6 +260,26 @@ public class ProjectController : ControllerBase
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
 
+        return Ok(projects);
+    }
+    
+    [HttpGet("GetRecommendedProjects")]
+    [Authorize]
+    public async Task<IActionResult> GetRecommendedProject()
+    {
+        var userResult = await userService.GetCurrentUser(User);
+
+        if (userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        (bool isError, var projects, ErrorMessage? error) = 
+            await projectService.GetRecommendedProjects(userResult.Data.Id);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+        
         return Ok(projects);
     }
 }

@@ -13,6 +13,8 @@ import SearchProjectsPage from "./Components/SearchProjectsPage/SearchProjectsPa
 import SearchUserPage from './Components/SearchUserPage/SearchUserPage.tsx'
 import MyProjectsPage from './Components/MyProjectsPage/MyProjectsPage.tsx'
 import UserProfilePage from './Components/UserProfilePage/UserProfilePage.tsx'
+import {ProtectedRoute} from "./Components/ProtectedRoute/ProtectedRoute.tsx";
+import {ConfirmationProvider} from "./Context/ConfirmationContext.tsx";
 
 function App() {
 
@@ -27,12 +29,18 @@ function App() {
                                 <Route path="/" element={<Home/>}/>
                                 <Route path="/login" element={<LoginPage/>}/>
                                 <Route path="/register" element={<RegisterPage/>}/>
-                                <Route path="/create-project" element={<CreateProjectPage/>}/>
-                                <Route path="/projects/:projectId" element={<ProjectPage/>}/>
-                                <Route path="/profile-page/:usernameFromParams" element={<UserProfilePage />} />
-                                <Route path="/search-projects-page" element ={<SearchProjectsPage/>}/>
-                                <Route path="/my-projects-page" element ={<MyProjectsPage/>}/>
-                                <Route path="/search-user-page" element ={<SearchUserPage/>}/>
+                                <Route path="/create-project"
+                                       element={<ProtectedRoute><CreateProjectPage/></ProtectedRoute>}/>
+                                <Route path="/projects/:projectId"
+                                       element={<ProtectedRoute><ProjectPage/></ProtectedRoute>}/>
+                                <Route path="/profile-page/:usernameFromParams"
+                                       element={<ProtectedRoute><UserProfilePage/></ProtectedRoute>}/>
+                                <Route path="/search-projects-page"
+                                       element={<ProtectedRoute><SearchProjectsPage/></ProtectedRoute>}/>
+                                <Route path="/my-projects-page"
+                                       element={<ProtectedRoute><MyProjectsPage/></ProtectedRoute>}/>
+                                <Route path="/search-user-page"
+                                       element={<ProtectedRoute><SearchUserPage/></ProtectedRoute>}/>
                             </Routes>
                         </div>
                         <Footer/>

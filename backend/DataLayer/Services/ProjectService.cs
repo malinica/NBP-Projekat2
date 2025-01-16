@@ -502,7 +502,6 @@ public class ProjectService
                     p.UpdatedAt AS UpdatedAt, 
                     p.Status AS Status,
                     COLLECT({{ Id: t.Id, Name: t.Name, Description: t.Description }}) AS Tags
-            
                 ",
                 parameters,
                 CypherResultMode.Projection, "neo4j");
@@ -583,7 +582,7 @@ public class ProjectService
                 return projectArray;
             }
 
-            return "Nema projekata na kojima je ucestvovao korisnik. ".ToError();
+            return "Nema projekata na kojima je učestvovao korisnik. ".ToError();
         }
         catch (Exception)
         {
@@ -591,7 +590,7 @@ public class ProjectService
         }
     }
 
-    public async Task<Result<ProjectResultDTO[], ErrorMessage>> SearchProjectsUserWokringOn(string userId)
+    public async Task<Result<ProjectResultDTO[], ErrorMessage>> SearchProjectsUserWorkingOn(string userId)
     {
         try
         {
@@ -611,7 +610,7 @@ public class ProjectService
                 return projectArray;
             }
 
-            return "Nema projekata na kojima je ucestvovao korisnik. ".ToError();
+            return "Nema projekata na kojima je učestvovao korisnik. ".ToError();
         }
         catch (Exception)
         {
@@ -623,7 +622,7 @@ public class ProjectService
     {
         try
         {
-            var query = new CypherQuery("MATCH (u:User {Id: $userId})-[r:APPLIED_FOR]->(p:Project) RETURN p",
+            var query = new CypherQuery("MATCH (u:User {Id: $userId})-[r:APPLIED_TO]->(p:Project) RETURN p",
                 new Dictionary<string, object>
                 {
                     {"userId", userId}
@@ -646,5 +645,49 @@ public class ProjectService
             return "Greška prilikom prikupljanja projekata. ".ToError();
         }
     }
+    
+    public async Task<Result<List<ProjectResultDTO>, ErrorMessage>> GetRecommendedProjects(string userId)
+    {
+        try
+        {
+            var query = new CypherQuery(@"
+                MATCH (u:User  {Id: $userId})
+                OPTIONAL MATCH (u)-[:FOLLOWS]->(f:User)-[:CREATED]->(p:Project)
+                WITH u, COLLECT(p) AS followedProjects
 
+                OPTIONAL MATCH (u)-[:HAS_TAG]->(t:Tag)<-[:HAS_TAG]-(p:Project)-[:CREATED_BY]->(author:User)
+                WHERE author.Id <> $userId AND NOT p IN followedProjects
+                WITH followedProjects, COLLECT(p) as tagMatchedProjects
+                WITH followedProjects + tagMatchedProjects AS allProjects
+
+                UNWIND allProjects AS recommendedProjects
+                OPTIONAL MATCH (recommendedProjects)-[:HAS_TAG]->(tag:Tag)
+                RETURN DISTINCT 
+                    recommendedProjects.Id AS Id, 
+                    recommendedProjects.Title AS Title, 
+                    recommendedProjects.Image AS Image, 
+                    recommendedProjects.Description AS Description, 
+                    recommendedProjects.CreatedAt AS CreatedAt, 
+                    recommendedProjects.UpdatedAt AS UpdatedAt, 
+                    recommendedProjects.Status AS Status,
+                    COLLECT({ Id: tag.Id, Name: tag.Name, Description: tag.Description }) AS Tags
+                ORDER BY recommendedProjects.CreatedAt DESC
+                LIMIT 10",
+                new Dictionary<string, object>
+                {
+                    { "userId", userId }
+                },
+                CypherResultMode.Projection, "neo4j");
+
+            var projects = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+            var projectsList = projects.ToList();
+
+            return projectsList;
+        }
+        catch (Exception e)
+        {
+            return e.Message.ToError();
+            return "Greška prilikom generisanja preporuka projekata.".ToError();
+        }
+    }
 }
