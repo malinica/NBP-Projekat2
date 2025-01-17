@@ -148,6 +148,13 @@ public class UserService
     {
         try
         {
+            if (userDto.Username != null)
+            {
+                var existingUserResult = await GetByUsername(userDto.Username);
+                if (existingUserResult.IsSuccess)
+                    return "Korisnik sa izabranim korisničkim imenom već postoji.".ToError();
+            }
+            
             var profileImagePathQuery = new CypherQuery("MATCH(u:User {Id: $userId}) RETURN u.ProfileImage",
                 new Dictionary<string, object>
                 {
@@ -372,12 +379,19 @@ public class UserService
         try
         {
             var query = new CypherQuery(
-                "MATCH (u:User {Username: $username}) RETURN u",
+                @"MATCH (u:User {Username: $username})
+                OPTIONAL MATCH (u)-[:HAS_TAG]->(t:Tag)
+                RETURN u.Id as Id,
+                       u.Username as Username,
+                       u.Email as Email,
+                       u.Role as Role,
+                       u.ProfileImage as ProfileImage,
+                       COLLECT({ Id: t.Id, Name: t.Name, Description: t.Description }) AS Tags",
                 new Dictionary<string, object>
                 {
                     { "username", username }
                 },
-                CypherResultMode.Set,
+                CypherResultMode.Projection,
                 "neo4j"
             );
 
@@ -534,6 +548,7 @@ public class UserService
                                   -[:FOLLOWS]->
                                   (suggestedUser:User)
                             WHERE requester <> suggestedUser
+                            AND NOT (requester)-[:FOLLOWS]->(suggestedUser)
                             WITH suggestedUser, COUNT(commonFollower) AS mutualFollowersCount
                             ORDER BY mutualFollowersCount DESC
                             RETURN suggestedUser.Id AS Id, 

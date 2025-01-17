@@ -195,4 +195,52 @@ public class TagService
             return "Došlo je do greške prilikom uklanjanja taga iz projekta.".ToError();
         }
     }
+    
+    public async Task<Result<bool, ErrorMessage>> AddTagToUser(string userId, string tagId)
+    {
+        try
+        {
+            var query = new CypherQuery(@"
+                                        MATCH (u:User {Id: $userId}), (t:Tag {Id: $tagId})
+                                        MERGE (u)-[:HAS_TAG]->(t)",
+                new Dictionary<string, object>
+                {
+                    { "userId", userId },
+                    { "tagId", tagId }
+                },
+                CypherResultMode.Projection, "neo4j");
+
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom dodavanja taga korisniku.".ToError();
+        }
+    }
+
+    public async Task<Result<bool, ErrorMessage>> RemoveTagFromUser(string userId, string tagId)
+    {
+        try
+        {
+            var query = new CypherQuery(@"
+                                        MATCH (u:User {Id: $userId})-[r:HAS_TAG]->(t:Tag {Id: $tagId}) 
+                                        DELETE r",
+                new Dictionary<string, object>
+                {
+                    { "userId", userId },
+                    { "tagId", tagId }
+                },
+                CypherResultMode.Projection, "neo4j");
+
+            await ((IRawGraphClient)client).ExecuteCypherAsync(query);
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return "Došlo je do greške prilikom uklanjanja taga sa korisnika.".ToError();
+        }
+    }
 }

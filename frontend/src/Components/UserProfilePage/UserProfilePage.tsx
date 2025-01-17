@@ -18,6 +18,15 @@ import { getReviewsFromUsernameAPI, createReviewAPI, getReviewsForUsernameAPI } 
 import { FollowersFollowingModal } from "../FollowersFollowingModal/FollowersFollowingModal.tsx";
 import Rating from '@mui/material/Rating';
 import {ImageCropModal} from "../ImageCropModal/ImageCropModal.tsx";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import {TagPicker} from "../TagPicker/TagPicker.tsx";
+import {Chip} from "@mui/material";
+import {Tag} from "../../Interfaces/Tag/Tag.ts";
+import {
+    addTagToUserAPI,
+    removeTagFromUserAPI
+} from "../../Services/TagService.tsx";
 
 
 const UserProfilePage = () => {
@@ -34,6 +43,8 @@ const UserProfilePage = () => {
     const [activeTab, setActiveTab] = useState<"followers" | "following">("followers");
     const [isCropModalOpen, setCropModalOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [isEditingUsername, setIsEditingUsername] = useState(false);
+    const [newUsername, setNewUsername] = useState("");
 
 
     const navigate = useNavigate();
@@ -84,7 +95,7 @@ const UserProfilePage = () => {
                 toast.error("Ne postoji korisnik za prikaz!");
             } else {
                 setProfileUser(data);
-                console.log(data);
+                setNewUsername(data.username);
 
                 if(user?.id == profileUser?.id)
                     return;
@@ -173,6 +184,7 @@ const UserProfilePage = () => {
             setSelectedImage(URL.createObjectURL(file));
             setCropModalOpen(true);
         }
+        event.target.value = "";
     };
 
     const handleSaveCroppedImage = async (croppedImage: Blob) => {
@@ -199,7 +211,68 @@ const UserProfilePage = () => {
         finally {
             setCropModalOpen(false);
         }
+    };
 
+    const handleSaveUsername = async () => {
+        if (!newUsername.trim()) {
+            toast.error("Korisničko ime ne može biti prazno.");
+            return;
+        }
+
+        const usernameRegex = /^[a-zA-Z0-9._]+$/;
+        if(!usernameRegex.test(newUsername.trim())){
+            toast.error("Korisničko ime nije u validnom formatu. Dozvoljena su mala i velika slova abecede, brojevi, _ i .");
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append("username", newUsername);
+            const response = await updateUserAPI(formData);
+            if (response && response.status === 200) {
+                toast.success("Korisničko ime uspešno ažurirano.");
+                const currentUser = JSON.parse(localStorage.getItem("user")!);
+                currentUser.username = newUsername;
+                localStorage.setItem("user", JSON.stringify(currentUser));
+                navigate(`/profile-page/${response.data.username}`);
+                if(user)
+                    user.username = response.data.username;
+                setProfileUser((prev) => prev ? { ...prev, username: newUsername } : null);
+                setIsEditingUsername(false);
+            }
+        } catch {
+            toast.error("Došlo je do greške prilikom ažuriranja korisničkog imena.");
+        }
+    };
+
+    const handleAddTag = async (tag: Tag) => {
+        if (!profileUser) return;
+
+        try {
+            const response = await addTagToUserAPI(tag.id);
+            if (response && response.status === 200 && response.data) {
+                setProfileUser((prev) => prev ? {...prev, tags: [...prev.tags, tag]} : prev);
+                toast.success("Tag uspešno dodat!");
+            }
+        } catch {
+            toast.error("Greška pri dodavanju taga.");
+        }
+    };
+
+    const handleRemoveTag = async (tagId: string) => {
+        if (!profileUser) return;
+
+        try {
+            const response = await removeTagFromUserAPI(tagId);
+            if (response && response.status === 200 && response.data) {
+                setProfileUser((prev) => prev ?
+                                        {...prev, tags: prev.tags.filter((tag) => tag.id !== tagId)} :
+                                        prev);
+                toast.success("Tag uspešno uklonjen!");
+            }
+        } catch {
+            toast.error("Greška pri uklanjanju taga.");
+        }
     };
 
     return (
@@ -207,14 +280,37 @@ const UserProfilePage = () => {
             {profileUser ? (
                 <div className={`m-4`}>
                     <h1 className={`text-violet text-center`}>Profil korisnika</h1>
-                    <p className={`text-dark-green`}><strong>Username:</strong> {profileUser.username}</p>
+                    <div className="d-flex align-items-center">
+                        {isEditingUsername ? (
+                            <>
+                                <input
+                                    type="text"
+                                    value={newUsername}
+                                    onChange={(e) => setNewUsername(e.target.value)}
+                                    className="form-control"
+                                />
+                                <button className="btn btn-success ms-2" onClick={handleSaveUsername}>Sačuvaj</button>
+                                <button className="btn btn-secondary ms-2"
+                                        onClick={() => setIsEditingUsername(false)}>Otkaži
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-dark-green"><strong>Username:</strong> {profileUser.username}</p>
+                                <button className="btn ms-2" onClick={() => setIsEditingUsername(true)}>
+                                    <FontAwesomeIcon icon={faEdit}/>
+                                </button>
+                            </>
+                        )}
+                    </div>
                     <p className={`text-green`}><strong>Email:</strong> {profileUser.email}</p>
                     <p className={`text-green`}><strong>Uloga:</strong> {profileUser.role}</p>
                     {profileUser?.profileImage ? (
-                        <img src={`${import.meta.env.VITE_SERVER_URL}/${profileUser?.profileImage}`} alt={profileUser.id}
-                            className={`${styles.slika} rounded-circle`} />
+                        <img src={`${import.meta.env.VITE_SERVER_URL}/${profileUser?.profileImage}`}
+                             alt={profileUser.id}
+                             className={`${styles.slika} rounded-circle`}/>
                     ) : (
-                        <p className={`text-muted`}>Profilna slika nije dostupna</p>
+                        <p className={`text-muted`}>Profilna slika nije dostupna (stavi neku default)</p>
                     )}
 
                     {user?.id == profileUser.id && (<>
@@ -233,6 +329,22 @@ const UserProfilePage = () => {
                     </>)}
 
                     <div>
+                        {user && profileUser.id == user?.id
+                            ?
+                            (<>
+                                <TagPicker selectedTags={profileUser.tags} maxNumberOfTags={10} onAddTag={handleAddTag}
+                                           onRemoveTag={handleRemoveTag}/>
+                            </>)
+                            :
+                            (<>
+                                {profileUser.tags.map((tag) => (
+                                    <Chip key={tag.id} className={`ms-2`} label={tag.name}
+                                          color="success"/>
+                                ))}
+                            </>)}
+                    </div>
+
+                    <div>
                         {user == null ? (
                             <p className={`text-center text-muted`}>Logujte se da biste ocenili korisnika.</p>
                         ) : usernameFromParams != user!.username ? (
@@ -249,11 +361,11 @@ const UserProfilePage = () => {
                                     placeholder="Unesite komentar"
                                     rows={5}
                                     cols={30}
-                                    style={{ display: "block", margin: "10px 0" }}
+                                    style={{display: "block", margin: "10px 0"}}
                                 />
                                 <button
                                     onClick={handleSubmit}
-                                    style={{ marginTop: "10px" }}
+                                    style={{marginTop: "10px"}}
                                 >
                                     Ocenite
                                 </button>
@@ -312,7 +424,7 @@ const UserProfilePage = () => {
 
                     {totalItemsCount > 0 ? (
                         <div className={`my-4`}>
-                            <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange} />
+                            <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
                         </div>
                     ) : (
                         <div className="my-4 text-center text-gray-500">

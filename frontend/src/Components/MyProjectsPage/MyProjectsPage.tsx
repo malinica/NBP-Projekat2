@@ -50,7 +50,6 @@ const MyProjectsPage = () => {
     };
 
     useEffect(() => {
-        console.log("Ulogovani korisnik:", userId);
         fetchProjects();
     }, [projectType, searchStatus, userId]);
 

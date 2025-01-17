@@ -1,4 +1,5 @@
 using DataLayer.DTOs.Tag;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
@@ -7,9 +8,11 @@ namespace API.Controllers;
 public class TagController : ControllerBase
 {
     private readonly TagService tagService;
-    public TagController(TagService tagService)
+    private readonly UserService userService;
+    public TagController(TagService tagService, UserService userService)
     {
         this.tagService = tagService;
+        this.userService = userService;
     }
 
     [HttpGet("GetTagById/{id}")]
@@ -102,5 +105,42 @@ public class TagController : ControllerBase
 
         return Ok(response);
     }
+    
+    [HttpPost("AddTagToUser/{tagId}")]
+    [Authorize]
+    public async Task<IActionResult> AddTagToUser(string tagId)
+    {
+        var userResult = await userService.GetCurrentUser(User);
 
+        if (userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        (bool isError, var response, ErrorMessage? error) = await tagService.AddTagToUser(userResult.Data.Id, tagId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
+    
+    [HttpDelete("RemoveTagFromUser/{tagId}")]
+    [Authorize]
+    public async Task<IActionResult> RemoveTagFromUser(string tagId)
+    {
+        var userResult = await userService.GetCurrentUser(User);
+
+        if (userResult.IsError)
+            return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
+        
+        (bool isError, var response, ErrorMessage? error) = await tagService.RemoveTagFromUser(userResult.Data.Id, tagId);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(response);
+    }
 }

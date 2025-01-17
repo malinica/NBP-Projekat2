@@ -69,3 +69,21 @@ export const getTagByIdAPI = async (tagId: string) => {
         return undefined;
     }
 }
+
+export const addTagToUserAPI = async (tagId: string) => {
+    try {
+        return await axios.post<boolean>(api + `/AddTagToUser/${tagId}`, {});
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}
+
+export const removeTagFromUserAPI = async (tagId: string) => {
+    try {
+        return await axios.delete<boolean>(api + `/RemoveTagFromUser/${tagId}`);
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}
