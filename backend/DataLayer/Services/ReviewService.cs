@@ -154,9 +154,7 @@ public class ReviewService
             return "Došlo je do greške prilikom ažuriranja review-a.".ToError();
         }
     }
-
-
-   public async Task<PaginatedResponseDTO<ReviewResultDTO>> GetReviewsFromUser(string username, int? skip = 0, int limit = 10)
+public async Task<PaginatedResponseDTO<ReviewResultDTO>> GetReviewsFromUser(string username, int? skip = 0, int limit = 10)
 {
     try
     {
@@ -170,36 +168,40 @@ public class ReviewService
             };
         }
 
-        var query = new CypherQuery("""
-            MATCH (u:User {Username: $username})-[:CREATED]->(r:Review)
-            RETURN r
-            """,
-            new Dictionary<string, object>
-            {
-                {"username", username}
-            },
-            CypherResultMode.Set, "neo4j");
+        var query = new CypherQuery(@"
+        MATCH (a:User {Username: $username})-[:CREATED]->(r:Review)-[:FOR_USER]->(u:User)
 
-        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<Review>(query);
+    RETURN 
+        r.Id AS Id, 
+        r.Content AS Content, 
+        r.Rating AS Rating, 
+        r.CreatedAt AS CreatedAt, 
+        r.UpdatedAt AS UpdatedAt, 
+        { 
+            Id: a.Id, 
+            Username: a.Username, 
+            Email: a.Email,
+            Role: a.Role 
+        } AS Author",
+    new Dictionary<string, object>
+    {
+        {"username", username}
+    },
+    CypherResultMode.Projection, "neo4j");
+
+
+        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ReviewResultDTO>(query);
 
         if (result != null && result.Any())
         {
-            var reviewDtos = result
+            var paginatedResult = result
                 .Skip(skip ?? 0)
                 .Take(limit)
-                .Select(r => new ReviewResultDTO
-                {
-                    Id = r.Id,
-                    Content = r.Content,
-                    Rating = r.Rating,
-                    AuthorUsername=username
-                    
-                })
                 .ToList();
 
             return new PaginatedResponseDTO<ReviewResultDTO>
             {
-                Data = reviewDtos,
+                Data = paginatedResult,
                 TotalLength = result.Count()
             };
         }
@@ -220,10 +222,7 @@ public class ReviewService
     }
 }
 
-
-
-
-   public async Task<PaginatedResponseDTO<ReviewResultDTO>> GetReviewsForUser(string username, int? skip = 0, int limit = 10)
+public async Task<PaginatedResponseDTO<ReviewResultDTO>> GetReviewsForUser(string username, int? skip = 0, int limit = 10)
 {
     try
     {
@@ -237,35 +236,38 @@ public class ReviewService
             };
         }
 
-        var query = new CypherQuery("""
+        var query = new CypherQuery(@"
             MATCH (u:User {Username: $username})<-[:FOR_USER]-(r:Review)<-[:CREATED]-(a:User)
-            RETURN r.Id AS IDreview, r.Content AS rcontent, r.Rating AS rrating, r.CreatedAt AS rcreatedAt, r.UpdatedAt AS rupdatedAt, a.Username AS authorUsername
-            """,
+            RETURN 
+                r.Id AS Id, 
+                r.Content AS Content, 
+                r.Rating AS Rating, 
+                r.CreatedAt AS CreatedAt, 
+                r.UpdatedAt AS UpdatedAt, 
+                { 
+                    Id: a.Id, 
+                    Username: a.Username, 
+                    Email: a.Email, 
+                    Role: a.Role 
+                } AS Author",
             new Dictionary<string, object>
             {
                 {"username", username}
             },
-            CypherResultMode.Set, "neo4j");
+            CypherResultMode.Projection, "neo4j");
 
-        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<dynamic>(query);
+        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ReviewResultDTO>(query);
 
         if (result != null && result.Any())
         {
-            var reviewDtos = result
+            var paginatedResult = result
                 .Skip(skip ?? 0)
                 .Take(limit)
-                .Select(r => new ReviewResultDTO
-                {
-                    Id = r.IDreview,
-                    Content = r.rcontent,
-                    Rating = r.rrating,
-                    AuthorUsername=r.authorUsername
-                })
                 .ToList();
 
             return new PaginatedResponseDTO<ReviewResultDTO>
             {
-                Data = reviewDtos,
+                Data = paginatedResult,
                 TotalLength = result.Count()
             };
         }
@@ -285,7 +287,5 @@ public class ReviewService
         };
     }
 }
-
-
 
 }
