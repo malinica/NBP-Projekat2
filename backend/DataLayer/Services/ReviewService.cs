@@ -192,6 +192,8 @@ public class ReviewService
                     Id = r.Id,
                     Content = r.Content,
                     Rating = r.Rating,
+                    AuthorUsername=username
+                    
                 })
                 .ToList();
 
@@ -236,8 +238,8 @@ public class ReviewService
         }
 
         var query = new CypherQuery("""
-            MATCH (u:User {Username: $username})<-[:FOR_USER]-(r:Review)
-            RETURN r
+            MATCH (u:User {Username: $username})<-[:FOR_USER]-(r:Review)<-[:CREATED]-(a:User)
+            RETURN r.Id AS IDreview, r.Content AS rcontent, r.Rating AS rrating, r.CreatedAt AS rcreatedAt, r.UpdatedAt AS rupdatedAt, a.Username AS authorUsername
             """,
             new Dictionary<string, object>
             {
@@ -245,7 +247,7 @@ public class ReviewService
             },
             CypherResultMode.Set, "neo4j");
 
-        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<Review>(query);
+        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<dynamic>(query);
 
         if (result != null && result.Any())
         {
@@ -254,9 +256,10 @@ public class ReviewService
                 .Take(limit)
                 .Select(r => new ReviewResultDTO
                 {
-                    Id = r.Id,
-                    Content = r.Content,
-                    Rating = r.Rating,
+                    Id = r.IDreview,
+                    Content = r.rcontent,
+                    Rating = r.rrating,
+                    AuthorUsername=r.authorUsername
                 })
                 .ToList();
 

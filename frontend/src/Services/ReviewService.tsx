@@ -63,3 +63,29 @@ export const createReviewAPI = async (
         return null;
     }
 };
+
+
+export const deleteReviewAPI = async (id: string): Promise<boolean | null> => {
+    try {
+        const url = `${api}/DeleteReview/${id}`;
+        const response = await axios.delete<boolean>(url);
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response?.data || "Greška prilikom brisanja recenzije.");
+        return null;
+    }
+};
+
+export const updateReviewAPI = async (
+    id: string, 
+    reviewData: Review
+): Promise<boolean | null> => {
+    try {
+        const url = `${api}/UpdateReview/${id}`;
+        const response = await axios.put<boolean>(url, reviewData);
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response?.data || "Greška prilikom ažuriranja recenzije.");
+        return null;
+    }
+};

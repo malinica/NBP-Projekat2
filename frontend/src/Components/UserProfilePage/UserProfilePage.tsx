@@ -27,6 +27,7 @@ import {
     addTagToUserAPI,
     removeTagFromUserAPI
 } from "../../Services/TagService.tsx";
+import ReviewCard from "../ReviewCard/ReviewCard.tsx";
 
 
 const UserProfilePage = () => {
@@ -47,6 +48,8 @@ const UserProfilePage = () => {
     const [newUsername, setNewUsername] = useState("");
 
 
+
+
     const navigate = useNavigate();
 
     const { user } = useAuth();
@@ -54,7 +57,7 @@ const UserProfilePage = () => {
     useEffect(() => {
         loadUser();
     }, [usernameFromParams]);
-
+//    useEffect(()=>{console.log(reviews)},[reviews]);
     useEffect(() => {
         loadReviews(1, 10);
     }, [typeForReviews]);
@@ -406,6 +409,11 @@ const UserProfilePage = () => {
                         </>}
 
 
+                    <div>
+                        <button onClick={() => handleNavigate(profileUser.id)}>
+                            Korisnikovi projekti
+                        </button>
+                    </div>
                     <label htmlFor="reviewType">Tip recenzija: </label>
                     <select
                         id="reviewType"
@@ -416,15 +424,17 @@ const UserProfilePage = () => {
                         <option value="received">Recenzije koje je dobio korisnik</option>
                     </select>
 
-                    <div>
-                        <button onClick={() => handleNavigate(profileUser.id)}>
-                            Korisnikovi projekti
-                        </button>
-                    </div>
 
                     {totalItemsCount > 0 ? (
+                        <div>
+                         <div>
+                         {reviews!.map((review) => (
+                           <ReviewCard key={review.id} review={review} />
+                         ))}
+                       </div>
                         <div className={`my-4`}>
                             <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
+                        </div>
                         </div>
                     ) : (
                         <div className="my-4 text-center text-gray-500">
