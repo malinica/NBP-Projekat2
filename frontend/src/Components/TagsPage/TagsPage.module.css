@@ -4,7 +4,6 @@
 
 .dugme1 {
     background-color: #43e961;
-    font-size: 1.5rem; 
     padding: 1rem 2rem; 
     transition: 0.4s;
     border-color: #43e961;
@@ -15,12 +14,11 @@
 }
 
 .slova {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .dugme2 {
     background-color: #35AC7A;
-    font-size: 1.5rem; 
     padding: 1rem 2rem; 
     transition: 0.4s;
     border-color: #35AC7A;
@@ -32,7 +30,6 @@
 
 .dugme3 {
     background-color: #7B1FA2;
-    font-size: 1.5rem; 
     padding: 1rem 2rem; 
     transition: 0.4s;
     border-color: #7B1FA2;

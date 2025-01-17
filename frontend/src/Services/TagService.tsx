@@ -87,3 +87,14 @@ export const removeTagFromUserAPI = async (tagId: string) => {
         return undefined;
     }
 }
+
+export const deleteTagAPI = async (tagId: string) => {
+    try {
+        console.log(`Pokušavam da obrišem tag sa ID: ${tagId}`);
+        return await axios.delete<Tag>(`${api}/DeleteTag/${tagId}`);
+    }
+    catch(error:any) {
+        toast.error(error.response?.data || "Došlo je do greške.");
+        return undefined;
+    }
+}

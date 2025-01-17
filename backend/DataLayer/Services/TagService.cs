@@ -74,7 +74,7 @@ public class TagService
     {
         try
         {
-            var query = new CypherQuery("MATCH (t:Tag {Id: $id}) DELETE t RETURN count(t) AS deletedCount",
+            var query = new CypherQuery("MATCH (t:Tag {Id: $id}) DETACH DELETE t RETURN count(t) AS deletedCount",
                                         new Dictionary<string, object>
                                         {
                                             {"id", id}

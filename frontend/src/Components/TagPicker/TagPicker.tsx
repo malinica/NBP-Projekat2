@@ -1,4 +1,4 @@
-import {Tag} from "../../Interfaces/Tag/Tag.ts";
+import {Tag} from "../../Interfaces/Tag/Tag.tsx";
 import {useEffect, useState} from "react";
 import {getTagsByNameAPI} from "../../Services/TagService.tsx";
 import {toast} from 'react-hot-toast';
