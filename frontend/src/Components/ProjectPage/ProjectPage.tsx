@@ -195,7 +195,8 @@ export const ProjectPage = () => {
                         title: response.data.title,
                         description: response.data.description,
                         status: response.data.status,
-                        image: response.data.image
+                        image: response.data.image,
+                        updatedAt: response.data.updatedAt
                     }
                 })
             }

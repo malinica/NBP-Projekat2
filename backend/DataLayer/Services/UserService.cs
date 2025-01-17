@@ -568,9 +568,8 @@ public class UserService
             
             return result.ToList();
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return e.Message.ToError();
             return "Došlo je do greške prilikom predlaganja korisnika.".ToError();
         }
     }

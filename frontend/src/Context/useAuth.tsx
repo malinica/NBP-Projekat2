@@ -48,7 +48,8 @@ export const UserProvider = ({ children }: Props) => {
             id: res?.data.id,
             username: res?.data.username,
             email: res?.data.email,
-            role: res?.data.role as UserRole
+            role: res?.data.role as UserRole,
+            tags: []
           };
           localStorage.setItem("user", JSON.stringify(userObj));
           axios.defaults.headers.common["Authorization"] = "Bearer " + localStorage.getItem("token");
@@ -72,7 +73,8 @@ export const UserProvider = ({ children }: Props) => {
             id: res?.data.id,
             username: res?.data.username,
             email: res?.data.email,
-            role: res?.data.role as UserRole
+            role: res?.data.role as UserRole,
+            tags: []
           };
           localStorage.setItem("user", JSON.stringify(userObj));
           axios.defaults.headers.common["Authorization"] = "Bearer " + localStorage.getItem("token");

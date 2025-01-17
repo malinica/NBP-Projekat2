@@ -533,7 +533,8 @@ public class ProjectService
         }
     }
 
-    public async Task<Result<ProjectResultDTO[], ErrorMessage>> SearchProjectsCreatedByUser(string userId, string status)
+    public async Task<Result<PaginatedResponseDTO<ProjectResultDTO>, ErrorMessage>> SearchProjectsCreatedByUser(
+        string userId, string status, int page = 1, int pageSize = 10)
     {
         try
         {
@@ -545,16 +546,19 @@ public class ProjectService
                 },
                 CypherResultMode.Set, "neo4j");
 
-            var projects = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+            var projects = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query)).ToList();
 
-            var projectArray = projects.ToArray();
+            var projectsList = projects
+                .Skip((page-1)*pageSize)
+                .Take(pageSize)
+                .ToList();
 
-            if (projectArray.Length > 0)
+            return new PaginatedResponseDTO<ProjectResultDTO>
             {
-                return projectArray;
-            }
+                Data = projectsList,
+                TotalLength = projects.Count()
+            };
 
-            return "Nema projekata koje je kreirao korisnik. ".ToError();
         }
         catch (Exception)
         {
@@ -562,7 +566,10 @@ public class ProjectService
         }
     }
 
-    public async Task<Result<ProjectResultDTO[], ErrorMessage>> SearchProjectsCompletedByUser(string userId)
+    public async Task<Result<PaginatedResponseDTO<ProjectResultDTO>, ErrorMessage>> SearchProjectsCompletedByUser(
+        string userId,
+        int page = 1,
+        int pageSize = 10)
     {
         try
         {
@@ -573,16 +580,18 @@ public class ProjectService
                 },
                 CypherResultMode.Set, "neo4j");
 
-            var projects = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+            var projects = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query)).ToList();
 
-            var projectArray = projects.ToArray();
+            var projectsList = projects
+                .Skip((page-1)*pageSize)
+                .Take(pageSize)
+                .ToList();
 
-            if (projectArray.Length > 0)
+            return new PaginatedResponseDTO<ProjectResultDTO>
             {
-                return projectArray;
-            }
-
-            return "Nema projekata na kojima je učestvovao korisnik. ".ToError();
+                Data = projectsList,
+                TotalLength = projects.Count()
+            };
         }
         catch (Exception)
         {
@@ -590,7 +599,10 @@ public class ProjectService
         }
     }
 
-    public async Task<Result<ProjectResultDTO[], ErrorMessage>> SearchProjectsUserWorkingOn(string userId)
+    public async Task<Result<PaginatedResponseDTO<ProjectResultDTO>, ErrorMessage>> SearchProjectsUserWorkingOn(
+        string userId,
+        int page = 1,
+        int pageSize = 10)
     {
         try
         {
@@ -601,16 +613,18 @@ public class ProjectService
                 },
                 CypherResultMode.Set, "neo4j");
 
-            var projects = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+            var projects = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query)).ToList();
 
-            var projectArray = projects.ToArray();
+            var projectsList = projects
+                .Skip((page-1)*pageSize)
+                .Take(pageSize)
+                .ToList();
 
-            if (projectArray.Length > 0)
+            return new PaginatedResponseDTO<ProjectResultDTO>
             {
-                return projectArray;
-            }
-
-            return "Nema projekata na kojima je učestvovao korisnik. ".ToError();
+                Data = projectsList,
+                TotalLength = projects.Count()
+            };
         }
         catch (Exception)
         {
@@ -618,7 +632,10 @@ public class ProjectService
         }
     }
 
-    public async Task<Result<ProjectResultDTO[], ErrorMessage>> SearchProjectsWhereUserAppliedTo(string userId)
+    public async Task<Result<PaginatedResponseDTO<ProjectResultDTO>, ErrorMessage>> SearchProjectsWhereUserAppliedTo(
+        string userId,
+        int page = 1,
+        int pageSize = 10)
     {
         try
         {
@@ -629,16 +646,51 @@ public class ProjectService
                 },
                 CypherResultMode.Set, "neo4j");
 
-            var projects = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query);
+            var projects = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query)).ToList();
 
-            var projectArray = projects.ToArray();
+            var projectsList = projects
+                .Skip((page-1)*pageSize)
+                .Take(pageSize)
+                .ToList();
 
-            if (projectArray.Length > 0)
+            return new PaginatedResponseDTO<ProjectResultDTO>
             {
-                return projectArray;
-            }
+                Data = projectsList,
+                TotalLength = projects.Count()
+            };
+        }
+        catch (Exception)
+        {
+            return "Greška prilikom prikupljanja projekata. ".ToError();
+        }
+    }
+    
+    public async Task<Result<PaginatedResponseDTO<ProjectResultDTO>, ErrorMessage>> SearchProjectsWhereUserIsInvitedTo(
+        string userId,
+        int page = 1,
+        int pageSize = 10)
+    {
+        try
+        {
+            var query = new CypherQuery("MATCH (u:User {Id: $userId})-[r:INVITED_TO]->(p:Project) RETURN p",
+                new Dictionary<string, object>
+                {
+                    {"userId", userId}
+                },
+                CypherResultMode.Set, "neo4j");
 
-            return "Nema projekata na kojima se prijavio korisnik. ".ToError();
+            var projects = (await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ProjectResultDTO>(query)).ToList();
+
+            var projectsList = projects
+                .Skip((page-1)*pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return new PaginatedResponseDTO<ProjectResultDTO>
+            {
+                Data = projectsList,
+                TotalLength = projects.Count()
+            };
         }
         catch (Exception)
         {

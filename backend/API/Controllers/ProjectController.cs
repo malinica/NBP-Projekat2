@@ -212,9 +212,14 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet("SearchProjectsCreatedByUser/{userId}/{status}")]
-    public async Task<IActionResult> SearchProjectsCreatedByUser(string userId, string status)
+    public async Task<IActionResult> SearchProjectsCreatedByUser(
+        string userId, 
+        string status,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
-        (bool isError, var projects, ErrorMessage? error) = await projectService.SearchProjectsCreatedByUser(userId, status);
+        (bool isError, var projects, ErrorMessage? error) =
+            await projectService.SearchProjectsCreatedByUser(userId, status, page, pageSize);
 
         if (isError)
         {
@@ -225,9 +230,11 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet("SearchProjectsCompletedByUser/{userId}")]
-    public async Task<IActionResult> SearchProjectsCompletedByUser(string userId)
+    public async Task<IActionResult> SearchProjectsCompletedByUser(string userId, [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
-        (bool isError, var projects, ErrorMessage? error) = await projectService.SearchProjectsCompletedByUser(userId);
+        (bool isError, var projects, ErrorMessage? error) =
+            await projectService.SearchProjectsCompletedByUser(userId, page, pageSize);
 
         if (isError)
         {
@@ -238,9 +245,10 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet("SearchProjectsUserWorkingOn/{userId}")]
-    public async Task<IActionResult> SearchProjectsUserWorkingOn(string userId)
+    public async Task<IActionResult> SearchProjectsUserWorkingOn(string userId, [FromQuery]int page = 1, [FromQuery]int pageSize = 10)
     {
-        (bool isError, var projects, ErrorMessage? error) = await projectService.SearchProjectsUserWorkingOn(userId);
+        (bool isError, var projects, ErrorMessage? error) =
+            await projectService.SearchProjectsUserWorkingOn(userId, page, pageSize);
 
         if (isError)
         {
@@ -251,9 +259,26 @@ public class ProjectController : ControllerBase
     }
     
     [HttpGet("SearchProjectsWhereUserAppliedTo/{userId}")]
-    public async Task<IActionResult> SearchProjectsWhereUserAppliedTo(string userId)
+    public async Task<IActionResult> SearchProjectsWhereUserAppliedTo(string userId, [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
-        (bool isError, var projects, ErrorMessage? error) = await projectService.SearchProjectsWhereUserAppliedTo(userId);
+        (bool isError, var projects, ErrorMessage? error) =
+            await projectService.SearchProjectsWhereUserAppliedTo(userId, page, pageSize);
+
+        if (isError)
+        {
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+
+        return Ok(projects);
+    }
+    
+    [HttpGet("SearchProjectsWhereUserIsInvitedTo/{userId}")]
+    public async Task<IActionResult> SearchProjectsWhereUserIsInvitedTo(string userId, [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
+    {
+        (bool isError, var projects, ErrorMessage? error) =
+            await projectService.SearchProjectsWhereUserIsInvitedTo(userId, page, pageSize);
 
         if (isError)
         {

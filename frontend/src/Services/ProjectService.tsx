@@ -163,36 +163,45 @@ export const getUserProjectRelationshipAPI = async (projectId: string) => {
     }
 }
 
-export const searchProjectsCreatedByUserAPI = async (userId: string, status: string) => {
+export const searchProjectsCreatedByUserAPI = async (userId: string, status: string, page: number = 1, pageSize: number = 10) => {
     try {
-        return await axios.get<Project[]>(api+`/SearchProjectsCreatedByUser/${userId}/${status}`)
+        return await axios.get<PaginatedResponseDTO<Project>>(api + `/SearchProjectsCreatedByUser/${userId}/${status}?page=${page}&pageSize=${pageSize}`)
     } catch (error: any) {
         toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
         return null;
     }
 };
 
-export const SearchProjectsCompletedByUserAPI = async (userId: string) => {
+export const SearchProjectsCompletedByUserAPI = async (userId: string, page: number = 1, pageSize: number = 10) => {
     try {
-        return await axios.get<Project[]>(api+`/SearchProjectsCompletedByUser/${userId}`)
+        return await axios.get<PaginatedResponseDTO<Project>>(api + `/SearchProjectsCompletedByUser/${userId}?page=${page}&pageSize=${pageSize}`)
     } catch (error: any) {
         toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
         return null;
     }
 };
 
-export const SearchProjectsUserWorkingOnAPI = async (userId: string) => {
+export const SearchProjectsUserWorkingOnAPI = async (userId: string, page: number = 1, pageSize: number = 10) => {
     try {
-        return await axios.get<Project[]>(api+`/SearchProjectsUserWorkingOn/${userId}`)
+        return await axios.get<PaginatedResponseDTO<Project>>(api + `/SearchProjectsUserWorkingOn/${userId}?page=${page}&pageSize=${pageSize}`)
     } catch (error: any) {
         toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
         return null;
     }
 };
 
-export const SearchProjectsWhereUserAppliedToAPI = async (userId: string) => {
+export const SearchProjectsWhereUserAppliedToAPI = async (userId: string, page: number = 1, pageSize: number = 10) => {
     try {
-        return await axios.get<Project[]>(api+`/SearchProjectsWhereUserAppliedTo/${userId}`)
+        return await axios.get<PaginatedResponseDTO<Project>>(api + `/SearchProjectsWhereUserAppliedTo/${userId}?page=${page}&pageSize=${pageSize}`)
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
+        return null;
+    }
+};
+
+export const SearchProjectsWhereUserIsInvitedTo = async (userId: string, page: number = 1, pageSize: number = 10) => {
+    try {
+        return await axios.get<PaginatedResponseDTO<Project>>(api + `/SearchProjectsWhereUserIsInvitedTo/${userId}?page=${page}&pageSize=${pageSize}`)
     } catch (error: any) {
         toast.error(error.response?.data || "Došlo je do greške pri učitavanju projekata.");
         return null;
