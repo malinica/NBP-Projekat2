@@ -98,6 +98,16 @@ export const getUserByUsernameAPI = async (username: string) => {
     }
 };
 
+export const getUserByIdAPI = async (userId: string) => {
+    try {
+        const response = await axios.get<User>(`${api}/GetUserById/${userId}`);
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response?.data || "Došlo je do greške prilikom preuzimanja korisnika.");
+        return undefined;
+    }
+};
+
 export const followUserAPI = async (userId: string) => {
     try {
         return await axios.post<boolean>(`${api}/FollowUser/${userId}`);

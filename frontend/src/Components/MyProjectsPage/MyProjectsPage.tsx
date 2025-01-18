@@ -1,4 +1,4 @@
-import {useState, useEffect, ChangeEvent} from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { Project } from "../../Interfaces/Project/Project";
 import ProjectItem from "../ProjectItem/ProjectItem";
 import {
@@ -9,7 +9,8 @@ import {
 } from "../../Services/ProjectService";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../Context/useAuth";
-import {Pagination} from "../Pagination/Pagination.tsx";
+import { Pagination } from "../Pagination/Pagination.tsx";
+import { getUserByIdAPI } from "../../Services/UserService.tsx";
 
 const MyProjectsPage = () => {
     const [searchStatus, setSearchStatus] = useState<string>("Opened");
@@ -19,12 +20,28 @@ const MyProjectsPage = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { userId } = useParams<{ userId: string }>();
     const { user } = useAuth();
+    const [ownerUsername, setOwnerUsername] = useState<string>("");
 
     const isCurrentUser = user?.id === userId;
 
     useEffect(() => {
-        fetchProjects(1,10);
+        fetchOwnerUsername();
+        fetchProjects(1, 10);
     }, [projectType, searchStatus, userId]);
+
+    const fetchOwnerUsername = async () => {
+        try {
+            const user = await getUserByIdAPI(userId!);
+            if (user) {
+                setOwnerUsername(user.username);
+            } else {
+                setOwnerUsername("Nepoznat korisnik");
+            }
+        } catch (error) {
+            console.error("Greška prilikom pribavljanja korisnika: ", error);
+            setOwnerUsername("Nepoznat korisnik");
+        }
+    };
 
     const fetchProjects = async (page: number, pageSize: number) => {
         setIsLoading(true);
@@ -49,7 +66,7 @@ const MyProjectsPage = () => {
                 default:
                     response = null;
             }
-            if(response && response.status===200) {
+            if (response && response.status === 200) {
                 setProjects(response.data.data);
                 setTotalProjectsCount(response.data.totalLength);
             }
@@ -78,7 +95,7 @@ const MyProjectsPage = () => {
 
     return (
         <div className={`container`}>
-            <h1 className={`text-center my-4 text-green`}>Moji Projekti</h1>
+            <h1 className={`text-center my-4 text-green`}>Projekti korisnika {ownerUsername}</h1>
             <div className={`filter-section mb-4`}>
                 <h4 className={`text-dark-green mb-3`}>Vrsta projekta:</h4>
                 <select
@@ -123,10 +140,10 @@ const MyProjectsPage = () => {
                 ) : (
                     <p className={`text-muted text-center`}>Nema projekata za prikazivanje.</p>
                 )}
-            {totalProjectsCount > 0 &&
-                <div className={`my-4`}>
-                    <Pagination totalLength={totalProjectsCount} onPaginateChange={handlePaginateChange} />
-                </div>}
+                {totalProjectsCount > 0 &&
+                    <div className={`my-4`}>
+                        <Pagination totalLength={totalProjectsCount} onPaginateChange={handlePaginateChange} />
+                    </div>}
             </div>
         </div>
     );
