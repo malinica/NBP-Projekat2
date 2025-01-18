@@ -57,7 +57,6 @@ const UserProfilePage = () => {
     useEffect(() => {
         loadUser();
     }, [usernameFromParams]);
-//    useEffect(()=>{console.log(reviews)},[reviews]);
     useEffect(() => {
         loadReviews(1, 10);
     }, [typeForReviews]);
@@ -81,7 +80,12 @@ const UserProfilePage = () => {
 
             const result = await createReviewAPI(usernameFromParams, reviewData);
             if (result)
-                toast.success("Uspesno ste dodali recenziju");
+                {
+
+                    toast.success("Uspesno ste dodali recenziju");
+                    loadReviews(1, 10);
+                }
+
             else
                 toast.error("Greska prilikom dodavanja recenzije");
         }

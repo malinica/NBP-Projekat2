@@ -69,7 +69,11 @@ export const deleteReviewAPI = async (id: string): Promise<boolean | null> => {
     try {
         const url = `${api}/DeleteReview/${id}`;
         const response = await axios.delete<boolean>(url);
-        return response.data;
+        if (response.status === 200) {
+            return true;  
+        } else {
+            return false;
+        }
     } catch (error: any) {
         toast.error(error.response?.data || "Greška prilikom brisanja recenzije.");
         return null;

@@ -59,7 +59,7 @@ public class ReviewController : ControllerBase
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
 
-return Ok();
+    return Ok(new { message = "Recenzija uspešno ažurirana." });
     }
 
     [HttpDelete("DeleteReview/{id}")]
