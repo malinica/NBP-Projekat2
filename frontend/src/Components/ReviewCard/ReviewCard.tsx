@@ -17,6 +17,8 @@ const { user } = useAuth();
 
 useEffect(() => {
     console.log("Loaded review:", reviewState);
+    console.log("Loaded user:", user);
+
   }, [reviewState]);
 
 
@@ -28,6 +30,7 @@ const handleDelete = () => {
 
 const deleteReview = async (reviewId: string) => {
     const result = await deleteReviewAPI(reviewId);
+    console.log(result);
     if (result) {
         console.log("Recenzija je uspešno obrisana.");
     } else {
@@ -68,7 +71,6 @@ const handleEdit = () => {
     }
 };
 
-useEffect(() => {console.log("REVIEW JE"+ reviewState); console.log("USER JE"+ user?.username)}, [reviewState]);
 
 return (
     <div className={styles.reviewCard}>
@@ -95,7 +97,7 @@ return (
         )}
       </div>
 
-      {user && user.username === reviewState.author?.username && (
+      {user && user.username == reviewState.author?.username && (
         <div className={styles.buttons}>
           {edit ? (
             <button onClick={handleSave}>Save</button>

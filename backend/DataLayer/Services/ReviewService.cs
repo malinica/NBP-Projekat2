@@ -102,8 +102,9 @@ public class ReviewService
     {
         try
         {
-            var query = new CypherQuery("MATCH (r:Review {Id: $id}) DELETE r RETURN count(r) AS deletedCount",
-                                        new Dictionary<string, object>
+            var query = new CypherQuery(
+            "MATCH (r:Review {Id: $id}) DETACH DELETE r RETURN count(r) AS deletedCount",
+            new Dictionary<string, object>
                                         {
                                             {"id", id}
                                         },
@@ -124,36 +125,38 @@ public class ReviewService
         }
     }
 
-    public async Task<Result<bool, ErrorMessage>> UpdateReview(string id, UpdateReviewDTO reviewDTO)
+   public async Task<Result<bool, ErrorMessage>> UpdateReview(string id, UpdateReviewDTO reviewDTO)
+{
+    try
     {
-        try
-        {
-            var query = new CypherQuery(
-                "MATCH (r:Review {Id: $id}) " +
-                "SET r.Rating = $rating, r.Content = $content " +
-                "RETURN r",
-                new Dictionary<string, object>
-                {
-                    {"id", id},
-                    {"rating", reviewDTO.Rating},
-                    {"content", reviewDTO.Content}
-                },
-                CypherResultMode.Set, "neo4j");
-
-            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<Review>(query);
-
-            if (result != null && result.Any())
+        var query = new CypherQuery(
+            "MATCH (r:Review {Id: $id}) " +
+            "SET r.Rating = $rating, r.Content = $content, r.UpdatedAt = $updatedAt " +
+            "RETURN COUNT(r) > 0 AS isUpdated",
+            new Dictionary<string, object>
             {
-                return true;
-            }
+                {"id", id},
+                {"rating", reviewDTO.Rating},
+                {"content", reviewDTO.Content},
+                {"updatedAt", DateTime.UtcNow}
+            },
+            CypherResultMode.Set, "neo4j");
 
-            return "Review nije pronađen.".ToError(404);
-        }
-        catch (Exception)
+        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<bool>(query);
+
+        if (result != null && result.FirstOrDefault())
         {
-            return "Došlo je do greške prilikom ažuriranja review-a.".ToError();
+            return true;
         }
+
+        return "Review nije pronađen.".ToError(404);
     }
+    catch (Exception)
+    {
+        return "Došlo je do greške prilikom ažuriranja review-a.".ToError();
+    }
+}
+
 public async Task<PaginatedResponseDTO<ReviewResultDTO>> GetReviewsFromUser(string username, int? skip = 0, int limit = 10)
 {
     try

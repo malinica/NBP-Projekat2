@@ -37,7 +37,7 @@ const UserProfilePage = () => {
     const [reviews, setReviews] = useState<Review[] | null>(null);
     const [isFollowing, setIsFollowing] = useState<boolean>(false);//da li pratim tog korisnika ili ne
     const [isRelationshipLoading, setIsRelationshipLoading] = useState<boolean>(false);
-    const [typeForReviews, setTypeForReviews] = useState<boolean>(true);//true ako je reviews koje je korisnik dao, false ako je reviews koje je korisnik dobio
+    const [typeForReviews, setTypeForReviews] = useState<boolean>(false);//true ako je reviews koje je korisnik dao, false ako je reviews koje je korisnik dobio
     const [reviewGrade, setReviewGrade] = useState<number | null>(null);
     const [reviewText, setReviewText] = useState<string | null>(null);
     const [isFollowersModalOpened, setIsFollowersModalOpened] = useState(false);

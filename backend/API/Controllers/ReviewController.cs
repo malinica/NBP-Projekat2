@@ -59,7 +59,7 @@ public class ReviewController : ControllerBase
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
 
-        return Ok(response);
+return Ok();
     }
 
     [HttpDelete("DeleteReview/{id}")]
@@ -72,7 +72,7 @@ public class ReviewController : ControllerBase
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
 
-        return StatusCode(204);
+return Ok();
     }
     [HttpGet("GetReviewsFromUsername/{username}")]
 public async Task<IActionResult> GetReviewsFromUsername(string username, [FromQuery] int skip = 0, [FromQuery] int limit = 10)
@@ -80,7 +80,7 @@ public async Task<IActionResult> GetReviewsFromUsername(string username, [FromQu
         try{
 
         var result= await reviewService.GetReviewsFromUser(username,skip,limit);
-return Ok(result);
+return Ok();
         }
         catch (Exception ex)
         {
