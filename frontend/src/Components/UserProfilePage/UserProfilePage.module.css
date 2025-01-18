@@ -1,3 +1,74 @@
 .slika {
     width:300px;
 }
+
+.slika1 {
+    width: 60px;
+    height: 60px;
+}
+
+.linija_ispod_dugmeta{
+    text-decoration: none;
+}
+
+.slova {
+    font-size: 13px;
+}
+
+.slova2 {
+    font-size: 15px;
+}
+.dugme1 {
+    background-color: #7B1FA2;
+    padding: 1rem 2rem; 
+    transition: 0.4s;
+    border-color: #7B1FA2;
+}
+
+.dugme1:hover {
+    background-color: #35AC7A;
+}
+
+.dugme2 {
+    background-color: #35AC7A;
+    padding: 1rem 2rem; 
+    transition: 0.4s;
+    border-color: #35AC7A;
+}
+
+.dugme2:hover {
+    background-color: #43e961;
+}
+
+.dugme3 {
+    background-color: #7B1FA2;
+    padding: 1rem 2rem; 
+    transition: 0.4s;
+    border-color: #7B1FA2;
+}
+
+.dugme3:hover {
+    background-color: #43e961;
+}
+
+.dugme4 {
+    background-color: #B388FF;
+    padding: 1rem 2rem; 
+    transition: 0.4s;
+    border-color: #B388FF;
+}
+
+.dugme4:hover {
+    background-color: #43e961;
+}
+
+.dugme5 {
+    background-color: #006400;
+    padding: 1rem 2rem; 
+    transition: 0.4s;
+    border-color: #006400;
+}
+
+.dugme5:hover {
+    background-color: #43e961;
+}

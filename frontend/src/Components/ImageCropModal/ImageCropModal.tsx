@@ -57,7 +57,7 @@ export const ImageCropModal = ({ isOpen, onClose, onSave, imageSrc }: Props) => 
             <div className={`modal-dialog`}>
                 <div className={`modal-content`}>
                     <div className={`modal-header`}>
-                        <h2>Podesite sliku</h2>
+                        <h2 className={`text-violet`}>Podesite sliku</h2>
                         <button type="button" className={`btn-close`} onClick={onClose}></button>
                     </div>
                     <div className={`modal-body ${styles.modal_body}`}>
@@ -72,8 +72,8 @@ export const ImageCropModal = ({ isOpen, onClose, onSave, imageSrc }: Props) => 
                         />
                     </div>
                     <div className="modal-footer">
-                        <button onClick={onClose}>Otkaži</button>
-                        <button onClick={getCroppedImage}>Sačuvaj</button>
+                        <button className={`text-white text-center rounded-3 border-0 py-2 px-2 ms-2 ${styles.slova} ${styles.dugme3} ${styles.linija_ispod_dugmeta}`} onClick={onClose}>Otkaži</button>
+                        <button className={`text-white text-center rounded-3 border-0 py-2 px-2 ms-2 ${styles.slova} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`} onClick={getCroppedImage}>Sačuvaj</button>
                     </div>
                 </div>
             </div>

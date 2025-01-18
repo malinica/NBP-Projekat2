@@ -17,7 +17,7 @@ const UserCard = ({ user }:Props) => {
                         <img 
                             src={user.profileImage} 
                             alt={`${user.username}'s profile`} 
-                            className={`rounded-circle me-3 ${styles.slika}`} 
+                            className={`rounded-circle ${styles.slika}`} 
                         />
                     ) : (
                         <div 

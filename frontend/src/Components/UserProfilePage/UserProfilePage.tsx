@@ -28,6 +28,7 @@ import {
     removeTagFromUserAPI
 } from "../../Services/TagService.tsx";
 import ReviewCard from "../ReviewCard/ReviewCard.tsx";
+import {faUser} from "@fortawesome/free-solid-svg-icons";
 
 
 const UserProfilePage = () => {
@@ -283,174 +284,181 @@ const UserProfilePage = () => {
     };
 
     return (
-        <div className={`container my-4 bg-light-green rounded-3`}>
-            {profileUser ? (
-                <div className={`m-4`}>
-                    <h1 className={`text-violet text-center`}>Profil korisnika</h1>
-                    <div className="d-flex align-items-center">
-                        {isEditingUsername ? (
-                            <>
-                                <input
-                                    type="text"
-                                    value={newUsername}
-                                    onChange={(e) => setNewUsername(e.target.value)}
-                                    className="form-control"
-                                />
-                                <button className="btn btn-success ms-2" onClick={handleSaveUsername}>Sačuvaj</button>
-                                <button className="btn btn-secondary ms-2"
-                                        onClick={() => setIsEditingUsername(false)}>Otkaži
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <p className="text-dark-green"><strong>Username:</strong> {profileUser.username}</p>
-                                <button className="btn ms-2" onClick={() => setIsEditingUsername(true)}>
-                                    <FontAwesomeIcon icon={faEdit}/>
-                                </button>
-                            </>
-                        )}
-                    </div>
-                    <p className={`text-green`}><strong>Email:</strong> {profileUser.email}</p>
-                    <p className={`text-green`}><strong>Uloga:</strong> {profileUser.role}</p>
-                    {profileUser?.profileImage ? (
-                        <img src={`${import.meta.env.VITE_SERVER_URL}/${profileUser?.profileImage}`}
-                             alt={profileUser.id}
-                             className={`${styles.slika} rounded-circle`}/>
-                    ) : (
-                        <p className={`text-muted`}>Profilna slika nije dostupna (stavi neku default)</p>
-                    )}
-
-                    {user?.id == profileUser.id && (<>
-                        <label htmlFor={`fileInput`} className={`btn btn-primary`}>Promeni sliku</label>
-                        <input type="file" id={`fileInput`} hidden accept="image/*"
-                               onChange={handleFileChange}/>
-
-                        {selectedImage && (
-                            <ImageCropModal
-                                isOpen={isCropModalOpen}
-                                onClose={() => setCropModalOpen(false)}
-                                onSave={handleSaveCroppedImage}
-                                imageSrc={selectedImage}
-                            />
-                        )}
-                    </>)}
-
-                    <div>
-                        {user && profileUser.id == user?.id
-                            ?
-                            (<>
-                                <TagPicker selectedTags={profileUser.tags} maxNumberOfTags={10} onAddTag={handleAddTag}
-                                           onRemoveTag={handleRemoveTag}/>
-                            </>)
-                            :
-                            (<>
-                                {profileUser.tags.map((tag) => (
-                                    <Chip key={tag.id} className={`ms-2`} label={tag.name}
-                                          color="success"/>
-                                ))}
-                            </>)}
-                    </div>
-
-                    <div>
-                        {user == null ? (
-                            <p className={`text-center text-muted`}>Logujte se da biste ocenili korisnika.</p>
-                        ) : usernameFromParams != user!.username ? (
-                            <>
-                                <Rating
-                                    name="simple-controlled"
-                                    value={reviewGrade}
-                                    onChange={(_, newValue) => {
-                                        setReviewGrade(newValue);
-                                    }}
-                                />
-                                <textarea
-                                    onChange={handleReviewText}
-                                    placeholder="Unesite komentar"
-                                    rows={5}
-                                    cols={30}
-                                    style={{display: "block", margin: "10px 0"}}
-                                />
-                                <button
-                                    onClick={handleSubmit}
-                                    style={{marginTop: "10px"}}
-                                >
-                                    Ocenite
-                                </button>
-                            </>
-                        ) : null}
-                    </div>
-
-
-                    <div>
-                        <button onClick={() => openModal("followers")}>Pratioci</button>
-                        <button onClick={() => openModal("following")}>Praćenja</button>
-
-                        <FollowersFollowingModal
-                            isOpen={isFollowersModalOpened}
-                            onClose={closeModal}
-                            userId={profileUser.id}
-                            activeTab={activeTab}
-                        />
-                    </div>
-
-                    {user?.id !== profileUser?.id &&
-                        <>
-                            {isRelationshipLoading ? (
-                                <button className="btn btn-secondary" disabled>Učitavanje...</button>
-                            ) : isFollowing ? (
-                                <button
-                                    className="btn btn-danger"
-                                    onClick={handleUnfollowUser}>
-                                    Otprati
-                                </button>
+        <div className={`container-fluid d-flex justify-content-center`}>
+            <div className={`container m-4 bg-light-green rounded-3`}>
+                {profileUser ? (
+                    <div className={`m-4`}>
+                        <h1 className={`text-violet text-center`}>Profil korisnika</h1>
+                        <div className={`d-flex flex-column align-items-start`}>
+                            {profileUser?.profileImage ? (
+                                <img src={`${import.meta.env.VITE_SERVER_URL}/${profileUser?.profileImage}`}
+                                    alt={profileUser.id}
+                                    className={`${styles.slika} rounded-circle my-3`}/>
                             ) : (
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={handleFollowUser}>
-                                    Zaprati
-                                </button>
+                                <div className={`rounded-circle bg-success d-flex justify-content-center align-items-center me-3  mb-3 ${styles.slika1}`}>
+                                    <FontAwesomeIcon icon={faUser} className={`text-white`} size="2x" />
+                                </div>
                             )}
-                        </>}
 
+                            {user?.id == profileUser.id && (<>
+                                <label htmlFor={`fileInput`} className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-2 ${styles.slova2} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}>Promeni Sliku</label>
+                                <input type="file" id={`fileInput`} hidden accept="image/*"
+                                    onChange={handleFileChange}/>
 
-                    <div>
-                        <button onClick={() => handleNavigate(profileUser.id)}>
-                            Korisnikovi projekti
-                        </button>
-                    </div>
-                    <label htmlFor="reviewType">Tip recenzija: </label>
-                    <select
-                        id="reviewType"
-                        value={typeForReviews ? 'given' : 'received'}
-                        onChange={(e) => setTypeForReviews(e.target.value === 'given')}
-                    >
-                        <option value="given">Recenzije koje je postavio korisnik</option>
-                        <option value="received">Recenzije koje je dobio korisnik</option>
-                    </select>
+                                {selectedImage && (
+                                    <ImageCropModal
+                                        isOpen={isCropModalOpen}
+                                        onClose={() => setCropModalOpen(false)}
+                                        onSave={handleSaveCroppedImage}
+                                        imageSrc={selectedImage}
+                                    />
+                                )}
+                            </>)}
+                        </div>
 
+                        <div className={`d-flex align-items-center`}>
+                            {isEditingUsername ? (
+                                <>
+                                    <input
+                                        type="text"
+                                        value={newUsername}
+                                        onChange={(e) => setNewUsername(e.target.value)}
+                                        className={`form-control`}
+                                    />
+                                    <button className={`text-white text-center rounded-3 border-0 py-2 px-2 ms-2 ${styles.slova} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`} onClick={handleSaveUsername}>Sačuvaj</button>
+                                    <button className={`text-white text-center rounded-3 border-0 py-2 px-2 ms-2 ${styles.slova} ${styles.dugme3} ${styles.linija_ispod_dugmeta}`}
+                                            onClick={() => setIsEditingUsername(false)}>Otkaži
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <p className={`text-dark-green mb-0 me-2`}><strong>Username:</strong> {profileUser.username}</p>
+                                    <button className={`btn ms-2`} onClick={() => setIsEditingUsername(true)}>
+                                        <FontAwesomeIcon icon={faEdit}/>
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                        <p className={`text-green mt-2`}><strong>Email:</strong> {profileUser.email}</p>
+                        <p className={`text-green`}><strong>Uloga:</strong> {profileUser.role}</p>
 
-                    {totalItemsCount > 0 ? (
+                        <div className={`mb-3`}>
+                            {user && profileUser.id == user?.id
+                                ?
+                                (<>
+                                    <TagPicker selectedTags={profileUser.tags} maxNumberOfTags={10} onAddTag={handleAddTag}
+                                            onRemoveTag={handleRemoveTag}/>
+                                </>)
+                                :
+                                (<>
+                                    {profileUser.tags.map((tag) => (
+                                        <Chip key={tag.id} className={`ms-2`} label={tag.name}
+                                            color="success"/>
+                                    ))}
+                                </>)}
+                        </div>
+
                         <div>
-                         <div>
-                         {reviews!.map((review) => (
-                           <ReviewCard key={review.id} review={review} />
-                         ))}
-                       </div>
-                        <div className={`my-4`}>
-                            <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
+                            {user == null ? (
+                                <p className={`text-center text-muted`}>Logujte se da biste ocenili korisnika.</p>
+                            ) : usernameFromParams != user!.username ? (
+                                <>
+                                    <Rating
+                                        name="simple-controlled"
+                                        value={reviewGrade}
+                                        onChange={(_, newValue) => {
+                                            setReviewGrade(newValue);
+                                        }}
+                                    />
+                                    <textarea
+                                        onChange={handleReviewText}
+                                        placeholder="Unesite komentar"
+                                        rows={5}
+                                        cols={30}
+                                        className={`d-block my-2 rounded-1`}
+                                    />
+                                    <button
+                                        onClick={handleSubmit}
+                                        className={`text-white text-center rounded-3 border-0 py-2 px-2 mt-2 mb-3 ${styles.slova2} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`}
+                                    >
+                                        Ocenite
+                                    </button>
+                                    <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-3 ms-2 ${styles.slova2} ${styles.dugme5} ${styles.linija_ispod_dugmeta}`} onClick={() => handleNavigate(profileUser.id)}>
+                                        Korisnikovi projekti
+                                    </button>
+                                </>
+                            ) : null}
                         </div>
-                        </div>
-                    ) : (
-                        <div className="my-4 text-center text-gray-500">
-                            Nema recenzija za prikaz
-                        </div>
-                    )}
 
-                </div>
 
-            ) : (
-                <p className={`text-center text-muted`}>Korisnik nije pronađen.</p>
-            )}
+                        <div>
+                            <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mt-2 mb-3 ${styles.slova2} ${styles.dugme4} ${styles.linija_ispod_dugmeta}`} onClick={() => openModal("followers")}>Pratioci</button>
+                            <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mt-2 mb-3 ms-2 ${styles.slova2} ${styles.dugme4} ${styles.linija_ispod_dugmeta}`} onClick={() => openModal("following")}>Praćenja</button>
+
+                            <FollowersFollowingModal
+                                isOpen={isFollowersModalOpened}
+                                onClose={closeModal}
+                                userId={profileUser.id}
+                                activeTab={activeTab}
+                            />
+                        
+
+                            {user?.id !== profileUser?.id &&
+                                <>
+                                    {isRelationshipLoading ? (
+                                        <button className="btn btn-secondary" disabled>Učitavanje...</button>
+                                    ) : isFollowing ? (
+                                        <button
+                                            className={`text-white text-center rounded-3 border-0 py-2 px-2 ms-2 ${styles.slova2} ${styles.dugme3} ${styles.linija_ispod_dugmeta}`}
+                                            onClick={handleUnfollowUser}>
+                                            Otprati
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className={`text-white text-center rounded-3 border-0 py-2 px-2 ms-2 ${styles.slova2} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`}
+                                            onClick={handleFollowUser}>
+                                            Zaprati
+                                        </button>
+                                    )}
+                                </>}
+
+                            </div>
+
+                        <label className={`text-violet me-2 `} htmlFor="reviewType">Tip recenzija: </label>
+                        <select
+                            id="reviewType"
+                            value={typeForReviews ? 'given' : 'received'}
+                            onChange={(e) => setTypeForReviews(e.target.value === 'given')}
+                            className={`rounded text-violet`}
+                        >
+                            <option value="given">Recenzije koje je postavio korisnik</option>
+                            <option value="received">Recenzije koje je dobio korisnik</option>
+                        </select>
+
+
+                        {totalItemsCount > 0 ? (
+                            <div>
+                            <div>
+                            {reviews!.map((review) => (
+                            <ReviewCard key={review.id} review={review} />
+                            ))}
+                        </div>
+                            <div className={`my-4`}>
+                                <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
+                            </div>
+                            </div>
+                        ) : (
+                            <div className="my-4 text-center text-gray-500">
+                                Nema recenzija za prikaz
+                            </div>
+                        )}
+
+                    </div>
+
+                ) : (
+                    <p className={`text-center text-muted`}>Korisnik nije pronađen.</p>
+                )}
+            </div>
         </div>
     );
 };

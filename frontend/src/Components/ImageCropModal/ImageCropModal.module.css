@@ -1,3 +1,33 @@
 .modal_body {
     height: 400px;
 }
+
+.slova2 {
+    font-size: 15px;
+}
+
+.dugme2 {
+    background-color: #35AC7A;
+    padding: 1rem 2rem; 
+    transition: 0.4s;
+    border-color: #35AC7A;
+}
+
+.dugme2:hover {
+    background-color: #43e961;
+}
+
+.dugme3 {
+    background-color: #7B1FA2;
+    padding: 1rem 2rem; 
+    transition: 0.4s;
+    border-color: #7B1FA2;
+}
+
+.dugme3:hover {
+    background-color: #43e961;
+}
+
+.linija_ispod_dugmeta{
+    text-decoration: none;
+}
