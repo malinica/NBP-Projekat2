@@ -93,7 +93,10 @@ const UserProfilePage = () => {
                     toast.success("Uspesno ste dodali recenziju");
                     setReviewText("");
                     setReviewGrade(null);
+                    if(totalItemsCount<pageNumber*reviewsPerPage)
                     loadReviews(pageNumber, reviewsPerPage);
+                    else
+                    setTotalItemsCount(totalItemsCount+1); 
                 }
 
             else

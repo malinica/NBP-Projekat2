@@ -16,6 +16,7 @@ export const Pagination = ({ totalLength, onPaginateChange,currentPage=1,perPage
 
     useEffect(() => {
         onPaginateChange(page, pageSize);
+        console.log(page);
     }, [page, pageSize]);
 
     const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
