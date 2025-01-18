@@ -4,4 +4,5 @@ public class UpdateReviewDTO
 {
     public int Rating { get; set; }
     public required string Content { get; set; }
+    public DateTime UpdatedAt{get;set;}
 }

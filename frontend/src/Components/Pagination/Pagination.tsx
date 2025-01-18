@@ -4,11 +4,13 @@ import { Pagination as MaterialPagination, Select, MenuItem, FormControl, InputL
 type Props = {
     totalLength: number;
     onPaginateChange: (page: number, pageSize: number) => void;
+    currentPage?: number;
+    perPage?:number;
 };
 
-export const Pagination = ({ totalLength, onPaginateChange }: Props) => {
-    const [page, setPage] = useState<number>(1);
-    const [pageSize, setPageSize] = useState<number>(10);
+export const Pagination = ({ totalLength, onPaginateChange,currentPage=1,perPage=10 }: Props) => {
+    const [page, setPage] = useState<number>(currentPage);
+    const [pageSize, setPageSize] = useState<number>(perPage);
 
     const pageCount = Math.ceil(totalLength / pageSize);
 

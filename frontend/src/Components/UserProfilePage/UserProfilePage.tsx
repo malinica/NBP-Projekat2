@@ -47,6 +47,9 @@ const UserProfilePage = () => {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [isEditingUsername, setIsEditingUsername] = useState(false);
     const [newUsername, setNewUsername] = useState("");
+    const [pageNumber,setPageNumber]=useState<number>(1);
+    const [reviewsPerPage,setReviewsPerPage]=useState<number>(10);
+
 
 
 
@@ -59,11 +62,13 @@ const UserProfilePage = () => {
         loadUser();
     }, [usernameFromParams]);
     useEffect(() => {
-        loadReviews(1, 10);
+        loadReviews(pageNumber, reviewsPerPage);
     }, [typeForReviews]);
 
     const handlePaginateChange = async (page: number, pageSize: number) => {
         await loadReviews(page, pageSize);
+        setPageNumber(page);
+        setReviewsPerPage(pageSize);
     }
 
     const handleSubmit = async () => {
@@ -79,12 +84,16 @@ const UserProfilePage = () => {
                 updatedAt: new Date()
             };
 
+            
+
             const result = await createReviewAPI(usernameFromParams, reviewData);
             if (result)
                 {
 
                     toast.success("Uspesno ste dodali recenziju");
-                    loadReviews(1, 10);
+                    setReviewText("");
+                    setReviewGrade(null);
+                    loadReviews(pageNumber, reviewsPerPage);
                 }
 
             else
@@ -92,6 +101,22 @@ const UserProfilePage = () => {
         }
     }
 
+
+    const handleOnDelete = () => {
+        if (pageNumber === 1) {
+          loadReviews(pageNumber, reviewsPerPage);
+        } else {
+          if (((pageNumber - 1) * reviewsPerPage + 1) === totalItemsCount) {
+            loadReviews(pageNumber - 1, reviewsPerPage);
+            setPageNumber(pageNumber - 1);
+          }
+          else
+          loadReviews(pageNumber,reviewsPerPage);
+        }
+      };
+      
+
+  
     const handleReviewText = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setReviewText(e.target.value);
     };
@@ -372,6 +397,7 @@ const UserProfilePage = () => {
                                     />
                                     <textarea
                                         onChange={handleReviewText}
+                                         value={reviewText || ''} 
                                         placeholder="Unesite komentar"
                                         rows={5}
                                         cols={30}
@@ -440,11 +466,11 @@ const UserProfilePage = () => {
                             <div>
                             <div>
                             {reviews!.map((review) => (
-                            <ReviewCard key={review.id} review={review} />
+                            <ReviewCard key={review.id} review={review} onDelete={handleOnDelete} />
                             ))}
                         </div>
                             <div className={`my-4`}>
-                                <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange}/>
+                                <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange} currentPage={pageNumber} perPage={reviewsPerPage}/>
                             </div>
                             </div>
                         ) : (

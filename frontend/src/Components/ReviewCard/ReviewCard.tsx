@@ -8,9 +8,13 @@ import { Rating } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 
+type ReviewCardProps = {
+  review: Review;
+  onDelete: () => void; 
+};
 
-const ReviewCard: React.FC<{ review: Review }> = ({ review }) => {
-const [reviewState, setReviewState] = useState<Review|null>(review);  
+export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onDelete }) => {
+const [reviewState, setReviewState] = useState<Review>(review);  
 const [edit,setEdit]=useState<boolean>(false);
 const [editedText,setEditedText]=useState<string|null>(null);
 const [editedRating,setEditedRating]=useState<number>(review.rating);
@@ -27,7 +31,8 @@ const handleDelete = () => {
 
 const handleEdit = () => {
   setEdit(true);
-  setEditedText(review.content); 
+  setEditedText(reviewState.content); 
+  setEditedRating(reviewState.rating);
 };
 
 
@@ -35,7 +40,7 @@ const deleteReview = async (reviewId: string) => {
     const result = await deleteReviewAPI(reviewId);
     if (result) {
         toast.success("Recenzija je uspešno obrisana.");
-        setReviewState(null);
+        onDelete();
 
     } else {
         toast.error("Greška prilikom brisanja recenzije.");
@@ -59,23 +64,18 @@ const handleSave = async () => {
     setEdit(false);
   };
 
+
   const updateReview = async (reviewId: string, updatedReviewData: Review) => {
     const result = await updateReviewAPI(reviewId, updatedReviewData);
     if (result) {
       toast.success("Recenzija je uspešno ažurirana.");
-      
-      setReviewState((prevState) => {
-        if (prevState === null) {
-          return prevState;
-        } else {
-          return {
-            ...prevState,
-            content: updatedReviewData.content,
-            rating: updatedReviewData.rating,
-            updatedAt: new Date(), 
-          };
-        }
-      });
+  
+      setReviewState((prevState) => ({
+        ...prevState,
+        content: updatedReviewData.content,
+        rating: updatedReviewData.rating,
+        updatedAt: updatedReviewData.updatedAt, 
+      }));
     } else {
       toast.error("Greška prilikom ažuriranja recenzije.");
     }
@@ -84,7 +84,7 @@ const handleSave = async () => {
 
 
 return (
-  reviewState &&<>
+  
     <div className={styles.reviewCard}>
       <div className={styles.reviewContent}>
         <div className={styles.rating}>
@@ -145,7 +145,6 @@ return (
         </div>
       )}
     </div>
-    </>
 
 );
 

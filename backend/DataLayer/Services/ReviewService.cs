@@ -138,7 +138,7 @@ public class ReviewService
                 {"id", id},
                 {"rating", reviewDTO.Rating},
                 {"content", reviewDTO.Content},
-                {"updatedAt", DateTime.UtcNow}
+                {"updatedAt", reviewDTO.UpdatedAt}
             },
             CypherResultMode.Set, "neo4j");
 
