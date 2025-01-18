@@ -8,32 +8,31 @@ import { toast } from "react-hot-toast";
 
 const TagsPage = () => {
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [tagToDelete, setTagToDelete] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [tagToEdit, setTagToEdit] = useState<Tag | null>(null);
   const [newName, setNewName] = useState<string>('');
   const [newDescription, setNewDescription] = useState<string>('');
 
   const handleAddTag = (tag: Tag) => {
-    setSelectedTags((prev) => [...prev, tag]);
+    setSelectedTags([tag]);
   };
 
   const handleRemoveTag = (tagId: string) => {
-    setSelectedTags((prevTags) => prevTags.filter((tag) => tag.id !== tagId));
+    setSelectedTags([]);
   };
 
   const handleDeleteTag = async () => {
-    if (!tagToDelete) {
-      toast.error("Niste izabrali tag za brisanje.");
+    if (!selectedTags.length) {
+      toast.error("Nema taga za brisanje.");
       return;
     }
 
     try {
+      const tagToDelete = selectedTags[0].id;
       const response = await deleteTagAPI(tagToDelete);
       if (response) {
         toast.success("Tag uspešno obrisan.");
-        setSelectedTags((prevTags) => prevTags.filter((tag) => tag.id !== tagToDelete));
-        setTagToDelete(null); 
+        setSelectedTags([]);
       }
     } catch (error) {
       toast.error("Došlo je do greške prilikom brisanja taga.");
@@ -41,28 +40,30 @@ const TagsPage = () => {
   };
 
   const handleUpdateTag = async () => {
-    if (tagToEdit) {
+    if (selectedTags.length) {
+      const tagToEdit = selectedTags[0];
       const response = await updateTagAPI(tagToEdit.id, newName, newDescription);
       if (response) {
         toast.success("Tag uspešno ažuriran.");
-        setSelectedTags((prevTags) =>
-          prevTags.map((tag) =>
-            tag.id === tagToEdit.id ? { ...tag, name: newName, description: newDescription } : tag
-          )
+        setSelectedTags([
+          { ...tagToEdit, name: newName, description: newDescription },
+        ]
         );
         setModalVisible(false);
-        setTagToEdit(null);
         setNewName('');
         setNewDescription('');
       }
     }
   };
 
-  const handleOpenEditModal = (tag: Tag) => {
-    setTagToEdit(tag);
-    setNewName(tag.name);
-    setNewDescription(tag.description || '');
-    setModalVisible(true);
+  const handleOpenEditModal = () => {
+    if (selectedTags.length) {
+      const tag = selectedTags[0]; 
+      setTagToEdit(tag);
+      setNewName(tag.name);
+      setNewDescription(tag.description || '');
+      setModalVisible(true);
+    }
   };
 
   return (
@@ -76,24 +77,17 @@ const TagsPage = () => {
             <h2 className={`text-violet`}>Pronađi Željeni Tag</h2>
             <TagPicker
                 selectedTags={selectedTags}
-                maxNumberOfTags={5} 
+                maxNumberOfTags={1} 
                 onAddTag={handleAddTag}
                 onRemoveTag={handleRemoveTag}
             />
-            <select
-              className={`form-select my-3`}
-              value={tagToDelete || ""}
-              onChange={(e) => setTagToDelete(e.target.value)}
-            >
-              <option value="" disabled>Izaberite tag za brisanje ili ažuriranje</option>
-              {selectedTags.map((tag) => (
-                <option key={tag.id} value={tag.id}>
-                  {tag.name}
-                </option>
-              ))}
-            </select>
-            <button className={`text-white text-center rounded-3 border-0 py-2 px-2 ${styles.slova} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`} onClick={() => handleOpenEditModal(tagToEdit || selectedTags[0])}>Ažuriraj</button>
-            <button className={`text-white text-center rounded-3 border-0 py-2 px-2 ms-2 ${styles.slova} ${styles.dugme3} ${styles.linija_ispod_dugmeta}`} onClick={handleDeleteTag}>Obriši</button>
+            <br></br>
+            <button className={`text-white text-center rounded-3 border-0 py-2 px-2 ${styles.slova} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`} 
+                                onClick={handleOpenEditModal}
+                                disabled={!selectedTags.length}>Ažuriraj</button>
+            <button className={`text-white text-center rounded-3 border-0 py-2 px-2 ms-2 ${styles.slova} ${styles.dugme3} ${styles.linija_ispod_dugmeta}`} 
+                                onClick={handleDeleteTag}              
+                                disabled={!selectedTags.length}>Obriši</button>
             {modalVisible && tagToEdit && (
               <div className={`modal fade show`} style={{ display: 'block', zIndex: 1050 }} id="editTagModal" tabIndex={-1} aria-labelledby="editTagModalLabel" aria-hidden="true">
                 <div className={`modal-dialog`}>
