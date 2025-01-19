@@ -80,24 +80,22 @@ const handleSave = async () => {
       toast.error("Greška prilikom ažuriranja recenzije.");
     }
   };
-  
-
 
 return (
-  
-    <div className={styles.reviewCard}>
-      <div className={styles.reviewContent}>
-        <div className={styles.rating}>
-        {reviewState.author != undefined  && (
-  <a 
-    onClick={() => navigate(`/profile-page/${reviewState.author!.username}`)}
-    className={styles['custom-dropdown-item1']}
-  >
-    Autor: {reviewState.author.username}
-  </a>
-)}
-  {reviewState.updatedAt && reviewState.createdAt !== reviewState.updatedAt ? (
-                <span>Izmenjeno: {new Date(reviewState.updatedAt).toLocaleString('sr-RS', {
+    <div className={``}>
+      <div className={`rounded-3 bg-light-lilac my-3 px-2`}>
+        <div className={`row d-flex justify-content-beetwen align-items-start`}>
+          <div className={`col-xxl-9 col-xl-9 col-lg-9 col-md-9 col-sm-9`}>
+            {reviewState.author != undefined  && (
+              <a 
+                onClick={() => navigate(`/profile-page/${reviewState.author!.username}`)}
+                className={`text-violet fw-bold me-2 ${styles.linija_ispod_dugmeta}`}
+              >
+                {reviewState.author.username}
+              </a>
+            )}
+            {reviewState.updatedAt && reviewState.createdAt !== reviewState.updatedAt ? (
+                <span className={`text-green`}>Izmenjeno: {new Date(reviewState.updatedAt).toLocaleString('sr-RS', {
                     day: '2-digit', 
                     month: '2-digit', 
                     year: 'numeric', 
@@ -105,7 +103,7 @@ return (
                     minute: '2-digit'
                 })}</span>
             ) : (
-                <span>Napisano: {new Date(reviewState.createdAt).toLocaleString('sr-RS', {
+                <span className={`text-green`}>Napisano: {new Date(reviewState.createdAt).toLocaleString('sr-RS', {
                     day: '2-digit', 
                     month: '2-digit', 
                     year: 'numeric', 
@@ -113,40 +111,44 @@ return (
                     minute: '2-digit'
                 })}</span>
             )}
-        <Rating
-    name="simple-controlled"
-    value={editedRating}
-    onChange={(_, newValue) => {
-        setEditedRating(newValue? newValue : 0);
-    }}
-/>
-<span>{editedRating}</span>
-        </div>
+            <div className={`d-flex`}>
+              <Rating
+                name="simple-controlled"
+                value={editedRating}
+                onChange={(_, newValue) => {
+                    setEditedRating(newValue? newValue : 0);
+                }}
+              />
+              <span className={`ms-2 text-dark-green`}>{editedRating}</span>
+            </div>
+        
+            {edit ? (
+              <textarea
+                value={editedText ?? ""}
+                onChange={(e) => setEditedText(e.target.value)} 
+                className={``}
+              />
+            ) : (
+              <p>{reviewState.content}</p> 
+            )}
+          </div>
 
-        {edit ? (
-          <textarea
-            value={editedText ?? ""}
-            onChange={(e) => setEditedText(e.target.value)} 
-            className={styles.textarea}
-          />
-        ) : (
-          <p>{reviewState.content}</p> 
-        )}
-      </div>
+          <div className={`col-1`}></div>
 
-      {user && user.username == reviewState.author?.username && (
-        <div className={styles.buttons}>
-          {edit ? (
-            <button onClick={handleSave}>Save</button>
-          ) : (
-            <button onClick={handleEdit}>Edit</button>
+          {user && user.username == reviewState.author?.username && (
+            <div className={`col-xxl-2 col-xl-2 col-lg-2 col-md-2 col-sm-2 d-flex justify-content-end align-items-end mt-auto`}>
+              {edit ? (
+                <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-2 ${styles.slova2} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`} onClick={handleSave}>Save</button>
+              ) : (
+                <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-2 ${styles.slova2} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`} onClick={handleEdit}>Edit</button>
+              )}
+              <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-2 ms-2 ${styles.slova2} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`} onClick={handleDelete}>Delete</button>
+            </div>
           )}
-          <button onClick={handleDelete}>Delete</button>
         </div>
-      )}
+      </div>
     </div>
-
-);
-
+  );
 };
+
 export default ReviewCard;

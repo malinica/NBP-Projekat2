@@ -15,9 +15,9 @@ const UserCard = ({ user }:Props) => {
             <div className={`card-body d-flex align-items-center`}>
                 {user.profileImage ? (
                         <img 
-                            src={user.profileImage} 
+                            src={`${import.meta.env.VITE_SERVER_URL}/${user?.profileImage}`}
                             alt={`${user.username}'s profile`} 
-                            className={`rounded-circle ${styles.slika}`} 
+                            className={`rounded-circle ${styles.slika} me-3`}
                         />
                     ) : (
                         <div 
@@ -30,7 +30,7 @@ const UserCard = ({ user }:Props) => {
                     <h5 className={`text-violet`}>{user.username}</h5>
                     <p className={`text-lilac`}>{user.email}</p>
                     <Link to={`/profile-page/${user.username}`}>
-                        <FontAwesomeIcon icon={faLink} />
+                        <FontAwesomeIcon icon={faLink} className={`text-lime-green`}/>
                     </Link>
                 </div>
             </div>

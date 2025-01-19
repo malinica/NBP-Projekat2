@@ -57,7 +57,7 @@ export const FollowersFollowingModal = ({ isOpen, onClose, userId, activeTab } :
             <div className={`modal-dialog`}>
                 <div className={`modal-content`}>
                     <div className={`modal-header`}>
-                        <h2>{activeTab === "followers" ? "Pratioci" : "Praćenja"}</h2>
+                        <h2 className={`text-green`}>{activeTab === "followers" ? "Pratioci" : "Praćenja"}</h2>
                         <button type="button" className={`btn-close`} onClick={onClose}></button>
                     </div>
                     <div className={`modal-body ${styles.modal_body}`}>
@@ -65,7 +65,7 @@ export const FollowersFollowingModal = ({ isOpen, onClose, userId, activeTab } :
                             (<>
                                 <ul className={`list-unstyled`}>
                                     {users.map(user => (
-                                        <div className="my-2" key={user.id}>
+                                        <div className={`my-2`} key={user.id}>
                                             <UserCard user={user}/>
                                         </div>
                                     ))}
