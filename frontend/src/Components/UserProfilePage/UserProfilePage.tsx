@@ -354,14 +354,14 @@ const UserProfilePage = () => {
                                 ) : (
                                     <>
                                         <p className={`text-dark-green mb-0 me-2`}><strong>Username:</strong> {profileUser.username}</p>
-                                        <button className={`btn ms-2`} onClick={() => setIsEditingUsername(true)}>
+                                        {user?.id == profileUser.id && <button className={`btn ms-2`} onClick={() => setIsEditingUsername(true)}>
                                             <FontAwesomeIcon icon={faEdit}/>
-                                        </button>
+                                        </button>}
                                     </>
                                 )}
                             </div>
                             <p className={`text-green mt-2`}><strong>Email:</strong> {profileUser.email}</p>
-                            <p className={`text-green`}><strong>Uloga:</strong> {profileUser.role}</p>
+                            <p className={`text-green mt-1`}><strong>Uloga:</strong> {profileUser.role}</p>
 
                             <div className={`mb-3`}>
                                 {user && profileUser.id == user?.id
