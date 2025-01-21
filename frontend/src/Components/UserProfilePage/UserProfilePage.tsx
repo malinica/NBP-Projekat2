@@ -50,10 +50,6 @@ const UserProfilePage = () => {
     const [pageNumber,setPageNumber]=useState<number>(1);
     const [reviewsPerPage,setReviewsPerPage]=useState<number>(10);
 
-
-
-
-
     const navigate = useNavigate();
 
     const { user } = useAuth();
@@ -61,6 +57,7 @@ const UserProfilePage = () => {
     useEffect(() => {
         loadUser();
     }, [usernameFromParams]);
+
     useEffect(() => {
         loadReviews(pageNumber, reviewsPerPage);
     }, [typeForReviews]);
@@ -84,23 +81,19 @@ const UserProfilePage = () => {
                 updatedAt: new Date()
             };
 
-            
-
             const result = await createReviewAPI(usernameFromParams, reviewData);
             if (result)
                 {
-
-                    toast.success("Uspesno ste dodali recenziju");
+                    toast.success("Uspešno ste dodali recenziju.");
                     setReviewText("");
                     setReviewGrade(null);
-                    if(totalItemsCount<pageNumber*reviewsPerPage)
-                    loadReviews(pageNumber, reviewsPerPage);
-                    else
-                    setTotalItemsCount(totalItemsCount+1); 
+                    // if (totalItemsCount < pageNumber * reviewsPerPage)
+                    await loadReviews(pageNumber, reviewsPerPage);
+                    // else
+                    //     setTotalItemsCount(totalItemsCount + 1);
                 }
-
             else
-                toast.error("Greska prilikom dodavanja recenzije");
+                toast.error("Greška prilikom dodavanja recenzije");
         }
     }
 
@@ -117,10 +110,8 @@ const UserProfilePage = () => {
           loadReviews(pageNumber,reviewsPerPage);
         }
       };
-      
-
   
-    const handleReviewText = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleReviewText = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setReviewText(e.target.value);
     };
 
@@ -271,6 +262,7 @@ const UserProfilePage = () => {
                 currentUser.username = newUsername;
                 localStorage.setItem("user", JSON.stringify(currentUser));
                 navigate(`/profile-page/${response.data.username}`);
+                window.location.reload();
                 if(user)
                     user.username = response.data.username;
                 setProfileUser((prev) => prev ? { ...prev, username: newUsername } : null);
@@ -317,7 +309,7 @@ const UserProfilePage = () => {
                 <h1 className={`text-violet text-center m-4`}>Profil korisnika</h1>
                 {profileUser ? (
                     <div className={`m-4 row d-flex justify-content-center`}>
-                        <div className={`col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12`}>
+                        <div className={`col-xxl-4 col-xl-4 col-lg-4 col-md-12 col-sm-12`}>
                             <div className={`d-flex flex-column align-items-start`}>
                                 {profileUser?.profileImage ? (
                                     <img src={`${import.meta.env.VITE_SERVER_URL}/${profileUser?.profileImage}`}
@@ -389,10 +381,16 @@ const UserProfilePage = () => {
 
                         </div>
 
-                        <div className={`col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-sm-12 align-content-center`}>
-                        <div>
-                                <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mt-2 mb-3 ${styles.slova2} ${styles.dugme4} ${styles.linija_ispod_dugmeta}`} onClick={() => openModal("followers")}>Pratioci</button>
-                                <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mt-2 mb-3 ms-2 ${styles.slova2} ${styles.dugme4} ${styles.linija_ispod_dugmeta}`} onClick={() => openModal("following")}>Praćenja</button>
+                        <div className={`col-xxl-8 col-xl-8 col-lg-8 col-md-12 col-sm-12`}>
+                            <div>
+                                <button
+                                    className={`text-white text-center rounded-3 border-0 py-2 px-2 mt-2 mb-3 ${styles.slova2} ${styles.dugme4} ${styles.linija_ispod_dugmeta}`}
+                                    onClick={() => openModal("followers")}>Pratioci
+                                </button>
+                                <button
+                                    className={`text-white text-center rounded-3 border-0 py-2 px-2 mt-2 mb-3 ms-2 ${styles.slova2} ${styles.dugme4} ${styles.linija_ispod_dugmeta}`}
+                                    onClick={() => openModal("following")}>Praćenja
+                                </button>
 
                                 <FollowersFollowingModal
                                     isOpen={isFollowersModalOpened}
@@ -400,12 +398,12 @@ const UserProfilePage = () => {
                                     userId={profileUser.id}
                                     activeTab={activeTab}
                                 />
-                            
+
 
                                 {user?.id !== profileUser?.id &&
                                     <>
                                         {isRelationshipLoading ? (
-                                            <button className="btn btn-secondary" disabled>Učitavanje...</button>
+                                            <button className="btn btn-secondary ms-2" disabled>Učitavanje...</button>
                                         ) : isFollowing ? (
                                             <button
                                                 className={`text-white text-center rounded-3 border-0 py-2 px-2 ms-2 ${styles.slova2} ${styles.dugme3} ${styles.linija_ispod_dugmeta}`}
@@ -422,7 +420,7 @@ const UserProfilePage = () => {
                                     </>}
 
                             </div>
-                            
+
                             <div>
                                 {user == null ? (
                                     <p className={`text-center text-muted`}>Logujte se da biste ocenili korisnika.</p>
@@ -437,11 +435,11 @@ const UserProfilePage = () => {
                                         />
                                         <textarea
                                             onChange={handleReviewText}
-                                            value={reviewText || ''} 
+                                            value={reviewText || ''}
                                             placeholder="Unesite komentar"
                                             rows={5}
                                             cols={30}
-                                            className={`d-block my-2 rounded-1`}
+                                            className={`d-block my-2 rounded-1 form-control`}
                                         />
                                         <button
                                             onClick={handleSubmit}
@@ -449,34 +447,39 @@ const UserProfilePage = () => {
                                         >
                                             Ocenite
                                         </button>
-                                        <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-3 ms-2 ${styles.slova2} ${styles.dugme5} ${styles.linija_ispod_dugmeta}`} onClick={() => handleNavigate(profileUser.id)}>
+                                        <button
+                                            className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-3 ms-2 ${styles.slova2} ${styles.dugme5} ${styles.linija_ispod_dugmeta}`}
+                                            onClick={() => handleNavigate(profileUser.id)}>
                                             Korisnikovi projekti
                                         </button>
                                     </>
                                 ) : null}
                             </div>
 
-                            <label className={`text-violet me-2 `} htmlFor="reviewType">Tip recenzija: </label>
-                            <select
-                                id="reviewType"
-                                value={typeForReviews ? 'given' : 'received'}
-                                onChange={(e) => setTypeForReviews(e.target.value === 'given')}
-                                className={`rounded text-violet`}
-                            >
-                                <option value="given">Recenzije koje je postavio korisnik</option>
-                                <option value="received">Recenzije koje je dobio korisnik</option>
-                            </select>
-
+                            <div className="d-flex align-items-center">
+                                <label className={`text-violet me-2 `} htmlFor="reviewType">Tip recenzija: </label>
+                                <select
+                                    id="reviewType"
+                                    value={typeForReviews ? 'given' : 'received'}
+                                    onChange={(e) => setTypeForReviews(e.target.value === 'given')}
+                                    className={`rounded text-violet form-control`}
+                                >
+                                    <option value="given">Recenzije koje je postavio korisnik</option>
+                                    <option value="received">Recenzije koje je dobio korisnik</option>
+                                </select>
+                            </div>
 
                             {totalItemsCount > 0 ? (
                                 <div>
                                     <div>
                                         {reviews!.map((review) => (
-                                        <ReviewCard key={review.id} review={review} onDelete={handleOnDelete} />
+                                            <ReviewCard key={review.id} review={review} onDelete={handleOnDelete}/>
                                         ))}
                                     </div>
                                     <div className={`my-4`}>
-                                        <Pagination totalLength={totalItemsCount} onPaginateChange={handlePaginateChange} currentPage={pageNumber} perPage={reviewsPerPage}/>
+                                        <Pagination totalLength={totalItemsCount}
+                                                    onPaginateChange={handlePaginateChange} currentPage={pageNumber}
+                                                    perPage={reviewsPerPage}/>
                                     </div>
                                 </div>
                             ) : (

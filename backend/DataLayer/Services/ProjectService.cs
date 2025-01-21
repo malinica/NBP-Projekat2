@@ -444,7 +444,7 @@ public class ProjectService
     }
 
 
-    public async Task<PaginatedResponseDTO<ProjectResultDTO>> SearchProjects(
+    public async Task<Result<PaginatedResponseDTO<ProjectResultDTO>, ErrorMessage>> SearchProjects(
         string? title = null,
         List<string>? tags = null,
         DateTime? fromDate = null,
@@ -528,8 +528,7 @@ public class ProjectService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Greška: {e.Message}");
-            return null;
+            return "Došlo je do greške prilikom pretrage projekata.".ToError();
         }
     }
 

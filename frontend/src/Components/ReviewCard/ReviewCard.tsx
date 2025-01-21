@@ -13,73 +13,73 @@ type ReviewCardProps = {
   onDelete: () => void; 
 };
 
-export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onDelete }) => {
-const [reviewState, setReviewState] = useState<Review>(review);  
-const [edit,setEdit]=useState<boolean>(false);
-const [editedText,setEditedText]=useState<string|null>(null);
-const [editedRating,setEditedRating]=useState<number>(review.rating);
-const { user } = useAuth();
-const navigate = useNavigate();
+const ReviewCard: React.FC<ReviewCardProps> = ({ review, onDelete }) => {
+    const [reviewState, setReviewState] = useState<Review>(review);
+    const [edit, setEdit] = useState<boolean>(false);
+    const [editedText, setEditedText] = useState<string | null>(null);
+    const [editedRating, setEditedRating] = useState<number>(review.rating);
+    const {user} = useAuth();
+    const navigate = useNavigate();
 
 
-useEffect(() => {}, [reviewState]);
+    useEffect(() => {
+    }, [reviewState]);
 
-const handleDelete = () => {
+    const handleDelete = () => {
 
-    deleteReview(review.id);
-};
+        deleteReview(review.id);
+    };
 
-const handleEdit = () => {
-  setEdit(true);
-  setEditedText(reviewState.content); 
-  setEditedRating(reviewState.rating);
-};
-
-
-const deleteReview = async (reviewId: string) => {
-    const result = await deleteReviewAPI(reviewId);
-    if (result) {
-        toast.success("Recenzija je uspešno obrisana.");
-        onDelete();
-
-    } else {
-        toast.error("Greška prilikom brisanja recenzije.");
-    }
-};
-const handleSave = async () => {
-  if ((review.content === editedText && review.rating === editedRating) || editedRating < 0 || editedRating > 5)
-        toast.error("Podaci nisu odgovarajući");
-    else
-    {
-        const updatedReview = {
-            id: review.id,
-            rating: editedRating,
-            content: editedText? editedText : "",
-            createdAt: review.createdAt,
-            updatedAt: new Date()
-        };
-        await updateReview(review.id,updatedReview);
-        
-    }
-    setEdit(false);
-  };
+    const handleEdit = () => {
+        setEdit(true);
+        setEditedText(reviewState.content);
+        setEditedRating(reviewState.rating);
+    };
 
 
-  const updateReview = async (reviewId: string, updatedReviewData: Review) => {
-    const result = await updateReviewAPI(reviewId, updatedReviewData);
-    if (result) {
-      toast.success("Recenzija je uspešno ažurirana.");
-  
-      setReviewState((prevState) => ({
-        ...prevState,
-        content: updatedReviewData.content,
-        rating: updatedReviewData.rating,
-        updatedAt: updatedReviewData.updatedAt, 
-      }));
-    } else {
-      toast.error("Greška prilikom ažuriranja recenzije.");
-    }
-  };
+    const deleteReview = async (reviewId: string) => {
+        const result = await deleteReviewAPI(reviewId);
+        if (result) {
+            toast.success("Recenzija je uspešno obrisana.");
+            onDelete();
+
+        } else {
+            toast.error("Greška prilikom brisanja recenzije.");
+        }
+    };
+    const handleSave = async () => {
+        if ((review.content === editedText && review.rating === editedRating) || editedRating < 0 || editedRating > 5)
+            toast.error("Podaci nisu odgovarajući");
+        else {
+            const updatedReview = {
+                id: review.id,
+                rating: editedRating,
+                content: editedText ? editedText : "",
+                createdAt: review.createdAt,
+                updatedAt: new Date()
+            };
+            await updateReview(review.id, updatedReview);
+
+        }
+        setEdit(false);
+    };
+
+
+    const updateReview = async (reviewId: string, updatedReviewData: Review) => {
+        const result = await updateReviewAPI(reviewId, updatedReviewData);
+        if (result) {
+            toast.success("Recenzija je uspešno ažurirana.");
+
+            setReviewState((prevState) => ({
+                ...prevState,
+                content: updatedReviewData.content,
+                rating: updatedReviewData.rating,
+                updatedAt: updatedReviewData.updatedAt,
+            }));
+        } else {
+            toast.error("Greška prilikom ažuriranja recenzije.");
+        }
+    };
 
 return (
     <div className={``}>
@@ -138,11 +138,11 @@ return (
           {user && user.username == reviewState.author?.username && (
             <div className={`col-xxl-2 col-xl-2 col-lg-2 col-md-2 col-sm-2 d-flex justify-content-end align-items-end mt-auto`}>
               {edit ? (
-                <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-2 ${styles.slova2} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`} onClick={handleSave}>Save</button>
+                <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-2 ${styles.slova2} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`} onClick={handleSave}>Sačuvaj</button>
               ) : (
-                <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-2 ${styles.slova2} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`} onClick={handleEdit}>Edit</button>
+                <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-2 ${styles.slova2} ${styles.dugme1} ${styles.linija_ispod_dugmeta}`} onClick={handleEdit}>Izmeni</button>
               )}
-              <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-2 ms-2 ${styles.slova2} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`} onClick={handleDelete}>Delete</button>
+              <button className={`text-white text-center rounded-3 border-0 py-2 px-2 mb-2 ms-2 ${styles.slova2} ${styles.dugme2} ${styles.linija_ispod_dugmeta}`} onClick={handleDelete}>Obriši</button>
             </div>
           )}
         </div>

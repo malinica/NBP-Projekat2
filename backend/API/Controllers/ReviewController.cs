@@ -9,6 +9,7 @@ public class ReviewController : ControllerBase
 {
     private readonly ReviewService reviewService;
     private readonly UserService userService;
+
     public ReviewController(ReviewService reviewService, UserService userService)
     {
         this.reviewService = reviewService;
@@ -34,14 +35,14 @@ public class ReviewController : ControllerBase
     {
         var userResult = await userService.GetCurrentUser(User);
 
-        if(userResult.IsError)
+        if (userResult.IsError)
             return StatusCode(userResult.Error?.StatusCode ?? 400, userResult.Error?.Message);
-        
-        var reviewedUser=await userService.GetByUsername(targetUser);
 
-        if(reviewedUser.IsError)
+        var reviewedUser = await userService.GetByUsername(targetUser);
+
+        if (reviewedUser.IsError)
             return StatusCode(reviewedUser.Error?.StatusCode ?? 400, reviewedUser.Error?.Message);
-        var reviewResult = await reviewService.CreateReview(reviewDto, userResult.Data.Id,reviewedUser.Data.Id);
+        var reviewResult = await reviewService.CreateReview(reviewDto, userResult.Data.Id, reviewedUser.Data.Id);
 
         if (reviewResult.IsError)
             return StatusCode(reviewResult.Error?.StatusCode ?? 400, reviewResult.Error?.Message);
@@ -59,7 +60,7 @@ public class ReviewController : ControllerBase
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
 
-    return Ok(new { message = "Recenzija uspešno ažurirana." });
+        return Ok(new { message = "Recenzija uspešno ažurirana." });
     }
 
     [HttpDelete("DeleteReview/{id}")]
@@ -72,38 +73,36 @@ public class ReviewController : ControllerBase
             return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
 
-return Ok();
+        return Ok();
     }
+
     [HttpGet("GetReviewsFromUsername/{username}")]
-public async Task<IActionResult> GetReviewsFromUsername(string username, [FromQuery] int skip = 0, [FromQuery] int limit = 10)
+    public async Task<IActionResult> GetReviewsFromUsername(string username, [FromQuery] int skip = 0,
+        [FromQuery] int limit = 10)
     {
-        try{
 
-        var result= await reviewService.GetReviewsFromUser(username,skip,limit);
-return Ok();
-        }
-        catch (Exception ex)
+        (bool isError, var reviews, ErrorMessage? error) = await reviewService.GetReviewsFromUser(username, skip, limit);
+        
+        if (isError)
         {
-            return StatusCode(500, $"Došlo je do greške: {ex.Message}");
-        }        
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+        
+        return Ok(reviews);
     }
 
 
-    
     [HttpGet("GetReviewsForUsername/{username}")]
-public async Task<IActionResult> GetReviewsForUsername(string username, [FromQuery] int skip = 0, [FromQuery] int limit = 10)
+    public async Task<IActionResult> GetReviewsForUsername(string username, [FromQuery] int skip = 0,
+        [FromQuery] int limit = 10)
     {
-        try{
-
-        var result= await reviewService.GetReviewsForUser(username,skip,limit);
-return Ok(result);
-        }
-        catch (Exception ex)
+        (bool isError, var reviews, ErrorMessage? error)  = await reviewService.GetReviewsForUser(username, skip, limit);
+        
+        if (isError)
         {
-            return StatusCode(500, $"Došlo je do greške: {ex.Message}");
-        }        
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
+        }
+        
+        return Ok(reviews);
     }
-
 }
-
-

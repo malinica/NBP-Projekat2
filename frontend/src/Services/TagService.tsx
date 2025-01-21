@@ -90,7 +90,6 @@ export const removeTagFromUserAPI = async (tagId: string) => {
 
 export const deleteTagAPI = async (tagId: string) => {
     try {
-        console.log(`Pokušavam da obrišem tag sa ID: ${tagId}`);
         return await axios.delete<Tag>(`${api}/DeleteTag/${tagId}`);
     }
     catch(error:any) {

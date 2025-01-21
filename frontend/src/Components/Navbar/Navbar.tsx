@@ -80,8 +80,8 @@ export const Navbar = () => {
                                             </Dropdown.Toggle>
 
                                             <Dropdown.Menu align={'end'}>
-                                                <Dropdown.Divider />
                                                 <Dropdown.Item onClick={handleProfileRedirect} className={styles['custom-dropdown-item1']}>MOJ PROFIL</Dropdown.Item>
+                                                <Dropdown.Divider />
                                                 <Dropdown.Item onClick={handleLogout} className={styles['custom-dropdown-item1']}>ODJAVI SE</Dropdown.Item>
                                             </Dropdown.Menu>
                                         </Dropdown>

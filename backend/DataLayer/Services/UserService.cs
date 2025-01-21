@@ -386,7 +386,7 @@ public class UserService
                        u.Email as Email,
                        u.Role as Role,
                        u.ProfileImage as ProfileImage,
-                       COLLECT({ Id: t.Id, Name: t.Name, Description: t.Description }) AS Tags",
+                       [t IN COLLECT({ Id: t.Id, Name: t.Name, Description: t.Description }) WHERE t.Id IS NOT NULL] AS Tags",
                 new Dictionary<string, object>
                 {
                     { "username", username }

@@ -176,6 +176,25 @@ public class TagService
     {
         try
         {
+            var tagsCountQuery = new CypherQuery(@"
+                MATCH (:Project {Id: $projectId})-[:HAS_TAG]->(t:Tag)
+                RETURN COUNT(t) AS tagCount",
+                new Dictionary<string, object>
+                {
+                    { "projectId", projectId }
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var tagCountResult = await ((IRawGraphClient)client)
+                .ExecuteGetCypherResultsAsync<int>(tagsCountQuery);
+
+            int tagCount = tagCountResult.FirstOrDefault();
+            
+            if (tagCount <= 1)
+            {
+                return "Projekat mora imati bar jedan tag.".ToError(403);
+            }
+            
             var query = new CypherQuery(@"
                                         MATCH (p:Project {Id: $projectId})-[r:HAS_TAG]->(t:Tag {Id: $tagId}) 
                                         DELETE r",

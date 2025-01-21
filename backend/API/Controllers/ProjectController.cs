@@ -194,21 +194,20 @@ public class ProjectController : ControllerBase
     [FromQuery] int skip = 0,
     [FromQuery] int limit = 10)
     {
-        try
+        (bool isError, var projects, ErrorMessage? error) = await projectService.SearchProjects(
+            title,
+            tags,
+            fromDate,
+            toDate,
+            skip,
+            limit);
+
+        if (isError)
         {
-            var result = await projectService.SearchProjects(
-                title,
-                tags,
-                fromDate,
-                toDate,
-                skip,
-                limit);
-            return Ok(result);
+            return StatusCode(error?.StatusCode ?? 400, error?.Message);
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Došlo je do greške: {ex.Message}");
-        }
+
+        return Ok(projects);
     }
 
     [HttpGet("SearchProjectsCreatedByUser/{userId}/{status}")]

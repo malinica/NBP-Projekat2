@@ -125,121 +125,120 @@ public class ReviewService
         }
     }
 
-   public async Task<Result<bool, ErrorMessage>> UpdateReview(string id, UpdateReviewDTO reviewDTO)
-{
-    try
+    public async Task<Result<bool, ErrorMessage>> UpdateReview(string id, UpdateReviewDTO reviewDTO)
     {
-        var query = new CypherQuery(
-            "MATCH (r:Review {Id: $id}) " +
-            "SET r.Rating = $rating, r.Content = $content, r.UpdatedAt = $updatedAt " +
-            "RETURN COUNT(r) > 0 AS isUpdated",
-            new Dictionary<string, object>
+        try
+        {
+            var query = new CypherQuery(
+                "MATCH (r:Review {Id: $id}) " +
+                "SET r.Rating = $rating, r.Content = $content, r.UpdatedAt = $updatedAt " +
+                "RETURN COUNT(r) > 0 AS isUpdated",
+                new Dictionary<string, object>
+                {
+                    { "id", id },
+                    { "rating", reviewDTO.Rating },
+                    { "content", reviewDTO.Content },
+                    { "updatedAt", reviewDTO.UpdatedAt }
+                },
+                CypherResultMode.Set, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<bool>(query);
+
+            if (result != null && result.FirstOrDefault())
             {
-                {"id", id},
-                {"rating", reviewDTO.Rating},
-                {"content", reviewDTO.Content},
-                {"updatedAt", reviewDTO.UpdatedAt}
-            },
-            CypherResultMode.Set, "neo4j");
+                return true;
+            }
 
-        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<bool>(query);
-
-        if (result != null && result.FirstOrDefault())
-        {
-            return true;
+            return "Review nije pronađen.".ToError(404);
         }
-
-        return "Review nije pronađen.".ToError(404);
-    }
-    catch (Exception)
-    {
-        return "Došlo je do greške prilikom ažuriranja review-a.".ToError();
-    }
-}
-
-public async Task<PaginatedResponseDTO<ReviewResultDTO>> GetReviewsFromUser(string username, int? skip = 0, int limit = 10)
-{
-    try
-    {
-        var userResult = await userService.GetByUsername(username);
-        if (userResult.IsError)
+        catch (Exception)
         {
+            return "Došlo je do greške prilikom ažuriranja review-a.".ToError();
+        }
+    }
+
+    public async Task<Result<PaginatedResponseDTO<ReviewResultDTO>, ErrorMessage>> GetReviewsFromUser(string username,
+        int? skip = 0,
+        int limit = 10)
+    {
+        try
+        {
+            var userResult = await userService.GetByUsername(username);
+            if (userResult.IsError)
+            {
+                return new PaginatedResponseDTO<ReviewResultDTO>
+                {
+                    Data = null,
+                    TotalLength = 0
+                };
+            }
+
+            var query = new CypherQuery(@"
+            MATCH (a:User {Username: $username})-[:CREATED]->(r:Review)-[:FOR_USER]->(u:User)
+            RETURN 
+                r.Id AS Id, 
+                r.Content AS Content, 
+                r.Rating AS Rating, 
+                r.CreatedAt AS CreatedAt, 
+                r.UpdatedAt AS UpdatedAt, 
+                { 
+                    Id: a.Id, 
+                    Username: a.Username, 
+                    Email: a.Email,
+                    Role: a.Role 
+                } AS Author
+            ORDER BY r.UpdatedAt DESC",
+                new Dictionary<string, object>
+                {
+                    { "username", username }
+                },
+                CypherResultMode.Projection, "neo4j");
+
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ReviewResultDTO>(query);
+
+            if (result != null && result.Any())
+            {
+                var paginatedResult = result
+                    .Skip(skip ?? 0)
+                    .Take(limit)
+                    .ToList();
+
+                return new PaginatedResponseDTO<ReviewResultDTO>
+                {
+                    Data = paginatedResult,
+                    TotalLength = result.Count()
+                };
+            }
+
             return new PaginatedResponseDTO<ReviewResultDTO>
             {
-                Data = null,
+                Data = new List<ReviewResultDTO>(),
                 TotalLength = 0
             };
         }
-
-        var query = new CypherQuery(@"
-        MATCH (a:User {Username: $username})-[:CREATED]->(r:Review)-[:FOR_USER]->(u:User)
-
-    RETURN 
-        r.Id AS Id, 
-        r.Content AS Content, 
-        r.Rating AS Rating, 
-        r.CreatedAt AS CreatedAt, 
-        r.UpdatedAt AS UpdatedAt, 
-        { 
-            Id: a.Id, 
-            Username: a.Username, 
-            Email: a.Email,
-            Role: a.Role 
-        } AS Author",
-    new Dictionary<string, object>
-    {
-        {"username", username}
-    },
-    CypherResultMode.Projection, "neo4j");
-
-
-        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ReviewResultDTO>(query);
-
-        if (result != null && result.Any())
+        catch (Exception)
         {
-            var paginatedResult = result
-                .Skip(skip ?? 0)
-                .Take(limit)
-                .ToList();
-
-            return new PaginatedResponseDTO<ReviewResultDTO>
-            {
-                Data = paginatedResult,
-                TotalLength = result.Count()
-            };
+            return "Došlo je do greške prilikom učitavanja ocena korisnika.".ToError();
         }
-
-        return new PaginatedResponseDTO<ReviewResultDTO>
-        {
-            Data = new List<ReviewResultDTO>(),
-            TotalLength = 0
-        };
     }
-    catch (Exception)
-    {
-        return new PaginatedResponseDTO<ReviewResultDTO>
-        {
-            Data = new List<ReviewResultDTO>(),
-            TotalLength = 0
-        };
-    }
-}
 
-public async Task<PaginatedResponseDTO<ReviewResultDTO>> GetReviewsForUser(string username, int? skip = 0, int limit = 10)
-{
-    try
+    public async Task<Result<PaginatedResponseDTO<ReviewResultDTO>, ErrorMessage>> GetReviewsForUser(string username, int? skip = 0,
+        int limit = 10)
     {
-        var userResult = await userService.GetByUsername(username);
-        if (userResult.IsError)
+        try
         {
-            return new PaginatedResponseDTO<ReviewResultDTO>
+            var userResult = await userService.GetByUsername(username);
+            if (userResult.IsError)
             {
-                Data = null,
-                TotalLength = 0
-            };
-        }
+                return new PaginatedResponseDTO<ReviewResultDTO>
+                {
+                    Data = null,
+                    TotalLength = 0
+                };
+            }
 
-        var query = new CypherQuery(@"
+            var query = new CypherQuery(@"
             MATCH (u:User {Username: $username})<-[:FOR_USER]-(r:Review)<-[:CREATED]-(a:User)
             RETURN 
                 r.Id AS Id, 
@@ -252,43 +251,39 @@ public async Task<PaginatedResponseDTO<ReviewResultDTO>> GetReviewsForUser(strin
                     Username: a.Username, 
                     Email: a.Email, 
                     Role: a.Role 
-                } AS Author",
-            new Dictionary<string, object>
+                } AS Author
+            ORDER BY r.UpdatedAt DESC",
+                new Dictionary<string, object>
+                {
+                    { "username", username }
+                },
+                CypherResultMode.Projection, "neo4j");
+
+            var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ReviewResultDTO>(query);
+
+            if (result != null && result.Any())
             {
-                {"username", username}
-            },
-            CypherResultMode.Projection, "neo4j");
+                var paginatedResult = result
+                    .Skip(skip ?? 0)
+                    .Take(limit)
+                    .ToList();
 
-        var result = await ((IRawGraphClient)client).ExecuteGetCypherResultsAsync<ReviewResultDTO>(query);
-
-        if (result != null && result.Any())
-        {
-            var paginatedResult = result
-                .Skip(skip ?? 0)
-                .Take(limit)
-                .ToList();
+                return new PaginatedResponseDTO<ReviewResultDTO>
+                {
+                    Data = paginatedResult,
+                    TotalLength = result.Count()
+                };
+            }
 
             return new PaginatedResponseDTO<ReviewResultDTO>
             {
-                Data = paginatedResult,
-                TotalLength = result.Count()
+                Data = new List<ReviewResultDTO>(),
+                TotalLength = 0
             };
         }
-
-        return new PaginatedResponseDTO<ReviewResultDTO>
+        catch (Exception)
         {
-            Data = new List<ReviewResultDTO>(),
-            TotalLength = 0
-        };
+            return "Došlo je do greške prilikom učitavanja ocena korisnika.".ToError();
+        }
     }
-    catch (Exception)
-    {
-        return new PaginatedResponseDTO<ReviewResultDTO>
-        {
-            Data = new List<ReviewResultDTO>(),
-            TotalLength = 0
-        };
-    }
-}
-
 }
