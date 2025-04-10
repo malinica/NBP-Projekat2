@@ -65,6 +65,7 @@ const TagsPage = () => {
       setModalVisible(true);
     }
   };
+  
 
   return (
     <div className={`container-fluid bg-light-lilac d-flex justify-content-start flex-grow-1`}>
